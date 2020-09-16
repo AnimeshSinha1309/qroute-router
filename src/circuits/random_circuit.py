@@ -22,9 +22,10 @@ def generate_random_cirq_circuit(num_qubits=20, num_cx=100, two_qubit_prob=0.4):
         else:
             indices = np.random.choice(range(num_qubits), size=1)
             q = qubits[indices[0]]
-            free_circuit.append(cirq.X(q))
-            free_circuit.append(cirq.Y(q))
-            free_circuit.append(cirq.X(q))
+            gate1 = cirq.rz(np.random.uniform(0.0, 2 * np.pi))
+            gate2 = cirq.ry(np.random.uniform(0.0, 2 * np.pi))
+            gate3 = cirq.rz(np.random.uniform(0.0, 2 * np.pi))
+            free_circuit.append([gate1(q), gate2(q), gate3(q)])
     return free_circuit
 
 
