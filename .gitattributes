@@ -1,0 +1,5 @@
+# Ignore the QASM files from showing up in language statistics
+src/circuits/circuit_qasm/*.qasm linguist-vendored
+
+# Auto detect text files and perform LF normalization
+* text=auto
