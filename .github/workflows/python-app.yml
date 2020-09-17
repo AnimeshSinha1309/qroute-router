@@ -38,8 +38,6 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        pwd
-        ls -l
         export PYTHONPATH="$PYTHONPATH:."
         python -c "import sys;print(sys.path)"
-        pytest
+        pytest test
