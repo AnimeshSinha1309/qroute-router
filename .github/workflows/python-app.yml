@@ -8,6 +8,7 @@ on:
     branches:
       - master
       - "*"
+      - "*/*"
     tags:
       - "*"
         
@@ -17,10 +18,11 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: [3.5, 3.7, 3.8]
+        os: [ubuntu-latest, windows-latest]
+        python-version: [3.7, 3.8]
 
     steps:
     - uses: actions/checkout@v2
@@ -42,5 +44,4 @@ jobs:
     - name: Test with pytest
       run: |
         export PYTHONPATH="$PYTHONPATH:."
-        python -c "import sys;print(sys.path)"
         pytest test
