@@ -7,8 +7,9 @@ class IBMqx3Device(cirq.Device):
     def __init__(self):
         self.graph = nx.DiGraph()
         self.graph.add_nodes_from(list(range(16)))
-        self.graph.add_edges_from([(1, 2), (1, 0), (2, 3), (3, 4), (3, 14), (5, 4), (6, 5), (6, 11), (6, 7), (7, 10), (8, 7), \
-            (9, 8), (9, 10), (11, 10), (12, 5), (12, 11), (12, 13), (13, 14), (13, 4), (15, 14), (15, 2), (15, 0)])
+        self.graph.add_edges_from([(1, 2), (1, 0), (2, 3), (3, 4), (3, 14), (5, 4), (6, 5), (6, 11), (6, 7), (7, 10),
+                                   (8, 7), (9, 8), (9, 10), (11, 10), (12, 5), (12, 11), (12, 13), (13, 14), (13, 4),
+                                   (15, 14), (15, 2), (15, 0)])
 
     def validate_operation(self, operation):
         if not isinstance(operation, cirq.GateOperation):
