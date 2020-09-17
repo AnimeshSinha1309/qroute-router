@@ -39,5 +39,4 @@ jobs:
     - name: Test with pytest
       run: |
         $env:PYTHONPATH+=";."
-#        export PYTHONPATH="$PYTHONPATH:."
         pytest test
