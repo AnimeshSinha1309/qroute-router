@@ -20,9 +20,9 @@ jobs:
         python-version: [3.7, 3.8]
         include:
         - os: windows-latest
-          python-path-command: $env:PYTHONPATH+=";."
+          python-path-command: $env:PYTHONPATH+=";.";
         - os: ubuntu-latest
-          python-path-command: export PYTHONPATH="$PYTHONPATH:."
+          python-path-command: export PYTHONPATH="$PYTHONPATH:.";
 
     steps:
     - uses: actions/checkout@v2
