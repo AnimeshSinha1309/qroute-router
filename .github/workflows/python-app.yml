@@ -18,6 +18,11 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
         python-version: [3.7, 3.8]
+        include:
+        - os: windows-latest
+          python-path-command: $env:PYTHONPATH+=";."
+        - os: ubuntu-latest
+          python-path-command: export PYTHONPATH="$PYTHONPATH:."
 
     steps:
     - uses: actions/checkout@v2
@@ -39,9 +44,5 @@ jobs:
     - name: Test with pytest
 
       run:
-      - os: windows-latest
-        $env:PYTHONPATH+=";."
-        pytest test
-      - os: ubuntu-latest
-        export PYTHONPATH="$PYTHONPATH:."
+        ${{ matrix.python-path-command }}
         pytest test
