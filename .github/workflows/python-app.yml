@@ -16,7 +16,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest]
+        os: [ubuntu-latest, windows-latest]
         python-version: [3.7, 3.8]
 
     steps:
@@ -37,6 +37,11 @@ jobs:
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
-      run: |
+
+      run:
+      - os: windows-latest
         $env:PYTHONPATH+=";."
+        pytest test
+      - os: ubuntu-latest
+        export PYTHONPATH="$PYTHONPATH:."
         pytest test
