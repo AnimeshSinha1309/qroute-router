@@ -1,3 +1,6 @@
+import qroute
+
+
 class State:
     """
     The state is maintained as a graph of circuit and the mapping of logical to physical qubits
@@ -9,8 +12,15 @@ class State:
       leaf layer, then the leaf neighbor is the first layer where it's used in an operation.
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, device, circuit):
+        self.device: qroute.environment.device.IBMqx3Device = device
+        self.circuit = circuit
+        # Reward functions parameters
+        self.gate_reward = 20
+        self.distance_reduction_reward = 2
+        self.negative_reward = -10
+        self.circuit_completion_reward = 100
+        self.alternative_reward_delivery = False
 
     def __copy__(self):
         pass
