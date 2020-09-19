@@ -1,6 +1,9 @@
 # Editor files
-.idea/
-.vscode/
+.idea/*
+.vscode
+
+# For this project only
+replications/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
