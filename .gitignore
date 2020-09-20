@@ -1,5 +1,5 @@
 # Editor files
-.idea/*
+# .idea
 .vscode
 
 # For this project only
