@@ -13,7 +13,7 @@ class State:
     """
 
     def __init__(self, device, circuit):
-        self.device: qroute.environment.device.IBMqx3Device = device
+        self.device: qroute.environment.device.IBMqx5Device = device
         self.circuit = circuit
         # Reward functions parameters
         self.gate_reward = 20
