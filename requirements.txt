@@ -2,5 +2,5 @@ cirq~=0.8.2
 numpy~=1.19.1
 networkx~=2.5
 pytest~=6.0.2
-matplotlib~=3.3.1
+matplotlib~=3.3.2
 qiskit~=0.21.0
