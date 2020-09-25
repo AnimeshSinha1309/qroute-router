@@ -1,5 +1,5 @@
-import numpy as np
 import cirq
+import numpy as np
 
 
 def generate_random_cirq_circuit(num_qubits=20, num_cx=100, two_qubit_prob=0.4):
@@ -41,7 +41,7 @@ def write_random_qasm_file(num_qubits, num_cx, num_files, path, start_num=0):
     """
     for i in range(num_files):
         full_path = path + str(start_num + i) + '.qasm'
-        print('\rGenerating %d of %d file'%(i + 1, num_files), end='')
+        print('\rGenerating %d of %d file' % (i + 1, num_files), end='')
         with open(full_path, 'w') as f:
             f.write('OPENQASM 2.0;\ninclude "qelib1.inc";')
             f.write('\nqreg q[' + str(num_qubits) + '];')
@@ -49,5 +49,6 @@ def write_random_qasm_file(num_qubits, num_cx, num_files, path, start_num=0):
             for _ in range(num_cx):
                 cx1 = str(np.random.randint(num_qubits))
                 cx2 = str(np.random.randint(num_qubits))
-                while cx2 == cx1: cx2 = str(np.random.randint(num_qubits))
+                while cx2 == cx1:
+                    cx2 = str(np.random.randint(num_qubits))
                 f.write('\ncx q[' + cx1 + '],q[' + cx2 + '];')

@@ -1,8 +1,14 @@
 <component name="ProjectDictionaryState">
   <dictionary name="animesh">
     <words>
+      <w>animesh</w>
+      <w>cirq</w>
+      <w>indegree</w>
+      <w>qasm</w>
+      <w>qroute</w>
       <w>qubit</w>
       <w>qubits</w>
+      <w>warshall</w>
     </words>
   </dictionary>
 </component>
