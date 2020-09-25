@@ -5,6 +5,10 @@ from matplotlib import pyplot as plt
 
 
 class CircuitState:
+    """
+    Maintains the state of the circuit, allows evolving it as operations at the leaf
+    keep getting executed
+    """
 
     def __init__(self, circuit: cirq.Circuit):
         """
@@ -45,6 +49,9 @@ class CircuitState:
         for idx, val in enumerate(self.__qubit_operations):
             if len(val) == 0:
                 self.__qubit_progress[idx] = -1
+
+    def __len__(self):
+        return len(self.circuit.all_qubits())
 
     def draw_circuit_graph(self):
         """
@@ -112,6 +119,10 @@ class CircuitState:
 
     @property
     def leaf_neighbors(self):
+        """
+        Get the list of next operation neighbor qubits for each qubit
+        :return: list, of length num_qubits, next operations qubit or -1
+        """
         return np.array([
             self.__qubit_operations[bit][pos] if pos != -1 else -1
             for bit, pos in enumerate(self.__qubit_progress)
