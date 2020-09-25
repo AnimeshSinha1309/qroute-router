@@ -41,7 +41,7 @@ def write_random_qasm_file(num_qubits, num_cx, num_files, path, start_num=0):
     """
     for i in range(num_files):
         full_path = path + str(start_num + i) + '.qasm'
-        print('\rGenerating %d of %d file'%(i + 1, num_files), end='')
+        print('\rGenerating %d of %d file' % (i + 1, num_files), end='')
         with open(full_path, 'w') as f:
             f.write('OPENQASM 2.0;\ninclude "qelib1.inc";')
             f.write('\nqreg q[' + str(num_qubits) + '];')

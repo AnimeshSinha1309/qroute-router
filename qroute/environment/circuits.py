@@ -36,6 +36,16 @@ class CircuitState:
         self.__qubit_to_index = {qubit: idx for idx, qubit in enumerate(sorted(qubits))}
         self.__qubit_operations: list = [[] for _ in range(len(qubits))]
         self.__qubit_progress = np.zeros(shape=len(qubits), dtype=np.int16)
+        self.__init_qubit_lookups()
+
+    def __init_qubit_lookups(self):
+        """
+        Part of the constructor
+        Initializes the following variables
+            self.__qubit_operations: list of tuple, operands in each operation
+            self.__qubit_progress: list, 0 since each qubit is starting, -1 if it has no operations
+        :return: None
+        """
         operations = self.gate_operands
         for idx, op in enumerate(operations):
             for bit in op:
@@ -51,6 +61,10 @@ class CircuitState:
                 self.__qubit_progress[idx] = -1
 
     def __len__(self):
+        """
+        Returns the number of qubits needed for the circuit
+        :return: int, number of qubits
+        """
         return len(self.circuit.all_qubits())
 
     def draw_circuit_graph(self):
