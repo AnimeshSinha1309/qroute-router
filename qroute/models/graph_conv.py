@@ -1,5 +1,4 @@
-import dgl
-import dgl.nn
+import dgl, dgl.nn
 from environment.circuits import CircuitState
 
 
@@ -13,5 +12,5 @@ class GraphConvNetwork:
         """
         super(GraphConvNetwork, self).__init__()
         self.circuit = circuit.dag
-        self.graph = dgl.DGLGraph().from_networkx(self.circuit)
+        self.graph = dgl.from_networkx(self.circuit)
         self.model = dgl.nn.GraphConv(4, len(circuit))

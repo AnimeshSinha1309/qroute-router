@@ -2,6 +2,56 @@ import cirq
 import networkx as nx
 import numpy as np
 from matplotlib import pyplot as plt
+import torch
+import dgl
+
+
+class CircuitRepresentation:
+    """
+    Keeps a global usable representation of a logical circuit
+    """
+
+    # noinspection PyCallingNonCallable
+    def __init__(self, circuit: cirq.Circuit):
+        """
+        Takes in a circuit (logical circuit - LC) and initializes the state object
+        which will maintain the leaf nodes (operations which can be executed without dependencies)
+        and the next node that each element wants to qubit with (for swapping heuristics)
+        :param circuit: cirq.Circuit, The input logical circuit
+
+        >>> test_c = CircuitRepresentation(circuit_from_qasm('test/circuit_qasm/test.qasm'))
+        >>> test_c.dag.nodes[list(c.dag.nodes)[1]]
+        {'q1': 7, 'q2': 9, 'gate': 1, 'indegree': 0}
+        """
+        # Getting the Variables ready
+        self.circuit = circuit
+        self.dag = cirq.CircuitDag.from_circuit(self.circuit)
+        self.ops = list(nx.topological_sort(self.dag))
+        qubit_to_index = {qubit: idx for idx, qubit in enumerate(self.circuit.all_qubits())}
+        gate_to_index = {cirq.H: 0, cirq.CX: 1, cirq.CNOT: 1, cirq.SWAP: 2}
+        # Setting Graph Attributes
+        nx.set_node_attributes(self.dag, {node: qubit_to_index[node.val.qubits[0]] for node in self.dag.nodes}, "q1")
+        nx.set_node_attributes(self.dag, {node: qubit_to_index[node.val.qubits[-1]] for node in self.dag.nodes}, "q2")
+        nx.set_node_attributes(self.dag, {node: gate_to_index[node.val.gate] for node in self.dag.nodes}, "gate")
+        nx.set_node_attributes(self.dag, {node: self.dag.in_degree(node) for node in self.dag.nodes}, "indegree")
+        # Making the Features
+
+    @property
+    def dgl(self):
+        """
+        Get the Graph, Features representation needed for graph convolution
+        :return: graph: The feature-complete DGL graph representation
+        :return: features: A tensor of (N, d), features of each node
+
+        >>> import dgl.nn
+        >>> g, f = CircuitRepresentation(circuit_from_qasm('test/circuit_qasm/test.qasm')).dgl
+        >>> dgl.nn.pytorch.conv.GraphConv(4, 5)(g.add_self_loop(), f)
+        """
+        # The node attributes should also include topological distance
+        # TODO: Implement device mapping on the nodes (can be a part of the topological distance only)
+        graph = dgl.from_networkx(self.dag, node_attrs=["q1", "q2", "gate", "indegree"], edge_attrs=None)
+        features = torch.stack([feat.data for feat in graph.ndata.values()], dim=1)
+        return graph, features
 
 
 class CircuitState:
@@ -166,6 +216,4 @@ def circuit_from_qasm(filename):
 
 if __name__ == '__main__':
     data = circuit_from_qasm('test/circuit_qasm/test.qasm')
-    print(data)
-    c = CircuitState(circuit=data)
-    c.draw_circuit_graph()
+    c = CircuitRepresentation(circuit=data)

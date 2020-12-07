@@ -1,7 +1,7 @@
-from environment.device import IBMqx5Device
-from environment.circuits import CircuitState, circuit_from_qasm
-from environment.state import State
-from models.graph_conv import GraphConvNetwork
+from qroute.environment.device import IBMqx5Device
+from qroute.environment.circuits import CircuitState, circuit_from_qasm
+from qroute.environment.state import State
+from qroute.models.graph_conv import GraphConvNetwork
 
 device = IBMqx5Device()
 device.draw_architecture_graph()
