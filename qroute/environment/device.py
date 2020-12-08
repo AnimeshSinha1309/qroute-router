@@ -15,11 +15,9 @@ class DeviceTopology(cirq.Device):
         :param nodes: iterable, list of qubits, eg. [1, 2, 3, 4]
         :param edges: iterable, list of edges, eg. [(1, 2), (2, 3), (2, 4), (3, 4)]
         """
-        self.graph = nx.DiGraph()
-        self.graph.add_nodes_from(nodes)
-        self.graph.add_edges_from(edges)
-        self.distances = self.__get_distance_matrix(bidirectional=False)
-        self.swap_dist = self.__get_distance_matrix(bidirectional=True)
+        self.edges = edges
+        self.graph = nx.Graph(nodes=nodes, edges=edges)
+        self.distances = self._get_distance_matrix()
 
     def __len__(self):
         """
@@ -27,6 +25,14 @@ class DeviceTopology(cirq.Device):
         :return: int, number of qubits
         """
         return self.graph.number_of_nodes()
+
+    @property
+    def max_distance(self):
+        """
+        Number of qubits available in the device
+        :return: int, number of qubits
+        """
+        return np.max(self.distances)
 
     @property
     def connected_qubits(self):
@@ -51,24 +57,29 @@ class DeviceTopology(cirq.Device):
         else:
             raise ValueError('{!r} is multi-qubit (>2) gate'.format(qubits))
 
-    def __get_distance_matrix(self, bidirectional=False):
+    def _get_distance_matrix(self, bidirectional=True):
         """
         Uses the Floyd-Warshall algorithm to compute the distance between all pairs of qubits
+        :param: bidirectional: bool, true if the connectivity is bidirectional, False otherwise
         :return: matrix of integers of size (n,n), (i,j) contains distance of i to j
         :except: AttributeError if graph is not initialized (or logical error if edges not loaded)
+
+        Note that unidirectional mode may not be supported fully through the rest of the code
         """
-        mat = np.full(fill_value=9999999999, shape=(self.graph.number_of_nodes(), self.graph.number_of_nodes()))
-        for bit in range(self.graph.number_of_nodes()):
+        mat = np.full(fill_value=np.inf, shape=(len(self), len(self)))
+        for bit in range(len(self)):
             mat[bit][bit] = 0
         for source, dest in self.graph.edges:
             mat[source][dest] = 1
             if bidirectional:
                 mat[dest][source] = 1
-        for k in range(self.graph.number_of_nodes()):
-            for i in range(self.graph.number_of_nodes()):
-                for j in range(self.graph.number_of_nodes()):
+        for k in range(len(self)):
+            for i in range(len(self)):
+                for j in range(len(self)):
                     mat[i][j] = min(mat[i][j], mat[i][k] + mat[k][j])
         return mat
+
+    # Methods to check if the circuit is working on the device without violating the Topology
 
     def validate_operation(self, operation):
         """
@@ -96,6 +107,8 @@ class DeviceTopology(cirq.Device):
         for moment in circuit:
             for operation in moment.operations:
                 self.validate_operation(operation)
+
+    # Some pretty printing stuff here
 
     def draw_architecture_graph(self):
         """
