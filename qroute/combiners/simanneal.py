@@ -9,7 +9,7 @@ import numpy as np
 from collections import deque
 
 
-class MetaAnnealer:
+class AnnealerDQN:
     """
     Class to perform simulated annealing using a value function approximator
     """
@@ -45,12 +45,10 @@ class MetaAnnealer:
 
         available_edges = action_edge_translation.swappable_edges(neighbour_solution, current_state,
                                                                   forced_mask, edge_list, n_nodes)
-
         if not available_edges:
             exit("Ran out of edges to swap")
 
         edge_index_to_swap = random.sample(available_edges, 1)[0]
-
         neighbour_solution[edge_index_to_swap] = (neighbour_solution[edge_index_to_swap] + 1) % 2
 
         if self.safety_checks_on and not self.check_valid_solution(neighbour_solution, forced_mask):
@@ -115,19 +113,26 @@ class MetaAnnealer:
 
         return True  # TODO should all zero be valid action?
 
-    def _simulated_annealing(self, current_solution, forced_mask,
-                             current_state, action_chooser='model', search_limit=None):
+    def simulated_annealing(self, current_state, action_chooser='model', search_limit=None):
         """
         Uses Simulated Annealing to find the next best state based on combinatorial
         actions taken by the agent.
 
-        :param current_solution: list of len(device_topology), whether each edge is being flipped or not
-        :param forced_mask:
         :param current_state: State, the state before this iterations of sim-anneal
         :param action_chooser: str, if model, uses the model for value function
         :param search_limit:
         :return: best_solution, value of best_energy
         """
+        forced_mask = self.generate_forced_mask(current_state.protected_nodes)
+        current_solution = self.generate_initial_solution(current_state, forced_mask)
+
+        if current_solution == [0] * len(self.environment.edge_list):
+            # There are no actions possible often happens when only one gate is left, and it's already been scheduled
+            if action_chooser == 'model':
+                return current_solution, np.array([-np.inf])
+            else:
+                return current_solution, np.array([0])
+
         temp = self.initial_temperature
         current_energy = self.get_energy(current_solution, current_state=current_state, action_chooser=action_chooser)
         best_solution = copy.copy(current_solution)
@@ -211,17 +216,3 @@ class MetaAnnealer:
             return 0.0
 
         return float(sum(reversed_gates)) / float(sum(suggestion))
-
-    def simulated_annealing(self, current_state, action_chooser='model', search_limit=None):
-        forced_mask = self.generate_forced_mask(current_state.protected_nodes)
-        current_solution = self.generate_initial_solution(current_state, forced_mask)
-
-        if current_solution == [0] * len(self.environment.edge_list):
-            # There are no actions possible often happens when only one gate is left, and it's already been scheduled
-            if action_chooser == 'model':
-                return current_solution, np.array([-np.inf])
-            else:
-                return current_solution, np.array([0])
-
-        return super()._simulated_annealing(current_solution, forced_mask,
-                                            current_state, action_chooser, search_limit)

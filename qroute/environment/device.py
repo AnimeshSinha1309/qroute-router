@@ -137,6 +137,38 @@ class IBMqx5Device(DeviceTopology):
         )
 
 
+class GridComputerDevice(DeviceTopology):
+    """
+    Specific device topology for the IBM QX5 device
+    """
+
+    def __init__(self, rows=4, cols=5):
+        """
+        Add links to the grid topology.
+
+        :param rows: number of rows in the grid
+        :param cols: number of columns in the grid
+        """
+
+        topology = []
+        for i in range(0, rows):
+            for j in range(0, cols):
+                node_index = i * cols + j
+                if node_index >= cols:  # up
+                    topology.append((node_index, node_index - cols))
+                if node_index < cols * (rows - 1):  # down
+                    topology.append((node_index, node_index + cols))
+                if node_index % cols > 0:  # left
+                    topology.append((node_index, node_index - 1))
+                if node_index % cols < cols - 1:  # right
+                    topology.append((node_index, node_index + 1))
+
+        super(GridComputerDevice, self).__init__(
+            nodes=list(range(16)),
+            edges=topology
+        )
+
+
 if __name__ == "__main__":
     device = IBMqx5Device()
     device.draw_architecture_graph()

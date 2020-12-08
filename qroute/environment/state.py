@@ -29,17 +29,18 @@ class CircuitStateDQN:
         self.circuit = circuit
         self.device = device
 
-    # Starting off the circuit
-
     def generate_starting_state(self):
         """
         Gets the state the DQN starts on. Randomly initializes the mapping if not specified
         otherwise, and sets the progress to 0 and gets the first gates to be scheduled.
-        """
-        if self.qubit_locations is None:
-            self.qubit_locations = list(np.arange(len(self.circuit)))
-            np.random.shuffle(self.qubit_locations)
 
+        :return: list, [(n1, n2) next gates we can schedule]
+        """
+        # The starting state should be setup right
+        self.qubit_locations = list(np.arange(len(self.circuit)))
+        np.random.shuffle(self.qubit_locations)
+
+        self.protected_nodes = set()
         self.qubit_targets = [interactions[0] if len(interactions) > 0 else -1 for interactions in self.circuit]
         self.circuit_progress = [0] * len(self.circuit)
 
@@ -161,3 +162,13 @@ class CircuitStateDQN:
             target_node = np.where(np.array(qubit_locations) == qubit_targets[q])[0][0]
             distances[q] = self.device.distances[node, target_node]
         return distances
+
+    @property
+    def protected_edges(self):
+        """
+        Make a list of edges which are blocked given nodes which are blocked
+        :return: list, edges that are blocked
+        """
+        return np.array(list(map(
+            lambda e: True if e[0] in self.protected_nodes or e[1] in self.protected_nodes else False,
+            self.device.edges)))
