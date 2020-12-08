@@ -16,7 +16,9 @@ class DeviceTopology(cirq.Device):
         :param edges: iterable, list of edges, eg. [(1, 2), (2, 3), (2, 4), (3, 4)]
         """
         self.edges = edges
-        self.graph = nx.Graph(nodes=nodes, edges=edges)
+        self.graph = nx.Graph()
+        self.graph.add_nodes_from(nodes)
+        self.graph.add_nodes_from(edges)
         self.distances = self._get_distance_matrix()
 
     def __len__(self):
@@ -32,15 +34,7 @@ class DeviceTopology(cirq.Device):
         Number of qubits available in the device
         :return: int, number of qubits
         """
-        return np.max(self.distances)
-
-    @property
-    def connected_qubits(self):
-        """
-        Get the list of all 2-tuples which are connected
-        :return: list, of connected edges as 2-tuples
-        """
-        return self.graph.edges
+        return 100
 
     def is_adjacent(self, qubits):
         """

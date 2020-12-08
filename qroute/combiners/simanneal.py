@@ -40,13 +40,10 @@ class AnnealerDQN:
         :return: list, neighbor solution
         """
         neighbour_solution = copy.copy(current_solution)
-        edge_list = self.environment.edge_list
-        n_nodes = self.environment.number_of_nodes
+        available_edges = current_state.swappable_edges(neighbour_solution)
 
-        available_edges = action_edge_translation.swappable_edges(neighbour_solution, current_state,
-                                                                  forced_mask, edge_list, n_nodes)
-        if not available_edges:
-            exit("Ran out of edges to swap")
+        if not available_edges or len(available_edges) == 0:
+            raise RuntimeError("Ran out of edges to swap")
 
         edge_index_to_swap = random.sample(available_edges, 1)[0]
         neighbour_solution[edge_index_to_swap] = (neighbour_solution[edge_index_to_swap] + 1) % 2

@@ -120,6 +120,31 @@ class CircuitStateDQN:
         """
         return all([target == -1 for target in self.qubit_targets])
 
+    # State needs to help solution keep track of what it can do
+
+    def swappable_edges(self, current_action):
+        """
+        List of edges that can be operated with swaps, given the current state and blocked edges
+
+        :param current_action: list, boolean array of edges being currently swapped (current solution)
+        :return: list, edges which can still be swapped
+        """
+        available_edges_mask = self.protected_edges
+
+        # We block any edges connected to nodes already involved in a swap, except those actually being swapped
+        current_action_nodes = set()
+        for i, val in enumerate(current_action):
+            if val == 1:
+                (n1, n2) = self.device.edges[i]
+                current_action_nodes.add(n1)
+                current_action_nodes.add(n2)
+        for idx, edge in enumerate(self.device.edges):
+            block_1, block_2 = edge[0] in current_action_nodes, edge[1] in current_action_nodes
+            if (block_1 or block_2) and not (block_1 and block_2):
+                available_edges_mask[idx] = False
+
+        return np.where(np.array(available_edges_mask) == 1)[0]
+
     # Other utility functions and properties
 
     def __copy__(self):
