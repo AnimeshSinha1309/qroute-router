@@ -1,9 +1,12 @@
+import random
+
 import torch
 import numpy as np
 
-from environment.device import DeviceTopology
-from environment.state import CircuitStateDQN
-from combiners.simanneal import AnnealerDQN
+from qroute.environment.device import DeviceTopology
+from qroute.environment.state import CircuitStateDQN
+from qroute.combiners.simanneal import AnnealerDQN
+import qroute.hyperparams
 
 
 class DoubleDQNAgent(torch.nn.Module):
@@ -21,13 +24,13 @@ class DoubleDQNAgent(torch.nn.Module):
             torch.nn.Linear(32, 32),
             torch.nn.Linear(32, 32),
             torch.nn.Linear(32, 1),
-        )
+        ).to(qroute.hyperparams.DEVICE)
         self.target_model = torch.nn.Sequential(
             torch.nn.Linear(self.device.max_distance, 32),
             torch.nn.Linear(32, 32),
             torch.nn.Linear(32, 32),
             torch.nn.Linear(32, 1),
-        )
+        ).to(qroute.hyperparams.DEVICE)
         self.current_optimizer = torch.optim.Adam(self.current_model.parameters())
         self.annealer = AnnealerDQN(self, device)
 
@@ -36,14 +39,34 @@ class DoubleDQNAgent(torch.nn.Module):
         self.epsilon = 1.0
         self.epsilon_min = 0.001
 
-    def forward(self, dist_histogram):
+    def update_target_model(self):
+        """
+        Copy weights from the current model to the target model
+        """
+        self.target_model.load_state_dict(self.current_model.state_dict())
+
+    def forward(self, current_state, next_state, action_chooser):
         """
         Get the value function approximations for the given state representation
 
-        :param dist_histogram: list, the histogram of distances in current state
+        :param current_state: the current state
+        :param next_state: the next state as a result of the action
+        :param action_chooser: str, model if current model or target if target model
         :return: int/float, the value function approximation
         """
-        return self.current_model(dist_histogram)
+        current_distance_vector = self.get_distance_metric(current_state)
+        next_distance_vector = self.get_distance_metric(next_state)
+
+        nn_input = torch.stack([current_distance_vector, next_distance_vector], dim=-1)
+
+        if action_chooser == 'model':
+            q_val = self.current_model(nn_input)
+        elif action_chooser == 'target':
+            q_val = self.target_model(nn_input)
+        else:
+            raise ValueError('Action_chooser must be either model or target')
+
+        return q_val.detach().numpy()
 
     def act(self, current_state: CircuitStateDQN):
         """
@@ -54,33 +77,80 @@ class DoubleDQNAgent(torch.nn.Module):
         :return: np.array of shape (len(device),), the chosen action mask after annealing
         """
         if np.random.rand() <= self.epsilon:
-            action = self.generate_random_action(current_state.protected_nodes)
+            action, value = self.generate_random_action(current_state), -1
         else:
-            # Choose an action using the agent's current neural network
-            action, _ = self.annealer.simulated_annealing(current_state, action_chooser='model')
-        return action
+            action, value = self.annealer.simulated_annealing(current_state, action_chooser='model')
+        return action, -value
 
-    def replay(self, batch_size):
+    def replay(self, memory, batch_size=32):
         """
         Learns from past experiences
 
+        :param memory: MemoryTree object, the experience buffer to sample from
         :param batch_size: number of experiences to sample from the experience buffer when training
         """
 
-        tree_index, minibatch, is_weights = self.memory_tree.sample(batch_size)
+        tree_index, minibatch, is_weights = memory.sample(batch_size)
         absolute_errors = []
+        is_weights = np.reshape(is_weights, -1)
 
         for experience, is_weight in zip(minibatch, is_weights):
             [state, reward, next_state, done] = experience[0]
-            target_nodes, next_target_nodes = self.obtain_target_nodes(state), self.obtain_target_nodes(next_state)
-            q_val = self.current_model.predict(target_nodes)[0]
-            target = reward + (self.gamma * self.target_model.predict(next_target_nodes)[0] if not done else 0)
+            target_nodes, next_target_nodes = self.get_distance_metric(state), self.get_distance_metric(next_state)
+            q_val = self.current_model(target_nodes)[0]
+            target = reward + (self.gamma * self.target_model(next_target_nodes)[0] if not done else 0)
             absolute_errors.append(abs(q_val - target))
 
-            self.current_model.fit(target_nodes, [target], epochs=1, verbose=0, sample_weight=is_weight)
+            # Train the current model (model.fit in current state)
+            self.current_optimizer.zero_grad()
+            prediction = self.current_model(target_nodes)
+            loss = torch.multiply(torch.square(torch.subtract(prediction, target)), is_weight)
+            loss.backward()
+            self.current_optimizer.step()
 
-        self.memory_tree.batch_update(tree_index, absolute_errors)
+        memory.batch_update(tree_index, absolute_errors)
 
         # Epsilon decay function - exploration vs. exploitation
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
+
+    def generate_random_action(self, state: CircuitStateDQN):
+        """
+        Generates a random layer of swaps. Care is taken to ensure that all swaps can occur in parallel.
+        That is, no two neighbouring edges undergo a swap simultaneously.
+        """
+        protected_nodes = state.protected_nodes
+        action = np.array([0] * len(self.device.edges))  # an action representing an empty layer of swaps
+
+        edges = [(n1, n2) for (n1, n2) in self.device.edges]
+        edges = list(filter(lambda e: e[0] not in protected_nodes and e[1] not in protected_nodes, edges))
+        edge_index_map = {edge: index for index, edge in enumerate(edges)}
+
+        while len(edges) > 0:
+            edge, action[edge_index_map[edge]] = random.sample(edges, 1)[0], 1
+            edges = [e for e in edges if e[0] not in edge and e[1] not in edge]
+        return action
+
+    def get_distance_metric(self, state: CircuitStateDQN):
+        """
+        Obtains a vector that summarises the different distances from qubits to their targets.
+        More precisely, x_i represents the number of qubits that are currently a distance of i away from their targets.
+        If there are n qubits, then the length of this vector will also be n.
+        """
+        nodes_to_target_qubits = [
+            state.qubit_targets[state.qubit_locations[n]] for n in range(0, len(state.qubit_locations))]
+        nodes_to_target_nodes = [
+            next(iter(np.where(np.array(state.qubit_locations) == q)[0]), -1) for q in nodes_to_target_qubits]
+
+        distance_vector = np.zeros(self.device.max_distance)
+
+        for node in range(len(nodes_to_target_nodes)):
+            target = nodes_to_target_nodes[node]
+            if target == -1:
+                continue
+            d = int(self.device.distances[node, target])
+            distance_vector[d - 1] += 1  # the vector is effectively indexed from 1
+
+        distance_vector = np.reshape(distance_vector, (1, self.device.max_distance))
+        distance_vector = torch.from_numpy(distance_vector).to(qroute.hyperparams.DEVICE).float()
+        return distance_vector

@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 
-from environment.device import DeviceTopology
+from qroute.environment.device import DeviceTopology
 
 
 class ActorCriticAgent(torch.nn.Module):

@@ -16,9 +16,9 @@ class DeviceTopology(cirq.Device):
         :param edges: iterable, list of edges, eg. [(1, 2), (2, 3), (2, 4), (3, 4)]
         """
         self.edges = edges
-        self.graph = nx.Graph()
-        self.graph.add_nodes_from(nodes)
-        self.graph.add_nodes_from(edges)
+        self.nodes = nodes
+        self.graph = nx.empty_graph(nodes)
+        self.graph.add_edges_from(edges)
         self.distances = self._get_distance_matrix()
 
     def __len__(self):
@@ -26,7 +26,7 @@ class DeviceTopology(cirq.Device):
         Number of qubits available in the device
         :return: int, number of qubits
         """
-        return self.graph.number_of_nodes()
+        return self.nodes
 
     @property
     def max_distance(self):
@@ -34,7 +34,7 @@ class DeviceTopology(cirq.Device):
         Number of qubits available in the device
         :return: int, number of qubits
         """
-        return 100
+        return np.amax(self.distances)
 
     def is_adjacent(self, qubits):
         """
@@ -60,7 +60,7 @@ class DeviceTopology(cirq.Device):
 
         Note that unidirectional mode may not be supported fully through the rest of the code
         """
-        mat = np.full(fill_value=np.inf, shape=(len(self), len(self)))
+        mat = np.full(fill_value=9999999, shape=(len(self), len(self)), dtype=np.int)
         for bit in range(len(self)):
             mat[bit][bit] = 0
         for source, dest in self.graph.edges:
@@ -71,6 +71,7 @@ class DeviceTopology(cirq.Device):
             for i in range(len(self)):
                 for j in range(len(self)):
                     mat[i][j] = min(mat[i][j], mat[i][k] + mat[k][j])
+        assert np.amax(mat) < 9999999, "The architecture is disconnected, run individually for components"
         return mat
 
     # Methods to check if the circuit is working on the device without violating the Topology
@@ -124,7 +125,7 @@ class IBMqx5Device(DeviceTopology):
         Initialize the graph for the IBM QX5 topology
         """
         super(IBMqx5Device, self).__init__(
-            nodes=list(range(16)),
+            nodes=16,
             edges=[(1, 2), (1, 0), (2, 3), (3, 4), (3, 14), (5, 4), (6, 5), (6, 11),
                    (6, 7), (7, 10), (8, 7), (9, 8), (9, 10), (11, 10), (12, 5), (12, 11),
                    (12, 13), (13, 14), (13, 4), (15, 14), (15, 2), (15, 0)]
@@ -158,7 +159,7 @@ class GridComputerDevice(DeviceTopology):
                     topology.append((node_index, node_index + 1))
 
         super(GridComputerDevice, self).__init__(
-            nodes=list(range(16)),
+            nodes=rows * cols,
             edges=topology
         )
 

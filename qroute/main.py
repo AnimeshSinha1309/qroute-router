@@ -13,7 +13,6 @@ def train(device: qroute.environment.device.DeviceTopology,
           training_episodes=350, training_steps=500):
 
     num_actions_deque = collections.deque(maxlen=50)
-    batch_size = 32
     time_between_model_updates = 5
 
     memory = qroute.environment.memory.MemoryPER(500)
@@ -26,7 +25,7 @@ def train(device: qroute.environment.device.DeviceTopology,
         for time in range(500):
             action, _ = agent.act(state)
             next_state, reward, done, next_gates_scheduled = qroute.environment.env.step(action, state)
-            agent.remember(state, reward, next_state, done)
+            memory.store((state, reward, next_state, done))
             state = next_state
 
             if done:
@@ -34,7 +33,7 @@ def train(device: qroute.environment.device.DeviceTopology,
                 num_actions_deque.append(num_actions)
                 break
 
-    # --- Training ---
+    # Training the agent
     for e in range(training_episodes):
         state = qroute.environment.state.CircuitStateDQN(circuit, device)
         state.generate_starting_state()
@@ -48,7 +47,7 @@ def train(device: qroute.environment.device.DeviceTopology,
             assert temp_state == new_state, "State not preserved when selecting action"
 
             next_state, reward, done, next_gates_scheduled = qroute.environment.env.step(action, state)
-            agent.remember(state, reward, next_state, done)
+            memory.store((state, reward, next_state, done))
             state = next_state
 
             if done:
@@ -57,7 +56,7 @@ def train(device: qroute.environment.device.DeviceTopology,
                 avg_time = np.mean(num_actions_deque)
                 print("Average time taken = %s, time = %d" % (str(avg_time), time))
 
-            agent.replay(batch_size)
+            agent.replay(memory)
 
             if time % time_between_model_updates == 0:
                 agent.update_target_model()
@@ -65,6 +64,7 @@ def train(device: qroute.environment.device.DeviceTopology,
 
 if __name__ == '__main__':
     _device = qroute.environment.device.GridComputerDevice(4, 4)
-    _circuit = qroute.environment.circuits.CircuitRepDQN(qroute.environment.circuits.circuit_generated_full_layer(5))
+    _circuit = qroute.environment.circuits.CircuitRepDQN(
+        qroute.environment.circuits.circuit_generated_full_layer(len(_device)))
     _agent = qroute.models.double_dqn.DoubleDQNAgent(_device)
     train(_device, _circuit, _agent)

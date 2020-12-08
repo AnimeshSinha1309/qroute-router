@@ -8,23 +8,26 @@ import math
 import numpy as np
 from collections import deque
 
+from qroute.environment.env import step
+
 
 class AnnealerDQN:
     """
     Class to perform simulated annealing using a value function approximator
     """
 
-    def __init__(self, agent, environment):
+    def __init__(self, agent, device):
         """
         Sets hyper-parameters and stores the agent and environment to initialize Annealer
 
         :param agent: Agent, to evaluate the value function
-        :param environment: environment, maintaining the device and state
+        :param device: environment, maintaining the device and state
         """
         self.initial_temperature = 60.0
         self.min_temperature = 0.1
         self.cooling_multiplier = 0.95
-        self.environment = environment
+
+        self.device = device
         self.agent = agent
 
         self.safety_checks_on = True
@@ -49,7 +52,7 @@ class AnnealerDQN:
         neighbour_solution[edge_index_to_swap] = (neighbour_solution[edge_index_to_swap] + 1) % 2
 
         if self.safety_checks_on and not self.check_valid_solution(neighbour_solution, forced_mask):
-            exit("Solution not safe")
+            raise RuntimeError("Solution is not safe")
 
         return neighbour_solution
 
@@ -62,8 +65,8 @@ class AnnealerDQN:
                                     if target, then the target model is used.
         :return: int or float, the energy value
         """
-        next_state_temp, _, _, _ = self.environment.step(solution, current_state)
-        q_val = self.agent.get_quality(current_state, next_state_temp, action_chooser)
+        next_state_temp, _, _, _ = step(solution, current_state)
+        q_val = self.agent(current_state, next_state_temp, action_chooser)
         return -q_val
 
     @staticmethod
@@ -97,7 +100,7 @@ class AnnealerDQN:
 
         if 1 in solution:
             swap_edge_indices = np.where(np.array(solution) == 1)[0]
-            swap_edges = [self.environment.edge_list[index] for index in swap_edge_indices]
+            swap_edges = [self.device.edges[index] for index in swap_edge_indices]
             swap_nodes = [node for edge in swap_edges for node in edge]
 
             # return False if repeated swap nodes
@@ -123,7 +126,8 @@ class AnnealerDQN:
         forced_mask = self.generate_forced_mask(current_state.protected_nodes)
         current_solution = self.generate_initial_solution(current_state, forced_mask)
 
-        if current_solution == [0] * len(self.environment.edge_list):
+        # FIXME: Never crosses this if condition, always stuck here, why is it not training?
+        if np.all(current_solution == 0):
             # There are no actions possible often happens when only one gate is left, and it's already been scheduled
             if action_chooser == 'model':
                 return current_solution, np.array([-np.inf])
@@ -173,19 +177,14 @@ class AnnealerDQN:
         :param forced_mask: list, mask of edges that are blocked
         :return: list, initial solution as boolean array of whether to swap each node
         """
-        num_edges = len(self.environment.edge_list)
-        initial_solution = [0]*num_edges
-
-        available_edges = action_edge_translation.swappable_edges(
-            initial_solution, current_state, forced_mask, self.environment.edge_list, self.environment.number_of_nodes)
+        initial_solution = np.zeros(len(self.device.edges))
+        available_edges = current_state.swappable_edges(initial_solution)
 
         if not available_edges:
             return initial_solution
 
         edge_index_to_swap = random.sample(available_edges, 1)[0]
-
         initial_solution[edge_index_to_swap] = (initial_solution[edge_index_to_swap] + 1) % 2
-
         return initial_solution
 
     def generate_forced_mask(self, protected_nodes):
@@ -196,7 +195,7 @@ class AnnealerDQN:
         :return: list, edges that are blocked
         """
         return list(map(lambda e: True if e[0] in protected_nodes or
-                                          e[1] in protected_nodes else False, self.environment.edge_list))
+                                          e[1] in protected_nodes else False, self.device.edges))
 
     @staticmethod
     def calculate_reversed_gates_proportion(suggestion, solution):

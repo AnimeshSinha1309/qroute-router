@@ -37,12 +37,13 @@ class CircuitStateDQN:
         :return: list, [(n1, n2) next gates we can schedule]
         """
         # The starting state should be setup right
-        self.qubit_locations = list(np.arange(len(self.circuit)))
+        self.qubit_locations = np.arange(len(self.circuit))
+        print('Qubit Locations:', self.qubit_locations)
         np.random.shuffle(self.qubit_locations)
 
         self.protected_nodes = set()
-        self.qubit_targets = [interactions[0] if len(interactions) > 0 else -1 for interactions in self.circuit]
-        self.circuit_progress = [0] * len(self.circuit)
+        self.qubit_targets = np.array([targets[0] if len(targets) > 0 else -1 for targets in self.circuit])
+        self.circuit_progress = np.zeros(len(self.circuit))
 
     # Running the circuit
 
@@ -164,9 +165,9 @@ class CircuitStateDQN:
         :param other: State, the other state to compare against
         :return: True if they are the same, False otherwise
         """
-        return self.qubit_locations == other.qubit_locations and \
-               self.qubit_targets == other.qubit_targets and \
-               self.circuit_progress == other.circuit_progress and \
+        return np.array_equal(self.qubit_locations, other.qubit_locations) and \
+               np.array_equal(self.qubit_targets, other.qubit_targets) and \
+               np.array_equal(self.circuit_progress, other.circuit_progress) and \
                self.protected_nodes == other.protected_nodes
 
     def calculate_distances_summary(self, qubit_locations, qubit_targets):
