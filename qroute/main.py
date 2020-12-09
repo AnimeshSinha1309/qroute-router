@@ -1,10 +1,13 @@
 import copy
 import collections
+import logging
 
 import numpy as np
 import tqdm
 
 import qroute
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 def train(device: qroute.environment.device.DeviceTopology,
@@ -22,7 +25,7 @@ def train(device: qroute.environment.device.DeviceTopology,
         state = qroute.environment.state.CircuitStateDQN(circuit, device)
         state.generate_starting_state()
 
-        for time in range(500):
+        for time in range(training_steps):
             action, _ = agent.act(state)
             next_state, reward, done, next_gates_scheduled = qroute.environment.env.step(action, state)
             memory.store((state, reward, next_state, done))
@@ -38,7 +41,7 @@ def train(device: qroute.environment.device.DeviceTopology,
         state = qroute.environment.state.CircuitStateDQN(circuit, device)
         state.generate_starting_state()
 
-        print("Episode", e, "starting positions\n")
+        logging.debug("Starting Training on Episode %d" % e)
 
         for time in tqdm.trange(training_steps):
             temp_state: qroute.environment.state.CircuitStateDQN = copy.copy(state)
@@ -54,7 +57,8 @@ def train(device: qroute.environment.device.DeviceTopology,
                 num_actions = time+1
                 num_actions_deque.append(num_actions)
                 avg_time = np.mean(num_actions_deque)
-                print("Average time taken = %s, time = %d" % (str(avg_time), time))
+                logging.debug("Number of actions: {}, average: {:.5}".format(num_actions, avg_time))
+                logging.debug("Final positions in episodes: %s" % str(next_state.qubit_locations))
 
             agent.replay(memory)
 

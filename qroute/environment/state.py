@@ -38,11 +38,10 @@ class CircuitStateDQN:
         """
         # The starting state should be setup right
         self.qubit_locations = np.arange(len(self.circuit))
-        print('Qubit Locations:', self.qubit_locations)
         np.random.shuffle(self.qubit_locations)
 
         self.protected_nodes = set()
-        self.qubit_targets = np.array([targets[0] if len(targets) > 0 else -1 for targets in self.circuit])
+        self.qubit_targets = np.array([targets[0] if len(targets) > 0 else -1 for targets in self.circuit.circuit])
         self.circuit_progress = np.zeros(len(self.circuit))
 
     # Running the circuit
@@ -130,21 +129,24 @@ class CircuitStateDQN:
         :param current_action: list, boolean array of edges being currently swapped (current solution)
         :return: list, edges which can still be swapped
         """
-        available_edges_mask = self.protected_edges
+        available_edges_mask = np.bitwise_not(self.protected_edges)
 
         # We block any edges connected to nodes already involved in a swap, except those actually being swapped
         current_action_nodes = set()
-        for i, val in enumerate(current_action):
-            if val == 1:
+        for i, used in enumerate(current_action):
+            if used:
                 (n1, n2) = self.device.edges[i]
                 current_action_nodes.add(n1)
                 current_action_nodes.add(n2)
         for idx, edge in enumerate(self.device.edges):
-            block_1, block_2 = edge[0] in current_action_nodes, edge[1] in current_action_nodes
-            if (block_1 or block_2) and not (block_1 and block_2):
+            if edge[0] in current_action_nodes or edge[1] in current_action_nodes:
                 available_edges_mask[idx] = False
+        for idx, used in enumerate(current_action):
+            if used:
+                available_edges_mask[idx] = True
 
-        return np.where(np.array(available_edges_mask) == 1)[0]
+        available_edges = np.where(np.array(available_edges_mask) == 1)[0]
+        return available_edges
 
     # Other utility functions and properties
 

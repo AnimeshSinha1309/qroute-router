@@ -13,12 +13,10 @@ class CircuitRepDQN:
         which will maintain the leaf nodes (operations which can be executed without dependencies)
         and the next node that each element wants to qubit with (for swapping heuristics)
         :param circuit: cirq.Circuit, The input logical circuit
-
-        >>> test_c = CircuitRepDQN(circuit_from_qasm('test/circuit_qasm/test.qasm'))
         """
         self.qubits = list(circuit.all_qubits())
         operators = circuit.all_operations()
-        self.circuit: list = [[]] * len(self.qubits)
+        self.circuit: list = [[] for _ in self.qubits]
         for operator in operators:
             if len(operator.qubits) == 1:
                 continue
@@ -28,7 +26,6 @@ class CircuitRepDQN:
                 self.circuit[q2].append(q1)
             else:
                 raise ValueError('3 qubit primitives are not valid gates in the circuit')
-        self.progress = np.zeros(len(self.qubits))
 
     def __getitem__(self, item: int):
         return self.circuit[item]

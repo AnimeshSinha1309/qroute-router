@@ -144,17 +144,15 @@ class GridComputerDevice(DeviceTopology):
         :param rows: number of rows in the grid
         :param cols: number of columns in the grid
         """
+        self.rows = rows
+        self.cols = cols
 
         topology = []
         for i in range(0, rows):
             for j in range(0, cols):
                 node_index = i * cols + j
-                if node_index >= cols:  # up
-                    topology.append((node_index, node_index - cols))
                 if node_index < cols * (rows - 1):  # down
                     topology.append((node_index, node_index + cols))
-                if node_index % cols > 0:  # left
-                    topology.append((node_index, node_index - 1))
                 if node_index % cols < cols - 1:  # right
                     topology.append((node_index, node_index + 1))
 

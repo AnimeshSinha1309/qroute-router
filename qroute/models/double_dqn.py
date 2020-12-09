@@ -20,13 +20,13 @@ class DoubleDQNAgent(torch.nn.Module):
         super(DoubleDQNAgent, self).__init__()
         self.device: DeviceTopology = device  # For the action space
         self.current_model = torch.nn.Sequential(
-            torch.nn.Linear(self.device.max_distance, 32),
+            torch.nn.Linear(2 * self.device.max_distance, 32),
             torch.nn.Linear(32, 32),
             torch.nn.Linear(32, 32),
             torch.nn.Linear(32, 1),
         ).to(qroute.hyperparams.DEVICE)
         self.target_model = torch.nn.Sequential(
-            torch.nn.Linear(self.device.max_distance, 32),
+            torch.nn.Linear(2 * self.device.max_distance, 32),
             torch.nn.Linear(32, 32),
             torch.nn.Linear(32, 32),
             torch.nn.Linear(32, 1),
@@ -45,7 +45,7 @@ class DoubleDQNAgent(torch.nn.Module):
         """
         self.target_model.load_state_dict(self.current_model.state_dict())
 
-    def forward(self, current_state, next_state, action_chooser):
+    def forward(self, current_state, next_state, action_chooser='model'):
         """
         Get the value function approximations for the given state representation
 
@@ -57,7 +57,7 @@ class DoubleDQNAgent(torch.nn.Module):
         current_distance_vector = self.get_distance_metric(current_state)
         next_distance_vector = self.get_distance_metric(next_state)
 
-        nn_input = torch.stack([current_distance_vector, next_distance_vector], dim=-1)
+        nn_input = torch.cat([current_distance_vector, next_distance_vector], dim=-1)
 
         if action_chooser == 'model':
             q_val = self.current_model(nn_input)
@@ -66,7 +66,7 @@ class DoubleDQNAgent(torch.nn.Module):
         else:
             raise ValueError('Action_chooser must be either model or target')
 
-        return q_val.detach().numpy()
+        return q_val
 
     def act(self, current_state: CircuitStateDQN):
         """
@@ -96,15 +96,20 @@ class DoubleDQNAgent(torch.nn.Module):
 
         for experience, is_weight in zip(minibatch, is_weights):
             [state, reward, next_state, done] = experience[0]
-            target_nodes, next_target_nodes = self.get_distance_metric(state), self.get_distance_metric(next_state)
-            q_val = self.current_model(target_nodes)[0]
-            target = reward + (self.gamma * self.target_model(next_target_nodes)[0] if not done else 0)
-            absolute_errors.append(abs(q_val - target))
 
             # Train the current model (model.fit in current state)
+            q_val = self(state, next_state)[0]
+
+            if done:
+                target = reward
+            else:
+                _, energy = self.annealer.simulated_annealing(next_state, action_chooser='target', search_limit=10)
+                target = reward - self.gamma * energy
+
+            absolute_errors.append(abs(q_val.detach() - target))
+
             self.current_optimizer.zero_grad()
-            prediction = self.current_model(target_nodes)
-            loss = torch.multiply(torch.square(torch.subtract(prediction, target)), is_weight)
+            loss = torch.multiply(torch.square(torch.subtract(q_val, target)), is_weight)
             loss.backward()
             self.current_optimizer.step()
 
@@ -151,6 +156,5 @@ class DoubleDQNAgent(torch.nn.Module):
             d = int(self.device.distances[node, target])
             distance_vector[d - 1] += 1  # the vector is effectively indexed from 1
 
-        distance_vector = np.reshape(distance_vector, (1, self.device.max_distance))
         distance_vector = torch.from_numpy(distance_vector).to(qroute.hyperparams.DEVICE).float()
         return distance_vector

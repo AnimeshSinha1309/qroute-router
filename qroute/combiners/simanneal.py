@@ -2,12 +2,12 @@
 Annealer class for a Double-DQN
 """
 
-import random
 import copy
 import math
 import numpy as np
 from collections import deque
 
+from environment.state import CircuitStateDQN
 from qroute.environment.env import step
 
 
@@ -34,25 +34,24 @@ class AnnealerDQN:
         self.speed_over_optimality = False
         self.reversed_gates_deque = deque(maxlen=20)
 
-    def get_neighbour_solution(self, current_solution, current_state, forced_mask):
+    def get_neighbour_solution(self, current_solution, current_state: CircuitStateDQN):
         """
         Get a solution neighboring current, that is one swap inserted
         :param current_solution: list of edges to swap, current solution to start with
         :param current_state: State, the current state of mapping and progress
-        :param forced_mask: list, which edges cannot be swapped
         :return: list, neighbor solution
         """
         neighbour_solution = copy.copy(current_solution)
         available_edges = current_state.swappable_edges(neighbour_solution)
 
-        if not available_edges or len(available_edges) == 0:
+        if available_edges is None or len(available_edges) == 0:
             raise RuntimeError("Ran out of edges to swap")
 
-        edge_index_to_swap = random.sample(available_edges, 1)[0]
+        edge_index_to_swap = np.random.choice(available_edges, 1)
         neighbour_solution[edge_index_to_swap] = (neighbour_solution[edge_index_to_swap] + 1) % 2
 
-        if self.safety_checks_on and not self.check_valid_solution(neighbour_solution, forced_mask):
-            raise RuntimeError("Solution is not safe")
+        if self.safety_checks_on:
+            self.check_valid_solution(neighbour_solution, current_state.protected_edges)
 
         return neighbour_solution
 
@@ -67,7 +66,7 @@ class AnnealerDQN:
         """
         next_state_temp, _, _, _ = step(solution, current_state)
         q_val = self.agent(current_state, next_state_temp, action_chooser)
-        return -q_val
+        return -q_val.detach()
 
     @staticmethod
     def acceptance_probability(current_energy, new_energy, temperature):
@@ -92,11 +91,11 @@ class AnnealerDQN:
 
         :param solution: list, boolean array of swaps, the solution to check
         :param forced_mask: list, blocking swaps which are not possible
-        :return: True if valid, False otherwise
+        :raises: RuntimeError if the solution is invalid
         """
         for i in range(len(solution)):
-            if forced_mask[i] == 1 and solution[i] == 1:
-                return False
+            if forced_mask[i] and solution[i] == 1:
+                raise RuntimeError('Solution is not safe: Protected edge is being swapped')
 
         if 1 in solution:
             swap_edge_indices = np.where(np.array(solution) == 1)[0]
@@ -107,11 +106,8 @@ class AnnealerDQN:
             seen = set()
             for node in swap_nodes:
                 if node in seen:
-                    return False
+                    raise RuntimeError('Solution is not safe: Same node is being used twice in %s' % str(swap_edges))
                 seen.add(node)
-            return True
-
-        return True  # TODO should all zero be valid action?
 
     def simulated_annealing(self, current_state, action_chooser='model', search_limit=None):
         """
@@ -120,11 +116,10 @@ class AnnealerDQN:
 
         :param current_state: State, the state before this iterations of sim-anneal
         :param action_chooser: str, if model, uses the model for value function
-        :param search_limit:
+        :param search_limit: int, max iterations to search for
         :return: best_solution, value of best_energy
         """
-        forced_mask = self.generate_forced_mask(current_state.protected_nodes)
-        current_solution = self.generate_initial_solution(current_state, forced_mask)
+        current_solution = self.generate_initial_solution(current_state)
 
         # FIXME: Never crosses this if condition, always stuck here, why is it not training?
         if np.all(current_solution == 0):
@@ -148,11 +143,11 @@ class AnnealerDQN:
             elif search_limit is not None and iterations > search_limit:
                 break
 
-            new_solution = self.get_neighbour_solution(current_solution, current_state, forced_mask)
+            new_solution = self.get_neighbour_solution(current_solution, current_state)
             new_energy = self.get_energy(new_solution, current_state=current_state, action_chooser=action_chooser)
             accept_prob = self.acceptance_probability(current_energy, new_energy, temp)
 
-            if accept_prob > random.random():
+            if accept_prob > np.random.random():
                 current_solution = new_solution
                 current_energy = new_energy
 
@@ -169,22 +164,22 @@ class AnnealerDQN:
 
         return best_solution, best_energy
 
-    def generate_initial_solution(self, current_state, forced_mask):
+    def generate_initial_solution(self, current_state):
         """
         Makes a random initial solution to start with by populating with whatever swaps possible
 
         :param current_state: State, the current state of mapping and progress
-        :param forced_mask: list, mask of edges that are blocked
         :return: list, initial solution as boolean array of whether to swap each node
         """
         initial_solution = np.zeros(len(self.device.edges))
         available_edges = current_state.swappable_edges(initial_solution)
 
-        if not available_edges:
+        if available_edges is None or len(available_edges) == 0:
             return initial_solution
 
-        edge_index_to_swap = random.sample(available_edges, 1)[0]
+        edge_index_to_swap = np.random.choice(available_edges)
         initial_solution[edge_index_to_swap] = (initial_solution[edge_index_to_swap] + 1) % 2
+
         return initial_solution
 
     def generate_forced_mask(self, protected_nodes):
