@@ -1,10 +1,11 @@
 cirq~=0.9.1
-numpy~=1.19.4
-networkx~=2.5
+numpy~=1.17.2
+networkx~=2.3
 pytest~=6.1.2
-matplotlib~=3.3.3
+matplotlib~=3.1.1
 qiskit~=0.23.1
 dgl~=0.5.2
 torch~=1.7.0
 tqdm~=4.36.1
 manimlib~=0.1.11
+wandb~=0.10.12
