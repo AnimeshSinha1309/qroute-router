@@ -41,10 +41,8 @@ def train(device: qroute.environment.device.DeviceTopology,
         state = qroute.environment.state.CircuitStateDQN(circuit, device)
         state.generate_starting_state()
 
-        print("Starting Training on Episode %d" % e)
-        print("Initial Mapping: ", state.qubit_locations)
-
-        for time in tqdm.trange(training_steps):
+        progress_bar = tqdm.trange(training_steps)
+        for time in progress_bar:
             temp_state: qroute.environment.state.CircuitStateDQN = copy.copy(state)
             action, _ = agent.act(state)
             new_state: qroute.environment.state.CircuitStateDQN = copy.copy(state)
@@ -58,8 +56,7 @@ def train(device: qroute.environment.device.DeviceTopology,
                 num_actions = time+1
                 num_actions_deque.append(num_actions)
                 avg_time = np.mean(num_actions_deque)
-                print("Number of actions: {}, average: {:.5}".format(num_actions, avg_time))
-                print("Final positions in episodes: %s" % str(next_state.qubit_locations))
+                progress_bar.set_postfix(num_actions=num_actions, avg_time=avg_time)
                 break
 
             agent.replay(memory)
@@ -69,7 +66,7 @@ def train(device: qroute.environment.device.DeviceTopology,
 
 
 if __name__ == '__main__':
-    _device = qroute.environment.device.GridComputerDevice(2, 3)
+    _device = qroute.environment.device.GridComputerDevice(8, 8)
     _circuit = qroute.environment.circuits.CircuitRepDQN(
         qroute.environment.circuits.circuit_generated_full_layer(len(_device)))
     _agent = qroute.models.double_dqn.DoubleDQNAgent(_device)

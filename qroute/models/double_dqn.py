@@ -68,18 +68,18 @@ class DoubleDQNAgent(torch.nn.Module):
 
         return q_val
 
-    def act(self, current_state: CircuitStateDQN):
+    def act(self, state: CircuitStateDQN):
         """
         Chooses an action to perform in the environment and returns it
         (i.e. does not alter environment state)
 
-        :param current_state: the state of the environment
+        :param state: the state of the environment
         :return: np.array of shape (len(device),), the chosen action mask after annealing
         """
         if np.random.rand() <= self.epsilon:
-            action, value = self.generate_random_action(current_state), -1
+            action, value = self.generate_random_action(state), -1
         else:
-            action, value = self.annealer.simulated_annealing(current_state, action_chooser='model')
+            action, value = self.annealer.simulated_annealing(state, action_chooser='model')
         return action, -value
 
     def replay(self, memory, batch_size=32):
@@ -96,7 +96,6 @@ class DoubleDQNAgent(torch.nn.Module):
 
         for experience, is_weight in zip(minibatch, is_weights):
             [state, reward, next_state, done] = experience[0]
-
             # Train the current model (model.fit in current state)
             q_val = self(state, next_state)[0]
 
@@ -124,11 +123,10 @@ class DoubleDQNAgent(torch.nn.Module):
         Generates a random layer of swaps. Care is taken to ensure that all swaps can occur in parallel.
         That is, no two neighbouring edges undergo a swap simultaneously.
         """
-        protected_nodes = state.protected_nodes
         action = np.array([0] * len(self.device.edges))  # an action representing an empty layer of swaps
 
         edges = [(n1, n2) for (n1, n2) in self.device.edges]
-        edges = list(filter(lambda e: e[0] not in protected_nodes and e[1] not in protected_nodes, edges))
+        edges = list(filter(lambda e: e[0] not in state.protected_nodes and e[1] not in state.protected_nodes, edges))
         edge_index_map = {edge: index for index, edge in enumerate(edges)}
 
         while len(edges) > 0:

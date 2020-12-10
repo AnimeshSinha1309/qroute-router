@@ -6,10 +6,10 @@ import copy
 import math
 import numpy as np
 from collections import deque
+import torch
 
 from environment.state import CircuitStateDQN
 from qroute.environment.env import step
-from qroute.algorithms.heuristics import heuristic_action
 
 
 class AnnealerDQN:
@@ -116,15 +116,19 @@ class AnnealerDQN:
         :param search_limit: int, max iterations to search for
         :return: best_solution, value of best_energy
         """
+        import qroute
+        temp_state: qroute.environment.state.CircuitStateDQN = copy.copy(current_state)
         current_solution = self.generate_initial_solution(current_state)
+        new_state: qroute.environment.state.CircuitStateDQN = copy.copy(current_state)
+        assert temp_state == new_state, "State not preserved when selecting action"
 
         # FIXME: Never crosses this if condition, always stuck here, why is it not training?
         if np.all(current_solution == 0):
             # There are no actions possible often happens when only one gate is left, and it's already been scheduled
             if action_chooser == 'model':
-                return current_solution, np.array([-np.inf])
+                return current_solution, -np.inf
             else:
-                return current_solution, np.array([0])
+                return current_solution, 0
 
         temp = self.initial_temperature
         current_energy = self.get_energy(current_solution, current_state=current_state, action_chooser=action_chooser)
@@ -166,18 +170,14 @@ class AnnealerDQN:
         :param current_state: State, the current state of mapping and progress
         :return: list, initial solution as boolean array of whether to swap each node
         """
-        force_gates_action = heuristic_action(current_state)
-
-        if force_gates_action is None:
-            initial_solution = np.zeros(len(self.device.edges))
-            available_edges = current_state.swappable_edges(initial_solution)
-            if available_edges is None or len(available_edges) == 0:
-                return initial_solution
-            edge_index_to_swap = np.random.choice(available_edges)
-            initial_solution[edge_index_to_swap] = (initial_solution[edge_index_to_swap] + 1) % 2
+        initial_solution = np.zeros(len(self.device.edges))
+        available_edges = current_state.swappable_edges(initial_solution)
+        if available_edges is None or len(available_edges) == 0:
             return initial_solution
-        else:
-            return list(force_gates_action[0])
+
+        edge_index_to_swap = np.random.choice(available_edges)
+        initial_solution[edge_index_to_swap] = (initial_solution[edge_index_to_swap] + 1) % 2
+        return initial_solution
 
     def generate_forced_mask(self, protected_nodes):
         """
