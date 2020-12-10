@@ -9,6 +9,7 @@ from collections import deque
 
 from environment.state import CircuitStateDQN
 from qroute.environment.env import step
+from qroute.algorithms.heuristics import heuristic_action
 
 
 class AnnealerDQN:
@@ -29,9 +30,6 @@ class AnnealerDQN:
 
         self.device = device
         self.agent = agent
-
-        self.safety_checks_on = True
-        self.speed_over_optimality = False
         self.reversed_gates_deque = deque(maxlen=20)
 
     def get_neighbour_solution(self, current_solution, current_state: CircuitStateDQN):
@@ -50,8 +48,7 @@ class AnnealerDQN:
         edge_index_to_swap = np.random.choice(available_edges, 1)
         neighbour_solution[edge_index_to_swap] = (neighbour_solution[edge_index_to_swap] + 1) % 2
 
-        if self.safety_checks_on:
-            self.check_valid_solution(neighbour_solution, current_state.protected_edges)
+        self.check_valid_solution(neighbour_solution, current_state.protected_edges)
 
         return neighbour_solution
 
@@ -138,9 +135,7 @@ class AnnealerDQN:
         iterations = 0
 
         while temp > self.min_temperature:
-            if self.speed_over_optimality and iterations_since_best > 40:
-                break
-            elif search_limit is not None and iterations > search_limit:
+            if search_limit is not None and iterations > search_limit:
                 break
 
             new_solution = self.get_neighbour_solution(current_solution, current_state)
@@ -164,23 +159,25 @@ class AnnealerDQN:
 
         return best_solution, best_energy
 
-    def generate_initial_solution(self, current_state):
+    def generate_initial_solution(self, current_state: CircuitStateDQN):
         """
         Makes a random initial solution to start with by populating with whatever swaps possible
 
         :param current_state: State, the current state of mapping and progress
         :return: list, initial solution as boolean array of whether to swap each node
         """
-        initial_solution = np.zeros(len(self.device.edges))
-        available_edges = current_state.swappable_edges(initial_solution)
+        force_gates_action = heuristic_action(current_state)
 
-        if available_edges is None or len(available_edges) == 0:
+        if force_gates_action is None:
+            initial_solution = np.zeros(len(self.device.edges))
+            available_edges = current_state.swappable_edges(initial_solution)
+            if available_edges is None or len(available_edges) == 0:
+                return initial_solution
+            edge_index_to_swap = np.random.choice(available_edges)
+            initial_solution[edge_index_to_swap] = (initial_solution[edge_index_to_swap] + 1) % 2
             return initial_solution
-
-        edge_index_to_swap = np.random.choice(available_edges)
-        initial_solution[edge_index_to_swap] = (initial_solution[edge_index_to_swap] + 1) % 2
-
-        return initial_solution
+        else:
+            return list(force_gates_action[0])
 
     def generate_forced_mask(self, protected_nodes):
         """

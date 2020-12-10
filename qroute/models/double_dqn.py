@@ -5,7 +5,7 @@ import numpy as np
 
 from qroute.environment.device import DeviceTopology
 from qroute.environment.state import CircuitStateDQN
-from qroute.combiners.simanneal import AnnealerDQN
+from qroute.algorithms.simanneal import AnnealerDQN
 import qroute.hyperparams
 
 

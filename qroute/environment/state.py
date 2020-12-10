@@ -56,6 +56,7 @@ class CircuitStateDQN:
         gates = [(q, self.qubit_targets[q]) if q == self.qubit_targets[self.qubit_targets[q]] and
                                                q < self.qubit_targets[q]
                  else None for q in range(0, len(self.qubit_targets))]
+
         return list(filter(lambda gate: gate is not None and gate[0] < gate[1], gates))
 
     def next_executables(self):
@@ -65,7 +66,14 @@ class CircuitStateDQN:
         :return: list, [(q1, q2) where it's the next operation to perform and possible on hardware]
         """
         next_gates = self.next_requirements()
-        return list(filter(self.device.is_adjacent, next_gates))
+
+        def check_qubit_adjacency(qubits):
+            q1, q2 = qubits
+            node1 = np.where(np.array(self.qubit_locations) == q1)[0][0]
+            node2 = np.where(np.array(self.qubit_locations) == q2)[0][0]
+            return self.device.is_adjacent((node1, node2))
+
+        return list(filter(check_qubit_adjacency, next_gates))
 
     def next_gates(self):
         """
