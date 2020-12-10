@@ -4,3 +4,7 @@ networkx~=2.5
 pytest~=6.1.2
 matplotlib~=3.3.3
 qiskit~=0.23.0
+dgl~=0.5.2
+torch~=1.7.0
+tqdm~=4.36.1
+manimlib~=0.1.11

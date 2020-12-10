@@ -15,26 +15,26 @@ class DeviceTopology(cirq.Device):
         :param nodes: iterable, list of qubits, eg. [1, 2, 3, 4]
         :param edges: iterable, list of edges, eg. [(1, 2), (2, 3), (2, 4), (3, 4)]
         """
-        self.graph = nx.DiGraph()
-        self.graph.add_nodes_from(nodes)
+        self.edges = edges
+        self.nodes = nodes
+        self.graph = nx.empty_graph(nodes)
         self.graph.add_edges_from(edges)
-        self.distances = self.__get_distance_matrix(bidirectional=False)
-        self.swap_dist = self.__get_distance_matrix(bidirectional=True)
+        self.distances = self._get_distance_matrix()
 
     def __len__(self):
         """
         Number of qubits available in the device
         :return: int, number of qubits
         """
-        return self.graph.number_of_nodes()
+        return self.nodes
 
     @property
-    def connected_qubits(self):
+    def max_distance(self):
         """
-        Get the list of all 2-tuples which are connected
-        :return: list, of connected edges as 2-tuples
+        Number of qubits available in the device
+        :return: int, number of qubits
         """
-        return self.graph.edges
+        return np.amax(self.distances)
 
     def is_adjacent(self, qubits):
         """
@@ -51,24 +51,30 @@ class DeviceTopology(cirq.Device):
         else:
             raise ValueError('{!r} is multi-qubit (>2) gate'.format(qubits))
 
-    def __get_distance_matrix(self, bidirectional=False):
+    def _get_distance_matrix(self, bidirectional=True):
         """
         Uses the Floyd-Warshall algorithm to compute the distance between all pairs of qubits
+        :param: bidirectional: bool, true if the connectivity is bidirectional, False otherwise
         :return: matrix of integers of size (n,n), (i,j) contains distance of i to j
         :except: AttributeError if graph is not initialized (or logical error if edges not loaded)
+
+        Note that unidirectional mode may not be supported fully through the rest of the code
         """
-        mat = np.full(fill_value=9999999999, shape=(self.graph.number_of_nodes(), self.graph.number_of_nodes()))
-        for bit in range(self.graph.number_of_nodes()):
+        mat = np.full(fill_value=9999999, shape=(len(self), len(self)), dtype=np.int)
+        for bit in range(len(self)):
             mat[bit][bit] = 0
         for source, dest in self.graph.edges:
             mat[source][dest] = 1
             if bidirectional:
                 mat[dest][source] = 1
-        for k in range(self.graph.number_of_nodes()):
-            for i in range(self.graph.number_of_nodes()):
-                for j in range(self.graph.number_of_nodes()):
+        for k in range(len(self)):
+            for i in range(len(self)):
+                for j in range(len(self)):
                     mat[i][j] = min(mat[i][j], mat[i][k] + mat[k][j])
+        assert np.amax(mat) < 9999999, "The architecture is disconnected, run individually for components"
         return mat
+
+    # Methods to check if the circuit is working on the device without violating the Topology
 
     def validate_operation(self, operation):
         """
@@ -97,6 +103,8 @@ class DeviceTopology(cirq.Device):
             for operation in moment.operations:
                 self.validate_operation(operation)
 
+    # Some pretty printing stuff here
+
     def draw_architecture_graph(self):
         """
         Draw the graph of the hardware topology with edges as possible operations.
@@ -117,10 +125,40 @@ class IBMqx5Device(DeviceTopology):
         Initialize the graph for the IBM QX5 topology
         """
         super(IBMqx5Device, self).__init__(
-            nodes=list(range(16)),
+            nodes=16,
             edges=[(1, 2), (1, 0), (2, 3), (3, 4), (3, 14), (5, 4), (6, 5), (6, 11),
                    (6, 7), (7, 10), (8, 7), (9, 8), (9, 10), (11, 10), (12, 5), (12, 11),
                    (12, 13), (13, 14), (13, 4), (15, 14), (15, 2), (15, 0)]
+        )
+
+
+class GridComputerDevice(DeviceTopology):
+    """
+    Specific device topology for the IBM QX5 device
+    """
+
+    def __init__(self, rows=4, cols=5):
+        """
+        Add links to the grid topology.
+
+        :param rows: number of rows in the grid
+        :param cols: number of columns in the grid
+        """
+        self.rows = rows
+        self.cols = cols
+
+        topology = []
+        for i in range(0, rows):
+            for j in range(0, cols):
+                node_index = i * cols + j
+                if node_index < cols * (rows - 1):  # down
+                    topology.append((node_index, node_index + cols))
+                if node_index % cols < cols - 1:  # right
+                    topology.append((node_index, node_index + 1))
+
+        super(GridComputerDevice, self).__init__(
+            nodes=rows * cols,
+            edges=topology
         )
 
 

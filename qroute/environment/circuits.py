@@ -1,13 +1,10 @@
-import cirq
-import networkx as nx
 import numpy as np
-from matplotlib import pyplot as plt
+import cirq
 
 
-class CircuitState:
+class CircuitRepDQN:
     """
-    Maintains the state of the circuit, allows evolving it as operations at the leaf
-    keep getting executed
+    Keeps a global usable representation of a logical circuit
     """
 
     def __init__(self, circuit: cirq.Circuit):
@@ -17,144 +14,30 @@ class CircuitState:
         and the next node that each element wants to qubit with (for swapping heuristics)
         :param circuit: cirq.Circuit, The input logical circuit
         """
-        self.circuit = circuit
-        # TODO: Make this DAG object and other stuff global and shared between all instances, immutable
-        self.dag = cirq.CircuitDag.from_circuit(self.circuit)
-        self.dag_nodes = list(nx.topological_sort(self.dag))
-        self.__node_to_index = {node: idx for idx, node in enumerate(self.dag_nodes)}
-        # Make the queue of leaf nodes
-        self.__leaf_queue: set = set()
-        self.__indegree = np.zeros(shape=self.dag.number_of_nodes(), dtype=np.int16)
-        for u in self.dag_nodes:
-            for v in self.dag.successors(u):
-                self.__indegree[self.__node_to_index[v]] += 1
-        for idx, indegree in enumerate(self.__indegree):
-            if self.__indegree[idx] == 0:
-                self.__leaf_queue.add(idx)
-        # Keep the map of next operation for each qubit
-        qubits = self.circuit.all_qubits()
-        self.__qubit_to_index = {qubit: idx for idx, qubit in enumerate(sorted(qubits))}
-        self.__qubit_operations: list = [[] for _ in range(len(qubits))]
-        self.__qubit_progress = np.zeros(shape=len(qubits), dtype=np.int16)
-        self.__init_qubit_lookups()
+        self.cirq = circuit
+        self.qubits = list(circuit.all_qubits())
+        operators = circuit.all_operations()
+        self.circuit: list = [[] for _ in self.qubits]
+        for operator in operators:
+            if len(operator.qubits) == 1:
+                continue
+            elif len(operator.qubits) == 2:
+                q1, q2 = self.qubits.index(operator.qubits[0]), self.qubits.index(operator.qubits[1])
+                self.circuit[q1].append(q2)
+                self.circuit[q2].append(q1)
+            else:
+                raise ValueError('3 qubit primitives are not valid gates in the circuit')
 
-    def __init_qubit_lookups(self):
-        """
-        Part of the constructor
-        Initializes the following variables
-            self.__qubit_operations: list of tuple, operands in each operation
-            self.__qubit_progress: list, 0 since each qubit is starting, -1 if it has no operations
-        :return: None
-        """
-        operations = self.gate_operands
-        for idx, op in enumerate(operations):
-            for bit in op:
-                neighbors = self.get_gate_operands(idx)
-                if len(neighbors) == 1:
-                    self.__qubit_operations[bit].append(bit)
-                elif len(neighbors) == 2:
-                    self.__qubit_operations[bit].append(neighbors[0] + neighbors[1] - bit)
-                else:
-                    raise ValueError('Cannot handle 3-Operand primitive gates')
-        for idx, val in enumerate(self.__qubit_operations):
-            if len(val) == 0:
-                self.__qubit_progress[idx] = -1
+    def __getitem__(self, item: int):
+        return self.circuit[item]
 
     def __len__(self):
-        """
-        Returns the number of qubits needed for the circuit
-        :return: int, number of qubits
-        """
-        return len(self.circuit.all_qubits())
-
-    def draw_circuit_graph(self):
-        """
-        Draws the circuit as graph (attempts planar layout)
-        :return: None
-        """
-        nx.draw(self.dag, pos=nx.planar_layout(self.dag), with_labels=False)
-        plt.show()
-
-    def pop(self, n):
-        """
-        Removes the n-th operation (by index in the self.dag_nodes array) and
-        updates the graph accordingly.
-        :param n: int, the id of the operation to be popped
-        :return: None
-        :raises: IndexError, if the all predecessors of n are not already popped
-        """
-        if self.__indegree[n] != 0:
-            raise IndexError('Cannot pop a node which is not a leaf node from the Circuit DAG')
-        # Remove from the DAG
-        for v in self.dag.successors(self.dag_nodes[n]):
-            idx = self.__node_to_index[v]
-            self.__indegree[idx] -= 1
-            if self.__indegree[idx] == 0:
-                self.__leaf_queue.add(idx)
-        self.__leaf_queue.remove(n)
-        # Push the qubit progress array
-        qubits_processed = self.get_gate_operands(n)
-        for qubit in qubits_processed:
-            self.__qubit_progress[qubit] += 1
-            if self.__qubit_progress[qubit] >= len(self.__qubit_operations[qubit]):
-                self.__qubit_progress[qubit] = -1
-
-    @property
-    def leaf_operations(self):
-        """
-        Returns the set of operations which can be executed without dependencies
-        (does not check for hardware specification, only in the logical circuit)
-        :return: set, indices of leaf operations (as in self.dag_nodes)
-        """
-        return self.__leaf_queue.copy()
-
-    @property
-    def gate_operands(self):
-        """
-        Converts the gate operations into a list of indices of qubits they operate on
-        :return: list of tuples, each tuple is the operands for the i-th gate
-        """
-        # Making a list of tuples [g_i = (i, j, ...)] where i, j, ... are
-        # the qubits operated on in the i-th gate, gates in node order
-        operations = []
-        for node in self.dag_nodes:
-            operation: cirq.Operation = node.val
-            operations.append(tuple(map(lambda x: self.__qubit_to_index[x], operation.qubits)))
-        return operations
-
-    def get_gate_operands(self, n):
-        """
-        Gets the indices of operands of a specific gate
-        :param n: index of the gate being queried
-        :return: tuple, the operands for the i-th gate
-        """
-        operation: cirq.Operation = self.dag_nodes[n].val
-        return tuple(map(lambda x: self.__qubit_to_index[x], operation.qubits))
-
-    @property
-    def leaf_neighbors(self):
-        """
-        Get the list of next operation neighbor qubits for each qubit
-        :return: list, of length num_qubits, next operations qubit or -1
-        """
-        return np.array([
-            self.__qubit_operations[bit][pos] if pos != -1 else -1
-            for bit, pos in enumerate(self.__qubit_progress)
-        ])
-
-
-def dag_from_qasm(filename):
-    """
-    Loads a QASM file and results the circuit dag from it
-    :param filename: str, path to the file
-    :return: cirq.CircuitDag(), Dependency graph for gates in circuit
-    """
-    return cirq.CircuitDag.from_circuit(circuit_from_qasm(filename))
+        return len(self.qubits)
 
 
 def circuit_from_qasm(filename):
     """
-    Loads a QASM file and results the circuit dag from it
+    Loads a QASM file and returns the circuit from it
     :param filename: str, path to the file
     :return: cirq.CircuitDag(), Dependency graph for gates in circuit
     """
@@ -164,8 +47,60 @@ def circuit_from_qasm(filename):
     return circuit
 
 
-if __name__ == '__main__':
-    data = circuit_from_qasm('test/circuit_qasm/test.qasm')
-    print(data)
-    c = CircuitState(circuit=data)
-    c.draw_circuit_graph()
+def circuit_generated_randomly(num_qubits=20, num_cx=100):
+    """
+    Returns one cirq circuit randomly initialized
+    :param num_qubits: int, number of qubits in the random circuit
+    :param num_cx: int, number of random Controlled X gates
+    :return: cirq.Circuit(), output random circuit
+    """
+    free_circuit = cirq.Circuit()
+    qubits = cirq.LineQubit.range(num_qubits)
+
+    for _ in range(num_cx):
+        indices = np.random.choice(range(num_qubits), size=2, replace=False)
+        q1, q2 = qubits[indices[0]], qubits[indices[1]]
+        free_circuit.append(cirq.CX(q1, q2))
+    return free_circuit
+
+
+def circuit_generated_full_layer(n_qubits, n_layers: int = 1):
+    """    Generates a Circuit object (in our framework) with all pairs interactions
+
+    :param n_qubits: number of qubits
+    :param n_layers: number of layers in circuit
+    :return: QubitCircuit, a circuit with all pairs interactions
+    """
+    free_circuit = cirq.Circuit()
+    qubits = cirq.LineQubit.range(n_qubits)
+
+    for _ in range(n_layers):
+        for i in range(int(n_qubits/2)):
+            free_circuit.append(cirq.CX(qubits[i * 2], qubits[i * 2 + 1]))
+
+    return free_circuit
+
+
+def qasm_generated_randomly(num_qubits, num_cx, num_files, path, start_num=0):
+    """
+    Writes several QASM files with random circuits consisting of Controlled X gates
+    :param num_qubits: int, number of qubits in the random circuit
+    :param num_cx: int, number of random Controlled X gates
+    :param num_files: int, number of independent files we are writing
+    :param path: str, directory to which the files should be written to
+    :param start_num: int, offset in the filenames being written
+    :return: None
+    """
+    for i in range(num_files):
+        full_path = path + str(start_num + i) + '.qasm'
+        print('\rGenerating %d of %d file' % (i + 1, num_files), end='')
+        with open(full_path, 'w') as f:
+            f.write('OPENQASM 2.0;\ninclude "qelib1.inc";')
+            f.write('\nqreg q[' + str(num_qubits) + '];')
+            f.write('\ncreg c[' + str(num_qubits) + '];')
+            for _ in range(num_cx):
+                cx1 = str(np.random.randint(num_qubits))
+                cx2 = str(np.random.randint(num_qubits))
+                while cx2 == cx1:
+                    cx2 = str(np.random.randint(num_qubits))
+                f.write('\ncx q[' + cx1 + '],q[' + cx2 + '];')
