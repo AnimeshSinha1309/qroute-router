@@ -14,6 +14,7 @@ class CircuitRepDQN:
         and the next node that each element wants to qubit with (for swapping heuristics)
         :param circuit: cirq.Circuit, The input logical circuit
         """
+        self.cirq = circuit
         self.qubits = list(circuit.all_qubits())
         operators = circuit.all_operations()
         self.circuit: list = [[] for _ in self.qubits]
@@ -63,17 +64,20 @@ def circuit_generated_randomly(num_qubits=20, num_cx=100):
     return free_circuit
 
 
-def circuit_generated_full_layer(n_qubits):
+def circuit_generated_full_layer(n_qubits, n_layers: int = 1):
     """    Generates a Circuit object (in our framework) with all pairs interactions
 
     :param n_qubits: number of qubits
+    :param n_layers: number of layers in circuit
     :return: QubitCircuit, a circuit with all pairs interactions
     """
     free_circuit = cirq.Circuit()
     qubits = cirq.LineQubit.range(n_qubits)
 
-    for i in range(int(n_qubits/2)):
-        free_circuit.append(cirq.CX(qubits[i * 2], qubits[i * 2 + 1]))
+    for _ in range(n_layers):
+        for i in range(int(n_qubits/2)):
+            free_circuit.append(cirq.CX(qubits[i * 2], qubits[i * 2 + 1]))
+
     return free_circuit
 
 

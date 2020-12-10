@@ -122,7 +122,6 @@ class AnnealerDQN:
         new_state: qroute.environment.state.CircuitStateDQN = copy.copy(current_state)
         assert temp_state == new_state, "State not preserved when selecting action"
 
-        # FIXME: Never crosses this if condition, always stuck here, why is it not training?
         if np.all(current_solution == 0):
             # There are no actions possible often happens when only one gate is left, and it's already been scheduled
             if action_chooser == 'model':

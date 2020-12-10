@@ -19,12 +19,14 @@ class CircuitStateDQN:
     :param device: holds the device we are running the circuit on (for maintaining the mapping)
     """
 
-    def __init__(self, circuit: CircuitRepDQN, device: DeviceTopology,
-                 qubit_locations=None, qubit_targets=None, circuit_progress=None, protected_nodes=None):
+    def __init__(self, circuit: CircuitRepDQN, device: DeviceTopology, qubit_locations=None,
+                 qubit_targets=None, circuit_progress=None, protected_nodes=None, solution=None):
         self.qubit_locations: np.ndarray = qubit_locations
         self.qubit_targets: np.ndarray = qubit_targets
         self.circuit_progress: np.ndarray = circuit_progress
         self.protected_nodes: set = protected_nodes
+        # And we need to keep the final answer
+        self.solution = solution if solution is not None else []
         # The state must have access to the overall environment
         self.circuit = circuit
         self.device = device
@@ -42,7 +44,7 @@ class CircuitStateDQN:
 
         self.protected_nodes = set()
         self.qubit_targets = np.array([targets[0] if len(targets) > 0 else -1 for targets in self.circuit.circuit])
-        self.circuit_progress = np.zeros(len(self.circuit))
+        self.circuit_progress = np.zeros(len(self.circuit), dtype=np.int)
 
     # Running the circuit
 
@@ -118,6 +120,9 @@ class CircuitStateDQN:
                 if self.circuit_progress[q2] < len(self.circuit[q2]) else -1
             # The the reward for this gate which will be executed in next time step for sure, (q1, q2)
             reward += qroute.hyperparams.REWARD_GATE
+            (n1, n2) = (np.where(np.array(self.qubit_locations) == q1)[0][0],
+                        np.where(np.array(self.qubit_locations) == q2)[0][0])
+            self.solution.append((n1, n2, 'cnot'))
         return reward
 
     def is_done(self):
@@ -166,7 +171,7 @@ class CircuitStateDQN:
         :return: State, a copy of the original, but independent of the first one, except env
         """
         return CircuitStateDQN(self.circuit, self.device, self.qubit_locations[:], self.qubit_targets[:],
-                               self.circuit_progress[:], set(self.protected_nodes))
+                               self.circuit_progress[:], set(self.protected_nodes), self.solution)
 
     def __eq__(self, other):
         """

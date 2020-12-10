@@ -25,7 +25,8 @@ def step(action, input_state: CircuitStateDQN):
     swap_edges = [state.device.edges[i] for i in swap_edge_indices]
 
     for (node1, node2) in swap_edges:
-        # FIXME: This is weird, why is qubit_locations indexed with nodes?
+        # TODO: Move the swapping logic to state
+        state.solution.append((node1, node2, 'swap'))
         state.qubit_locations[node1], state.qubit_locations[node2] = \
             state.qubit_locations[node2], state.qubit_locations[node1]
     post_swap_distances = state.calculate_distances_summary(state.qubit_locations, state.qubit_targets)
