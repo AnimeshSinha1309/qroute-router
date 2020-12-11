@@ -1,18 +1,18 @@
 import copy
 import collections
-import os
+# import os
 import logging
 
 import numpy as np
 import tqdm
-import wandb
+# import wandb
 
 import qroute
 
 logging.basicConfig(level=logging.DEBUG)
 
-os.system("wandb login d43f6dc5f4f9981ac8b6bffd1ab5db7d9ac45480")
-wandb.init(project='qroute-rl', name='dqn-basic-1', save_code=False)
+# os.system("wandb login d43f6dc5f4f9981ac8b6bffd1ab5db7d9ac45480")
+# wandb.init(project='qroute-rl', name='dqn-basic-1', save_code=False)
 
 
 def train(device: qroute.environment.device.DeviceTopology,
@@ -66,9 +66,9 @@ def train(device: qroute.environment.device.DeviceTopology,
                 depth = qroute.visualizers.solution_validator.validate_solution(
                     circuit, state.solution, starting_locations, device)
                 progress_bar.set_postfix(circuit_depth=depth, num_actions=num_actions, avg_actions=avg_time)
-                wandb.log({'Circuit Depth': depth,
-                           'Number of Current Actions': num_actions,
-                           'Number of Average Actions': num_actions})
+                # wandb.log({'Circuit Depth': depth,
+                #            'Number of Current Actions': num_actions,
+                #            'Number of Average Actions': num_actions})
                 progress_bar.close()
                 break
 
@@ -79,8 +79,8 @@ def train(device: qroute.environment.device.DeviceTopology,
 
 
 if __name__ == '__main__':
-    _device = qroute.environment.device.GridComputerDevice(4, 4)
-    _cirq = qroute.environment.circuits.circuit_generated_full_layer(len(_device), 20)
+    _device = qroute.environment.device.GridComputerDevice(2, 3)
+    _cirq = qroute.environment.circuits.circuit_generated_full_layer(len(_device), 1)
     _circuit = qroute.environment.circuits.CircuitRepDQN(_cirq)
     _agent = qroute.models.double_dqn.DoubleDQNAgent(_device)
     train(_device, _circuit, _agent)

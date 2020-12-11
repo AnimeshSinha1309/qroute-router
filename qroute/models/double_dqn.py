@@ -152,7 +152,7 @@ class DoubleDQNAgent(torch.nn.Module):
             if target == -1:
                 continue
             d = int(self.device.distances[node, target])
-            distance_vector[d - 1] += 1  # the vector is effectively indexed from 1
+            distance_vector[d - 1] += 1
 
         distance_vector = torch.from_numpy(distance_vector).to(qroute.hyperparams.DEVICE).float()
         return distance_vector
