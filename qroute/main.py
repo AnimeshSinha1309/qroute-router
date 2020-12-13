@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 def train(device: qroute.environment.device.DeviceTopology,
           circuit: qroute.environment.circuits.CircuitRepDQN,
-          agent: qroute.models.double_dqn.DoubleDQNAgent,
+          agent,
           training_episodes=350, training_steps=500):
 
     num_actions_deque = collections.deque(maxlen=50)
@@ -60,7 +60,7 @@ def train(device: qroute.environment.device.DeviceTopology,
             state = next_state
 
             if done:
-                num_actions = time+1
+                num_actions = time + 1
                 num_actions_deque.append(num_actions)
                 avg_time = np.mean(num_actions_deque)
                 depth = qroute.visualizers.solution_validator.validate_solution(
@@ -79,8 +79,9 @@ def train(device: qroute.environment.device.DeviceTopology,
 
 
 if __name__ == '__main__':
-    _device = qroute.environment.device.GridComputerDevice(2, 3)
-    _cirq = qroute.environment.circuits.circuit_generated_full_layer(len(_device), 1)
+    _device = qroute.environment.device.GridComputerDevice(4, 4)
+    _cirq = qroute.environment.circuits.circuit_generated_full_layer(len(_device), 5)
     _circuit = qroute.environment.circuits.CircuitRepDQN(_cirq)
-    _agent = qroute.models.double_dqn.DoubleDQNAgent(_device)
+    assert len(_circuit) == len(_device), "All qubits on target hardware need to be used once #FIXME"
+    _agent = qroute.models.actor_critic.ActorCriticAgent(_device)
     train(_device, _circuit, _agent)
