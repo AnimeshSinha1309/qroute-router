@@ -1,6 +1,8 @@
 # Editor files
-.idea/
-.vscode/
+**/.idea
+**/.vscode
+**/wandb
+**/media
 
 # For this project only
 replications/

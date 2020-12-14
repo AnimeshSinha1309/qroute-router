@@ -135,11 +135,12 @@ class CircuitStateDQN:
 
     # State needs to help solution keep track of what it can do
 
-    def swappable_edges(self, current_action):
+    def swappable_edges(self, current_action, return_mask=False):
         """
         List of edges that can be operated with swaps, given the current state and blocked edges
 
         :param current_action: list, boolean array of edges being currently swapped (current solution)
+        :param return_mask: True if return mask, False if return selected list
         :return: list, edges which can still be swapped
         """
         available_edges_mask = np.bitwise_not(self.protected_edges)
@@ -159,7 +160,11 @@ class CircuitStateDQN:
                 available_edges_mask[idx] = True
 
         available_edges = np.where(np.array(available_edges_mask) == 1)[0]
-        return available_edges
+
+        if return_mask:
+            return available_edges_mask
+        else:
+            return available_edges
 
     # Other utility functions and properties
 

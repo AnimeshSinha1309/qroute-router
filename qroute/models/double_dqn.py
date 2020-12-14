@@ -21,14 +21,20 @@ class DoubleDQNAgent(torch.nn.Module):
         self.device: DeviceTopology = device  # For the action space
         self.current_model = torch.nn.Sequential(
             torch.nn.Linear(2 * self.device.max_distance, 32),
+            torch.nn.ReLU(),
             torch.nn.Linear(32, 32),
+            torch.nn.ReLU(),
             torch.nn.Linear(32, 32),
+            torch.nn.ReLU(),
             torch.nn.Linear(32, 1),
         ).to(qroute.hyperparams.DEVICE)
         self.target_model = torch.nn.Sequential(
             torch.nn.Linear(2 * self.device.max_distance, 32),
+            torch.nn.ReLU(),
             torch.nn.Linear(32, 32),
+            torch.nn.ReLU(),
             torch.nn.Linear(32, 32),
+            torch.nn.ReLU(),
             torch.nn.Linear(32, 1),
         ).to(qroute.hyperparams.DEVICE)
         self.current_optimizer = torch.optim.Adam(self.current_model.parameters())
@@ -152,7 +158,7 @@ class DoubleDQNAgent(torch.nn.Module):
             if target == -1:
                 continue
             d = int(self.device.distances[node, target])
-            distance_vector[d - 1] += 1  # the vector is effectively indexed from 1
+            distance_vector[d - 1] += 1
 
         distance_vector = torch.from_numpy(distance_vector).to(qroute.hyperparams.DEVICE).float()
         return distance_vector

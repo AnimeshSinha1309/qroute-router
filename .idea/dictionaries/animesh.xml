@@ -2,13 +2,16 @@
   <dictionary name="animesh">
     <words>
       <w>animesh</w>
+      <w>bffd</w>
       <w>cirq</w>
       <w>immutator</w>
       <w>indegree</w>
+      <w>probs</w>
       <w>qasm</w>
       <w>qroute</w>
       <w>qubit</w>
       <w>qubits</w>
+      <w>wandb</w>
       <w>warshall</w>
     </words>
   </dictionary>
