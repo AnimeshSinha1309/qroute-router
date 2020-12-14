@@ -98,21 +98,22 @@ class ActorCriticAgent(torch.nn.Module):
             probs, value = self(state)
 
             if done:
-                target = reward
+                target = torch.tensor(reward)
                 policy_loss = torch.tensor(0)
-                value_loss = torch.square(torch.tensor(value - target))
+                value_loss = torch.square(value - target)
             else:
                 solution, value = self.annealer.simulated_annealing(next_state, search_limit=10)
                 probs, solution = torch.from_numpy(probs), torch.from_numpy(solution)
                 target = torch.tensor(reward + self.gamma * value)
-                advantage = torch.subtract(target, value)
-                policy_loss = torch.sum(torch.multiply(probs, solution)) * advantage
-                value_loss = torch.square(torch.subtract(value, target))
+                advantage = torch.square(torch.subtract(target, value))
+                policy_loss = torch.sum(torch.multiply(probs, solution)).item() * advantage
+                value_loss = torch.square(torch.subtract(target, value))
 
             absolute_errors.append(torch.abs(value - target).detach().item())
 
             self.current_optimizer.zero_grad()
-            loss = torch.multiply(policy_loss.item() + value_loss.item(), is_weight)
+            loss = (policy_loss + value_loss) * is_weight
+            loss.requires_grad = True
             loss.backward()
             self.current_optimizer.step()
 
