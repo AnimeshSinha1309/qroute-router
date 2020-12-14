@@ -1,7 +1,7 @@
 cirq~=0.9.1
 numpy~=1.17.2
 networkx~=2.3
-pytest~=6.1.2
+pytest~=6.2.0
 matplotlib~=3.3.3
 qiskit~=0.23.1
 dgl~=0.5.3
