@@ -175,8 +175,9 @@ class CircuitStateDQN:
 
         :return: State, a copy of the original, but independent of the first one, except env
         """
-        return CircuitStateDQN(self.circuit, self.device, self.qubit_locations[:], self.qubit_targets[:],
-                               self.circuit_progress[:], set(self.protected_nodes), self.solution)
+        return CircuitStateDQN(self.circuit, self.device, np.copy(self.qubit_locations),
+                               np.copy(self.qubit_targets), np.copy(self.circuit_progress),
+                               set(self.protected_nodes), list(self.solution))
 
     def __eq__(self, other):
         """

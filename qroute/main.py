@@ -29,7 +29,9 @@ def train(device: qroute.environment.device.DeviceTopology,
         state = qroute.environment.state.CircuitStateDQN(circuit, device)
         state.generate_starting_state()
 
-        for time in range(training_steps):
+        progress_bar = tqdm.trange(training_steps)
+        progress_bar.set_description('Initial Setup')
+        for time in progress_bar:
             action, _ = agent.act(state)
             next_state, reward, done, next_gates_scheduled = qroute.environment.env.step(action, state)
             memory.store((state, reward, next_state, done))
@@ -39,6 +41,7 @@ def train(device: qroute.environment.device.DeviceTopology,
                 num_actions = time + 1
                 num_actions_deque.append(num_actions)
                 break
+        progress_bar.close()
 
     # Training the agent
     for e in range(training_episodes):
@@ -47,7 +50,7 @@ def train(device: qroute.environment.device.DeviceTopology,
         starting_locations = np.array(state.qubit_locations)
 
         progress_bar = tqdm.trange(training_steps)
-        progress_bar.set_description('Episode %d' % e)
+        progress_bar.set_description('Episode %03d' % (e + 1))
         for time in progress_bar:
             temp_state: qroute.environment.state.CircuitStateDQN = copy.copy(state)
             action, _ = agent.act(state)
@@ -76,8 +79,8 @@ def train(device: qroute.environment.device.DeviceTopology,
 
 if __name__ == '__main__':
     _device = qroute.environment.device.GridComputerDevice(4, 4)
-    _cirq = qroute.environment.circuits.circuit_generated_full_layer(len(_device), 20)
+    _cirq = qroute.environment.circuits.circuit_generated_full_layer(len(_device), 3)
     _circuit = qroute.environment.circuits.CircuitRepDQN(_cirq)
     assert len(_circuit) == len(_device), "All qubits on target hardware need to be used once #FIXME"
     _agent = qroute.models.actor_critic.ActorCriticAgent(_device)
-    train(_device, _circuit, _agent)
+    train(_device, _circuit, _agent, training_episodes=500)

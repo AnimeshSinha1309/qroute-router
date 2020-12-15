@@ -1,4 +1,5 @@
 import random
+import copy
 
 import torch
 import numpy as np
@@ -76,6 +77,7 @@ class ActorCriticAgent(torch.nn.Module):
         :param state: the state of the environment
         :return: np.array of shape (len(device),), the chosen action mask after annealing
         """
+        state = copy.copy(state)
         if np.random.rand() <= self.epsilon:
             action, value = self.generate_random_action(state), -1
         else:
