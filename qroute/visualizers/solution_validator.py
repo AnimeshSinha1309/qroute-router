@@ -38,4 +38,22 @@ def validate_solution(circuit: CircuitRepDQN, output: list, initial_locations: n
     # Print to see what your circuit looks like
     # print(circuit.cirq)
     # print(output_circuit)
-    return len(output_circuit.moments)
+    return output_circuit
+
+
+def segment_ops_to_moments(ops, initial_locations):
+    pos = np.zeros(len(initial_locations), dtype=np.int)
+    moments = []
+    qubit_locations = initial_locations
+    for gate in ops:
+        n1, n2, t = gate
+        q1, q2 = qubit_locations[n1], qubit_locations[n2]
+        if t == 'swap':
+            qubit_locations[n1], qubit_locations[n2] = q2, q1
+        selected = max(pos[q1], pos[q2])
+        if selected >= len(moments):
+            moments.append([])
+        pos[q1] += 1
+        pos[q2] += 1
+        moments[selected].append(gate)
+    return moments
