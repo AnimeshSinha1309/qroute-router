@@ -21,9 +21,9 @@ class ActorCriticAgent(torch.nn.Module):
         super(ActorCriticAgent, self).__init__()
         self.device: DeviceTopology = device  # For the action space
         self.actor_model = torch.nn.Sequential(
-            torch.nn.Linear(len(self.device), 32),
+            torch.nn.Linear(len(self.device) ** 2, 128),
             torch.nn.ReLU(),
-            torch.nn.Linear(32, 32),
+            torch.nn.Linear(128, 32),
             torch.nn.ReLU(),
             torch.nn.Linear(32, 32),
             torch.nn.ReLU(),
@@ -56,7 +56,7 @@ class ActorCriticAgent(torch.nn.Module):
         """
         targets, dist = self.get_representation(current_state)
 
-        probs = self.actor_model(targets)
+        probs = self.actor_model(targets.view(-1))
         value = self.critic_model(dist)
 
         if next_state is None:
@@ -90,12 +90,13 @@ class ActorCriticAgent(torch.nn.Module):
         :param memory: MemoryTree object, the experience buffer to sample from
         :param batch_size: number of experiences to sample from the experience buffer when training
         """
+        assert batch_size == 32, str(batch_size)
         tree_index, minibatch, is_weights = memory.sample(batch_size)
         absolute_errors = []
         is_weights = np.reshape(is_weights, -1)
 
         for experience, is_weight in zip(minibatch, is_weights):
-            [state, reward, next_state, done] = experience[0]
+            state, reward, next_state, done = experience
             # Train the current model (model.fit in current state)
             probs, value = self(state)
 
@@ -147,7 +148,7 @@ class ActorCriticAgent(torch.nn.Module):
         nodes_to_target_nodes = [
             next(iter(np.where(np.array(state.qubit_locations) == q)[0]), -1) for q in nodes_to_target_qubits]
 
-        distance_vector = np.zeros(self.device.max_distance)
+        distance_vector = np.zeros(self.device.max_distance, dtype=np.int)
 
         for node in range(len(nodes_to_target_nodes)):
             target = nodes_to_target_nodes[node]
@@ -157,5 +158,11 @@ class ActorCriticAgent(torch.nn.Module):
             distance_vector[d - 1] += 1  # the vector is effectively indexed from 1
 
         distance_vector = torch.from_numpy(distance_vector).to(qroute.hyperparams.DEVICE).float()
-        nodes_to_target_nodes = torch.Tensor(nodes_to_target_nodes).to(qroute.hyperparams.DEVICE).float()
-        return nodes_to_target_nodes, distance_vector
+
+        interaction_map = torch.zeros((len(self.device), len(self.device)))
+        for idx, target in enumerate(nodes_to_target_nodes):
+            if target == -1:
+                continue
+            interaction_map[idx, target] = 1
+
+        return interaction_map, distance_vector

@@ -1,4 +1,3 @@
-import copy
 import collections
 # import os
 import logging
@@ -21,27 +20,7 @@ def train(device: qroute.environment.device.DeviceTopology,
           training_episodes=350, training_steps=500):
 
     num_actions_deque = collections.deque(maxlen=50)
-
-    memory = qroute.environment.memory.MemoryPER(500)
-
-    # Fill up memory tree
-    while memory.tree.used_up_capacity < memory.tree.capacity:
-        state = qroute.environment.state.CircuitStateDQN(circuit, device)
-        state.generate_starting_state()
-
-        progress_bar = tqdm.trange(training_steps)
-        progress_bar.set_description('Initial Setup')
-        for time in progress_bar:
-            action, _ = agent.act(state)
-            next_state, reward, done, next_gates_scheduled = qroute.environment.env.step(action, state)
-            memory.store((state, reward, next_state, done))
-            state = next_state
-
-            if done:
-                num_actions = time + 1
-                num_actions_deque.append(num_actions)
-                break
-        progress_bar.close()
+    memory = qroute.memory.list.MemorySimple(500)
 
     # Training the agent
     for e in range(training_episodes):
@@ -52,11 +31,7 @@ def train(device: qroute.environment.device.DeviceTopology,
         progress_bar = tqdm.trange(training_steps)
         progress_bar.set_description('Episode %03d' % (e + 1))
         for time in progress_bar:
-            temp_state: qroute.environment.state.CircuitStateDQN = copy.copy(state)
             action, _ = agent.act(state)
-            new_state: qroute.environment.state.CircuitStateDQN = copy.copy(state)
-            assert temp_state == new_state, "State not preserved when selecting action"
-
             next_state, reward, done, next_gates_scheduled = qroute.environment.env.step(action, state)
             memory.store((state, reward, next_state, done))
             state = next_state
