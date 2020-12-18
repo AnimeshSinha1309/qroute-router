@@ -24,15 +24,16 @@ def train(device: qroute.environment.device.DeviceTopology,
 
     # Training the agent
     for e in range(training_episodes):
-        state = qroute.environment.state.CircuitStateDQN(circuit, device)
-        state.generate_starting_state()
-        starting_locations = np.array(state.qubit_locations)
+        input_circuit = circuit
+        print("Input Circuit:\n", input_circuit.cirq, flush=True)
+        state = qroute.environment.state.CircuitStateDQN(input_circuit, device)
+        starting_locations = np.array(state.node_to_qubit)
 
         progress_bar = tqdm.trange(training_steps)
         progress_bar.set_description('Episode %03d' % (e + 1))
         for time in progress_bar:
             action, _ = agent.act(state)
-            next_state, reward, done, next_gates_scheduled = qroute.environment.env.step(action, state)
+            next_state, reward, done, _ = qroute.environment.env.step(action, state)
             memory.store((state, reward, next_state, done))
             state = next_state
 
@@ -40,13 +41,16 @@ def train(device: qroute.environment.device.DeviceTopology,
                 num_actions = time + 1
                 num_actions_deque.append(num_actions)
                 avg_time = np.mean(num_actions_deque)
-                depth = qroute.visualizers.solution_validator.validate_solution(
-                    circuit, state.solution, starting_locations, device)
+                result_circuit = qroute.visualizers.solution_validator.validate_solution(
+                    input_circuit, state.solution, starting_locations, device)
+                depth = len(result_circuit.moments)
                 progress_bar.set_postfix(circuit_depth=depth, num_actions=num_actions, avg_actions=avg_time)
+                progress_bar.close()
+
                 # wandb.log({'Circuit Depth': depth,
                 #            'Number of Current Actions': num_actions,
                 #            'Number of Average Actions': num_actions})
-                progress_bar.close()
+                print("Output Circuit:\n", result_circuit, flush=True)
                 break
 
             agent.replay(memory)

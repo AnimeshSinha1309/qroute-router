@@ -1,4 +1,3 @@
-import random
 import copy
 
 import torch
@@ -7,6 +6,7 @@ import numpy as np
 from qroute.environment.device import DeviceTopology
 from qroute.environment.state import CircuitStateDQN
 from qroute.algorithms.actanneal import AnnealerAct
+from qroute.utils.histogram import histogram
 import qroute.hyperparams
 
 
@@ -90,7 +90,6 @@ class ActorCriticAgent(torch.nn.Module):
         :param memory: MemoryTree object, the experience buffer to sample from
         :param batch_size: number of experiences to sample from the experience buffer when training
         """
-        assert batch_size == 32, str(batch_size)
         tree_index, minibatch, is_weights = memory.sample(batch_size)
         absolute_errors = []
         is_weights = np.reshape(is_weights, -1)
@@ -122,41 +121,13 @@ class ActorCriticAgent(torch.nn.Module):
 
         memory.batch_update(tree_index, absolute_errors)
 
-    def generate_random_action(self, state: CircuitStateDQN):
-        """
-        Generates a random layer of swaps. Care is taken to ensure that all swaps can occur in parallel.
-        That is, no two neighbouring edges undergo a swap simultaneously.
-        """
-        action = np.zeros(len(self.device.edges))
-
-        edges = [(n1, n2) for (n1, n2) in self.device.edges]
-        edges = list(filter(lambda e: e[0] not in state.protected_nodes and e[1] not in state.protected_nodes, edges))
-        edge_index_map = {edge: index for index, edge in enumerate(edges)}
-
-        while len(edges) > 0:
-            edge, action[edge_index_map[edge]] = random.sample(edges, 1)[0], 1
-            edges = [e for e in edges if e[0] not in edge and e[1] not in edge]
-        return action
-
     def get_representation(self, state: CircuitStateDQN):
         """
         Obtains the state representation
-
         """
-        nodes_to_target_qubits = [
-            state.qubit_targets[state.qubit_locations[n]] for n in range(0, len(state.qubit_locations))]
-        nodes_to_target_nodes = [
-            next(iter(np.where(np.array(state.qubit_locations) == q)[0]), -1) for q in nodes_to_target_qubits]
 
-        distance_vector = np.zeros(self.device.max_distance, dtype=np.int)
-
-        for node in range(len(nodes_to_target_nodes)):
-            target = nodes_to_target_nodes[node]
-            if target == -1:
-                continue
-            d = int(self.device.distances[node, target])
-            distance_vector[d - 1] += 1  # the vector is effectively indexed from 1
-
+        nodes_to_target_nodes = state.target_nodes
+        distance_vector = histogram(state.target_distance, self.device.max_distance, 1)
         distance_vector = torch.from_numpy(distance_vector).to(qroute.hyperparams.DEVICE).float()
 
         interaction_map = torch.zeros((len(self.device), len(self.device)))

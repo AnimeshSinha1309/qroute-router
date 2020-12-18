@@ -6,8 +6,9 @@ import copy
 import math
 import numpy as np
 
-from environment.state import CircuitStateDQN
+from qroute.environment.state import CircuitStateDQN
 from qroute.environment.env import step
+from visualizers.solution_validator import check_valid_solution
 
 
 class AnnealerAct:
@@ -37,11 +38,12 @@ class AnnealerAct:
         """
         neighbour_solution = copy.copy(current_solution)
         available_edges = current_state.swappable_edges(neighbour_solution)
-        if available_edges is None or len(available_edges) == 0:
+        if not np.any(available_edges):
             raise RuntimeError("Ran out of edges to swap")
-        edge_index_to_swap = np.random.choice(available_edges, 1)
-        neighbour_solution[edge_index_to_swap] = (neighbour_solution[edge_index_to_swap] + 1) % 2
-        self.check_valid_solution(neighbour_solution, current_state.protected_edges)
+
+        swap_edge = np.random.choice(np.arange(len(available_edges)), p=available_edges/np.sum(available_edges))
+        neighbour_solution[swap_edge] = not neighbour_solution[swap_edge]
+        check_valid_solution(neighbour_solution, self.device)
         return neighbour_solution
 
     @staticmethod
@@ -60,30 +62,6 @@ class AnnealerAct:
             probability = math.exp(-energy_diff / temperature)
             return probability
 
-    def check_valid_solution(self, solution, forced_mask):
-        """
-        Checks if a solution is valid, i.e. does not use one node twice
-
-        :param solution: list, boolean array of swaps, the solution to check
-        :param forced_mask: list, blocking swaps which are not possible
-        :raises: RuntimeError if the solution is invalid
-        """
-        for i in range(len(solution)):
-            if forced_mask[i] and solution[i] == 1:
-                raise RuntimeError('Solution is not safe: Protected edge is being swapped')
-
-        if 1 in solution:
-            swap_edge_indices = np.where(np.array(solution) == 1)[0]
-            swap_edges = [self.device.edges[index] for index in swap_edge_indices]
-            swap_nodes = [node for edge in swap_edges for node in edge]
-
-            # return False if repeated swap nodes
-            seen = set()
-            for node in swap_nodes:
-                if node in seen:
-                    raise RuntimeError('Solution is not safe: Same node is being used twice in %s' % str(swap_edges))
-                seen.add(node)
-
     def simulated_annealing(self, current_state, search_limit=None):
         """
         Uses Simulated Annealing to find the next best state based on combinatorial
@@ -93,11 +71,10 @@ class AnnealerAct:
         :param search_limit: int, max iterations to search for
         :return: best_solution, value of best_energy
         """
-        import qroute
-        temp_state: qroute.environment.state.CircuitStateDQN = copy.copy(current_state)
+        temp_state: CircuitStateDQN = copy.copy(current_state)
         edge_probs, current_value = self.agent(current_state)
         current_solution = self.generate_initial_solution(current_state, edge_probs)
-        new_state: qroute.environment.state.CircuitStateDQN = copy.copy(current_state)
+        new_state: CircuitStateDQN = copy.copy(current_state)
         assert temp_state == new_state, "State not preserved when selecting action"
 
         if np.all(current_solution == 0):
@@ -143,7 +120,7 @@ class AnnealerAct:
         :return: list, initial solution as boolean array of whether to swap each node
         """
         initial_solution = np.zeros(len(self.device.edges))
-        available_edges = current_state.swappable_edges(initial_solution, return_mask=True)
+        available_edges = current_state.swappable_edges(initial_solution)
         probs = np.multiply(available_edges, edge_probs)
         if not np.any(available_edges):
             return initial_solution

@@ -7,8 +7,9 @@ import math
 import numpy as np
 from collections import deque
 
-from environment.state import CircuitStateDQN
+from qroute.environment.state import CircuitStateDQN
 from qroute.environment.env import step
+from visualizers.solution_validator import check_valid_solution
 
 
 class AnnealerDQN:
@@ -47,7 +48,7 @@ class AnnealerDQN:
         edge_index_to_swap = np.random.choice(available_edges, 1)
         neighbour_solution[edge_index_to_swap] = (neighbour_solution[edge_index_to_swap] + 1) % 2
 
-        self.check_valid_solution(neighbour_solution, current_state.protected_edges)
+        check_valid_solution(neighbour_solution, self.device)
 
         return neighbour_solution
 
@@ -80,30 +81,6 @@ class AnnealerDQN:
             energy_diff = new_energy - current_energy
             probability = math.exp(-energy_diff/temperature)
             return probability
-
-    def check_valid_solution(self, solution, forced_mask):
-        """
-        Checks if a solution is valid, i.e. does not use one node twice
-
-        :param solution: list, boolean array of swaps, the solution to check
-        :param forced_mask: list, blocking swaps which are not possible
-        :raises: RuntimeError if the solution is invalid
-        """
-        for i in range(len(solution)):
-            if forced_mask[i] and solution[i] == 1:
-                raise RuntimeError('Solution is not safe: Protected edge is being swapped')
-
-        if 1 in solution:
-            swap_edge_indices = np.where(np.array(solution) == 1)[0]
-            swap_edges = [self.device.edges[index] for index in swap_edge_indices]
-            swap_nodes = [node for edge in swap_edges for node in edge]
-
-            # return False if repeated swap nodes
-            seen = set()
-            for node in swap_nodes:
-                if node in seen:
-                    raise RuntimeError('Solution is not safe: Same node is being used twice in %s' % str(swap_edges))
-                seen.add(node)
 
     def simulated_annealing(self, current_state, action_chooser='model', search_limit=None):
         """

@@ -79,11 +79,8 @@ class MemoryPER:
 
     def sample(self, n):
         minibatch = []
-
         b_idx, b_is_weights = np.empty((n,), dtype=np.int32), np.empty((n, 1), dtype=np.float32)
-
         priority_segment = self.tree.total_priority / n
-
         self.per_b = np.min([1., self.per_b + self.per_b_increment_per_sampling])
 
         p_min = np.min(self.tree.tree[-self.tree.capacity:]) / self.tree.total_priority

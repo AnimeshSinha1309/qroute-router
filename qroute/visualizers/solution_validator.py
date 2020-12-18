@@ -41,19 +41,22 @@ def validate_solution(circuit: CircuitRepDQN, output: list, initial_locations: n
     return output_circuit
 
 
-def segment_ops_to_moments(ops, initial_locations):
-    pos = np.zeros(len(initial_locations), dtype=np.int)
-    moments = []
-    qubit_locations = initial_locations
-    for gate in ops:
-        n1, n2, t = gate
-        q1, q2 = qubit_locations[n1], qubit_locations[n2]
-        if t == 'swap':
-            qubit_locations[n1], qubit_locations[n2] = q2, q1
-        selected = max(pos[q1], pos[q2])
-        if selected >= len(moments):
-            moments.append([])
-        pos[q1] += 1
-        pos[q2] += 1
-        moments[selected].append(gate)
-    return moments
+def check_valid_solution(solution, device):
+    """
+    Checks if a solution is valid, i.e. does not use one node twice
+    :param solution: list, boolean array of swaps, the solution to check
+    :param device: DeviceTopology, the device to check on
+    :raises: RuntimeError if the solution is invalid
+    """
+    if not np.any(solution):
+        return
+    swap_edge_indices = np.where(np.array(solution) == 1)[0]
+    swap_edges = [device.edges[index] for index in swap_edge_indices]
+    swap_nodes = [node for edge in swap_edges for node in edge]
+
+    # return False if repeated swap nodes
+    seen = set()
+    for node in swap_nodes:
+        if node in seen:
+            raise RuntimeError('Solution is not safe: A node has several ops - %s' % str(swap_edges))
+        seen.add(node)

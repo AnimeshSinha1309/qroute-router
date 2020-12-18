@@ -19,7 +19,7 @@ def model_run(grid_size):
 
     state = qroute.environment.state.CircuitStateDQN(circuit, device)
     state.generate_starting_state()
-    initial_solution = state.qubit_locations
+    initial_solution = state._node_to_qubit
 
     output_moments = []
     ops_read_in = 0
@@ -29,7 +29,7 @@ def model_run(grid_size):
         state, reward, done, next_gates_scheduled = qroute.environment.env.step(action, state)
         output_moments.append(Moment(ops=state.solution[ops_read_in:], reward=reward))
         ops_read_in = len(state.solution)
-        print(state.solution, state.circuit_progress)
+        print(state.solution, state._circuit_progress)
         if done:
             output_circuit = qroute.visualizers.solution_validator.validate_solution(
                 circuit, state.solution, initial_solution, device)

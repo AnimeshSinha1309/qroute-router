@@ -15,30 +15,18 @@ def step(action, input_state: CircuitStateDQN):
     :return: State, the state in the upcoming step
     """
     state: CircuitStateDQN = copy.copy(input_state)
-    state.execute_next()  # Can also collect the rewards here, but not doing that
+    reward = 0
+
+    # Execute the gates you have on queue
+    gates_executed = state.execute_next()
+    reward += gates_executed * qroute.hyperparams.REWARD_GATE
 
     # Swaps the required qubits and collects rewards for the gain in distances
+    pre_swap_distances = state.target_distance
+    state.execute_swap(action)
+    post_swap_distances = state.target_distance
+    reward += qroute.hyperparams.REWARD_DISTANCE_REDUCTION * np.sum(
+        np.clip(0, 100, pre_swap_distances - post_swap_distances))
 
-    pre_swap_distances = state.calculate_distances_summary(state.qubit_locations, state.qubit_targets)
-
-    swap_edge_indices = np.where(np.array(action) == 1)[0]
-    swap_edges = [state.device.edges[i] for i in swap_edge_indices]
-
-    for (node1, node2) in swap_edges:
-        # TODO: Move the swapping logic to state
-        state.solution.append((node1, node2, 'swap'))
-        state.qubit_locations[node1], state.qubit_locations[node2] = \
-            state.qubit_locations[node2], state.qubit_locations[node1]
-    post_swap_distances = state.calculate_distances_summary(state.qubit_locations, state.qubit_targets)
-    distance_reduction_reward = 0
-
-    for q in range(len(state.circuit)):
-        if post_swap_distances[q] < pre_swap_distances[q]:
-            distance_reduction_reward += qroute.hyperparams.REWARD_DISTANCE_REDUCTION
-    gates_scheduled = state.next_gates()
-    post_swap_reward = len(gates_scheduled) * qroute.hyperparams.REWARD_GATE
-
-    reward = post_swap_reward + distance_reduction_reward
-
-    next_state = copy.copy(state)
-    return next_state, reward, next_state.is_done(), gates_scheduled
+    # Return everything
+    return state, reward, state.is_done(), None
