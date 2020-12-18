@@ -25,7 +25,6 @@ def model_run(grid_size):
             print(output_circuit)
             output_actions = qroute.visualizers.solution_validator.segment_ops_to_moments(
                 state.solution, initial_solution)
-            print(output_actions)
             return initial_solution, output_actions, circuit.circuit
 
     raise RuntimeError('Simulation could not find a solution')
@@ -37,9 +36,6 @@ class GridComputeScene(Scene):
         super().__init__()
         self.GRID_SIZE = 2
         self.loc, self.ops, self.circuit = model_run(self.GRID_SIZE)
-        print(self.loc)
-        print(self.circuit)
-        print(self.ops)
         self.done = np.zeros(self.GRID_SIZE ** 2, dtype=np.int)
         self.nodes, self.labels = [], []
 
@@ -51,7 +47,7 @@ class GridComputeScene(Scene):
                 pos = self.GRID_SIZE * i + j
                 square = Square(color=PINK).scale(0.8)
                 separator = Text('-')
-                qubit = DecimalNumber(number=self.loc[pos] + 1, num_decimal_places=0)\
+                qubit = DecimalNumber(number=self.loc[pos], num_decimal_places=0)\
                     .next_to(separator, LEFT, 0.1)
                 target = DecimalNumber(number=0, num_decimal_places=0).next_to(separator, RIGHT, 0.1)
                 node = VGroup(square, separator, qubit, target)
@@ -59,28 +55,31 @@ class GridComputeScene(Scene):
                 self.nodes.append(node)
                 self.labels.append(target)
                 animations.append(ShowCreation(node))
+        self.play(*animations)
         for pos in range(self.GRID_SIZE ** 2):
             self.target_update(pos)
 
-        self.play(*animations)
         self.wait(3)
         for m in self.ops:
             self.moment(m)
 
     def target_update(self, pos):
-        if self.labels[self.loc[pos]] is None:
+        if self.labels[pos] is None:
             return []
         elif self.done[self.loc[pos]] >= len(self.circuit[self.loc[pos]]):
-            outro = FadeOut(self.labels[self.loc[pos]])
-            self.labels[self.loc[pos]] = None
-            return [outro]
+            square = Square(color=PINK).scale(0.8)
+            qubit = DecimalNumber(number=self.loc[pos], num_decimal_places=0)
+            node = VGroup(square, qubit).move_to(self.nodes[pos].get_center()).scale(0.7)
+            outro = [FadeOut(self.nodes[pos]), FadeIn(node)]
+            self.nodes[pos] = node
+            self.labels[pos] = None
+            return outro
         else:
-            self.labels[self.loc[pos]].set_value(
-                self.circuit[self.loc[pos]][self.done[self.loc[pos]]] + 1)
+            self.labels[pos].set_value(
+                self.circuit[self.loc[pos]][self.done[self.loc[pos]]])
             return []
 
     def moment(self, ops):
-        print(ops)
         animations, outro = [], []
         for x, y, t in ops:
             if t == 'swap':
@@ -107,6 +106,7 @@ class GridComputeScene(Scene):
         outro = [FadeOut(rectangle)]
         self.nodes[x], self.nodes[y] = self.nodes[y], self.nodes[x]
         self.loc[x], self.loc[y] = self.loc[y], self.loc[x]
+        self.labels[x], self.labels[y] = self.labels[y], self.labels[x]
         return animations, outro
 
     def cnot(self, x, y):
