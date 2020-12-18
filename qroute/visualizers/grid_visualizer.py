@@ -1,5 +1,11 @@
+import collections
+# noinspection PyPackageRequirements
 from manim import *
+
 import qroute
+
+
+Moment = collections.namedtuple('Moment', ['ops', 'reward'])
 
 
 def model_run(grid_size):
@@ -15,19 +21,26 @@ def model_run(grid_size):
     state.generate_starting_state()
     initial_solution = state.qubit_locations
 
+    output_moments = []
+    ops_read_in = 0
+
     for i in range(500):
         action, _ = agent.act(state)
         state, reward, done, next_gates_scheduled = qroute.environment.env.step(action, state)
+        output_moments.append(Moment(ops=state.solution[ops_read_in:], reward=reward))
+        ops_read_in = len(state.solution)
+        print(state.solution, state.circuit_progress)
         if done:
             output_circuit = qroute.visualizers.solution_validator.validate_solution(
                 circuit, state.solution, initial_solution, device)
             print('Output Circuit')
             print(output_circuit)
-            output_actions = qroute.visualizers.solution_validator.segment_ops_to_moments(
-                state.solution, initial_solution)
-            return initial_solution, output_actions, circuit.circuit
+            return initial_solution, output_moments, circuit.circuit
 
     raise RuntimeError('Simulation could not find a solution')
+
+
+print(model_run(2))
 
 
 class GridComputeScene(Scene):
@@ -35,9 +48,10 @@ class GridComputeScene(Scene):
     def __init__(self):
         super().__init__()
         self.GRID_SIZE = 2
-        self.loc, self.ops, self.circuit = model_run(self.GRID_SIZE)
+        self.loc, self.moments, self.circuit = model_run(self.GRID_SIZE)
         self.done = np.zeros(self.GRID_SIZE ** 2, dtype=np.int)
         self.nodes, self.labels = [], []
+        self.reward_label = None
 
     def construct(self):
         shifts = (np.arange(self.GRID_SIZE) - (self.GRID_SIZE - 1) / 2) * 4 / 3
@@ -58,9 +72,11 @@ class GridComputeScene(Scene):
         self.play(*animations)
         for pos in range(self.GRID_SIZE ** 2):
             self.target_update(pos)
-
+        self.reward_label = DecimalNumber(number=0, num_decimal_places=0).next_to(
+            self.nodes[self.GRID_SIZE ** 2 - self.GRID_SIZE + 0], RIGHT, 1)
+        self.play(ShowCreation(self.reward_label))
         self.wait(3)
-        for m in self.ops:
+        for m in self.moments:
             self.moment(m)
 
     def target_update(self, pos):
@@ -79,9 +95,10 @@ class GridComputeScene(Scene):
                 self.circuit[self.loc[pos]][self.done[self.loc[pos]]])
             return []
 
-    def moment(self, ops):
+    def moment(self, moment: Moment):
+        print('Moment:', moment.ops)
         animations, outro = [], []
-        for x, y, t in ops:
+        for x, y, t in moment.ops:
             if t == 'swap':
                 a, o = self.swap(x, y)
             else:
@@ -90,6 +107,7 @@ class GridComputeScene(Scene):
             outro.extend(o)
 
         self.play(*animations)
+        self.reward_label.set_value(moment.reward)
         self.wait(2)
         self.play(*outro)
         self.wait(1)
