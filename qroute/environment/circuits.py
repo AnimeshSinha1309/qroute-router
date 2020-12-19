@@ -33,7 +33,7 @@ class CircuitRepDQN:
         return self.circuit[item]
 
     def __len__(self):
-        return len(self.qubits)
+        return len(self.circuit)
 
 
 def circuit_from_qasm(filename):

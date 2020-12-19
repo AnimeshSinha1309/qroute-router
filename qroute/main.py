@@ -1,4 +1,3 @@
-import collections
 # import os
 import logging
 
@@ -19,13 +18,11 @@ def train(device: qroute.environment.device.DeviceTopology,
           agent,
           training_episodes=350, training_steps=500):
 
-    num_actions_deque = collections.deque(maxlen=50)
     memory = qroute.memory.list.MemorySimple(500)
 
     # Training the agent
     for e in range(training_episodes):
         input_circuit = circuit
-        print("Input Circuit:\n", input_circuit.cirq, flush=True)
         state = qroute.environment.state.CircuitStateDQN(input_circuit, device)
         starting_locations = np.array(state.node_to_qubit)
 
@@ -39,17 +36,16 @@ def train(device: qroute.environment.device.DeviceTopology,
 
             if done:
                 num_actions = time + 1
-                num_actions_deque.append(num_actions)
-                avg_time = np.mean(num_actions_deque)
                 result_circuit = qroute.visualizers.solution_validator.validate_solution(
                     input_circuit, state.solution, starting_locations, device)
                 depth = len(result_circuit.moments)
-                progress_bar.set_postfix(circuit_depth=depth, num_actions=num_actions, avg_actions=avg_time)
+                progress_bar.set_postfix(circuit_depth=depth, num_actions=num_actions)
                 progress_bar.close()
 
                 # wandb.log({'Circuit Depth': depth,
-                #            'Number of Current Actions': num_actions,
-                #            'Number of Average Actions': num_actions})
+                #            'Number of Actions': num_actions,
+                #            'Input Circuit': str(input_circuit.cirq),
+                #            'Output Circuit': str(result_circuit)})
                 print("Output Circuit:\n", result_circuit, flush=True)
                 break
 

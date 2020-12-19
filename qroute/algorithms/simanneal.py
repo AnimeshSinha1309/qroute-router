@@ -9,7 +9,7 @@ from collections import deque
 
 from qroute.environment.state import CircuitStateDQN
 from qroute.environment.env import step
-from visualizers.solution_validator import check_valid_solution
+from qroute.visualizers.solution_validator import check_valid_solution
 
 
 class AnnealerDQN:

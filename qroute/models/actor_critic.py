@@ -78,10 +78,7 @@ class ActorCriticAgent(torch.nn.Module):
         :return: np.array of shape (len(device),), the chosen action mask after annealing
         """
         state = copy.copy(state)
-        if np.random.rand() <= self.epsilon:
-            action, value = self.generate_random_action(state), -1
-        else:
-            action, value = self.annealer.simulated_annealing(state)
+        action, value = self.annealer.simulated_annealing(state)
         return action, -value
 
     def replay(self, memory, batch_size=32):

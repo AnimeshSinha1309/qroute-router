@@ -5,42 +5,31 @@ from manim import *
 import qroute
 
 
-Moment = collections.namedtuple('Moment', ['ops', 'reward'])
+Moment = collections.namedtuple('Moment', ['swaps', 'cnots', 'reward'])
 
 
 def model_run(grid_size):
     device = qroute.environment.device.GridComputerDevice(grid_size, grid_size)
-    cirq = qroute.environment.circuits.circuit_generated_full_layer(len(device), 1)
-    circuit = qroute.environment.circuits.CircuitRepDQN(cirq)
+    cirq = qroute.environment.circuits.circuit_generated_randomly(len(device), 5)
+    circuit = qroute.environment.circuits.CircuitRepDQN(cirq, len(device))
     agent = qroute.models.actor_critic.ActorCriticAgent(device)
 
     print('Input Circuit')
     print(circuit.cirq)
 
     state = qroute.environment.state.CircuitStateDQN(circuit, device)
-    state.generate_starting_state()
-    initial_solution = state._node_to_qubit
-
+    initial_solution = state.node_to_qubit
     output_moments = []
-    ops_read_in = 0
 
     for i in range(500):
         action, _ = agent.act(state)
-        state, reward, done, next_gates_scheduled = qroute.environment.env.step(action, state)
-        output_moments.append(Moment(ops=state.solution[ops_read_in:], reward=reward))
-        ops_read_in = len(state.solution)
-        print(state.solution, state._circuit_progress)
+        state, reward, done, gates_scheduled = qroute.environment.env.step(action, state)
+        swaps = [edge for edge, take in zip(device.edges, action) if take]
+        output_moments.append(Moment(cnots=gates_scheduled, swaps=swaps, reward=reward))
         if done:
-            output_circuit = qroute.visualizers.solution_validator.validate_solution(
-                circuit, state.solution, initial_solution, device)
-            print('Output Circuit')
-            print(output_circuit)
             return initial_solution, output_moments, circuit.circuit
 
     raise RuntimeError('Simulation could not find a solution')
-
-
-print(model_run(2))
 
 
 class GridComputeScene(Scene):
@@ -96,18 +85,23 @@ class GridComputeScene(Scene):
             return []
 
     def moment(self, moment: Moment):
-        print('Moment:', moment.ops)
+        self.reward_label.set_value(moment.reward)
+
         animations, outro = [], []
-        for x, y, t in moment.ops:
-            if t == 'swap':
-                a, o = self.swap(x, y)
-            else:
-                a, o = self.cnot(x, y)
+        for x, y in moment.cnots:
+            a, o = self.cnot(x, y)
             animations.extend(a)
             outro.extend(o)
-
         self.play(*animations)
-        self.reward_label.set_value(moment.reward)
+        self.wait(2)
+        self.play(*outro)
+        self.wait(1)
+        animations, outro = [], []
+        for x, y in moment.swaps:
+            a, o = self.swap(x, y)
+            animations.extend(a)
+            outro.extend(o)
+        self.play(*animations)
         self.wait(2)
         self.play(*outro)
         self.wait(1)

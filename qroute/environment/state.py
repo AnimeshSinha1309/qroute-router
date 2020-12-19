@@ -26,6 +26,7 @@ class CircuitStateDQN:
         # The state must have access to the overall environment
         self.circuit = circuit
         self.device = device
+        assert len(circuit) == len(device), "All qubits on target device or not used, or too many are used"
         # The starting state should be setup right
         self._node_to_qubit = np.random.permutation(len(self.circuit)) \
             if node_to_qubit is None else node_to_qubit
@@ -103,7 +104,7 @@ class CircuitStateDQN:
                 if self._circuit_progress[q1] < len(self.circuit[q1]) else -1
             self._qubit_targets[q2] = self.circuit[q2][self._circuit_progress[q2]] \
                 if self._circuit_progress[q2] < len(self.circuit[q2]) else -1
-        return len(gates_to_execute)
+        return gates_to_execute
 
     def is_done(self):
         """
