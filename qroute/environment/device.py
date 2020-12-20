@@ -74,6 +74,30 @@ class DeviceTopology(cirq.Device):
         assert np.amax(mat) < 9999999, "The architecture is disconnected, run individually for components"
         return mat
 
+    # Get the list of edges which can be swapped after given action
+
+    def swappable_edges(self, current_action):
+        """
+        List of edges that can be operated with swaps, given the current state and blocked edges
+        :param current_action: list, boolean array of edges being currently swapped (current solution)
+        :return: list, edges which can still be swapped
+        """
+        available_edges_mask = np.full(shape=len(self.edges), fill_value=True)
+        # We block any edges connected to nodes already involved in a swap, except those actually being swapped
+        current_action_nodes = set()
+        for i, used in enumerate(current_action):
+            if used:
+                (n1, n2) = self.edges[i]
+                current_action_nodes.add(n1)
+                current_action_nodes.add(n2)
+        for idx, edge in enumerate(self.edges):
+            if edge[0] in current_action_nodes or edge[1] in current_action_nodes:
+                available_edges_mask[idx] = False
+        for idx, used in enumerate(current_action):
+            if used:
+                available_edges_mask[idx] = True
+        return available_edges_mask
+
     # Methods to check if the circuit is working on the device without violating the Topology
 
     def validate_operation(self, operation):

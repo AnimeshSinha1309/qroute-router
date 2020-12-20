@@ -1,35 +1,25 @@
-import collections
 # noinspection PyPackageRequirements
 from manim import *
 
 import qroute
 
 
-Moment = collections.namedtuple('Moment', ['swaps', 'cnots', 'reward'])
-
-
 def model_run(grid_size):
     device = qroute.environment.device.GridComputerDevice(grid_size, grid_size)
     cirq = qroute.environment.circuits.circuit_generated_randomly(len(device), 5)
     circuit = qroute.environment.circuits.CircuitRepDQN(cirq, len(device))
-    agent = qroute.models.actor_critic.ActorCriticAgent(device)
+    assert len(circuit) == len(device), "All qubits on target hardware need to be used once #FIXME"
+    model = qroute.models.actor_critic.ActorCriticAgent(device)
+    agent = qroute.algorithms.actanneal.AnnealerAct(model, device)
+    memory = qroute.memory.list.MemorySimple(500)
+    solution_start, solution_moments, successful = qroute.engine.train_step(
+        agent, device, circuit, memory, training_steps=50, episode_id=1)
 
-    print('Input Circuit')
-    print(circuit.cirq)
-
-    state = qroute.environment.state.CircuitStateDQN(circuit, device)
-    initial_solution = state.node_to_qubit
-    output_moments = []
-
-    for i in range(500):
-        action, _ = agent.act(state)
-        state, reward, done, gates_scheduled = qroute.environment.env.step(action, state)
-        swaps = [edge for edge, take in zip(device.edges, action) if take]
-        output_moments.append(Moment(cnots=gates_scheduled, swaps=swaps, reward=reward))
-        if done:
-            return initial_solution, output_moments, circuit.circuit
-
-    raise RuntimeError('Simulation could not find a solution')
+    print("Visualizing Solution:")
+    print(solution_start)
+    for moment in solution_moments:
+        print(moment)
+    return solution_start, solution_moments, circuit.circuit
 
 
 class GridComputeScene(Scene):
@@ -84,27 +74,18 @@ class GridComputeScene(Scene):
                 self.circuit[self.loc[pos]][self.done[self.loc[pos]]])
             return []
 
-    def moment(self, moment: Moment):
+    def moment(self, moment: qroute.environment.env.Moment):
         self.reward_label.set_value(moment.reward)
-
-        animations, outro = [], []
-        for x, y in moment.cnots:
-            a, o = self.cnot(x, y)
-            animations.extend(a)
-            outro.extend(o)
-        self.play(*animations)
-        self.wait(2)
-        self.play(*outro)
-        self.wait(1)
-        animations, outro = [], []
-        for x, y in moment.swaps:
-            a, o = self.swap(x, y)
-            animations.extend(a)
-            outro.extend(o)
-        self.play(*animations)
-        self.wait(2)
-        self.play(*outro)
-        self.wait(1)
+        for ops in [moment.swaps, moment.cnots]:
+            animations, outro = [], []
+            for x, y in ops:
+                a, o = self.cnot(x, y)
+                animations.extend(a)
+                outro.extend(o)
+            self.play(*animations)
+            self.wait(2)
+            self.play(*outro)
+            self.wait(1)
 
     def swap(self, x, y):
         x_i, x_j = x // self.GRID_SIZE, x % self.GRID_SIZE
@@ -124,6 +105,7 @@ class GridComputeScene(Scene):
     def cnot(self, x, y):
         x_i, x_j = x // self.GRID_SIZE, x % self.GRID_SIZE
         y_i, y_j = y // self.GRID_SIZE, y % self.GRID_SIZE
+
         rectangle = Rectangle(
             color=BLUE, width=(2.5 if x_i != y_i else 1.15), height=(2.5 if x_j != y_j else 1.15))\
             .move_to((self.nodes[x].get_center() + self.nodes[y].get_center()) / 2)

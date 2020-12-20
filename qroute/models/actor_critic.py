@@ -1,11 +1,9 @@
 import copy
 
 import torch
-import numpy as np
 
 from qroute.environment.device import DeviceTopology
 from qroute.environment.state import CircuitStateDQN
-from qroute.algorithms.actanneal import AnnealerAct
 from qroute.utils.histogram import histogram
 import qroute.hyperparams
 
@@ -41,7 +39,6 @@ class ActorCriticAgent(torch.nn.Module):
         ).to(qroute.hyperparams.DEVICE)
         self.current_optimizer = torch.optim.Adam(
             list(self.actor_model.parameters()) + list(self.critic_model.parameters()))
-        self.annealer = AnnealerAct(self, device)
 
         self.gamma = 0.8
         self.epsilon = 0.01  # TODO: Fix this constant and figure out if needed
@@ -69,54 +66,6 @@ class ActorCriticAgent(torch.nn.Module):
             probs_value = torch.multiply(torch.dot(probs, solution), value) - value * 0.8
             critic_value = self.critic_model(solution_dist) - value
             return (probs_value + critic_value).detach().item()
-
-    def act(self, state: CircuitStateDQN):
-        """
-        Chooses an action to perform in the environment and returns it
-        (i.e. does not alter environment state)
-        :param state: the state of the environment
-        :return: np.array of shape (len(device),), the chosen action mask after annealing
-        """
-        state = copy.copy(state)
-        action, value = self.annealer.simulated_annealing(state)
-        return action, -value
-
-    def replay(self, memory, batch_size=32):
-        """
-        Learns from past experiences
-        :param memory: MemoryTree object, the experience buffer to sample from
-        :param batch_size: number of experiences to sample from the experience buffer when training
-        """
-        tree_index, minibatch, is_weights = memory.sample(batch_size)
-        absolute_errors = []
-        is_weights = np.reshape(is_weights, -1)
-
-        for experience, is_weight in zip(minibatch, is_weights):
-            state, reward, next_state, done = experience
-            # Train the current model (model.fit in current state)
-            probs, value = self(state)
-
-            if done:
-                target = torch.tensor(reward)
-                policy_loss = torch.tensor(0)
-                value_loss = torch.square(value - target)
-            else:
-                solution, value = self.annealer.simulated_annealing(next_state, search_limit=10)
-                probs, solution = torch.from_numpy(probs), torch.from_numpy(solution)
-                target = torch.tensor(reward + self.gamma * value)
-                advantage = torch.square(torch.subtract(target, value))
-                policy_loss = torch.sum(torch.multiply(probs, solution)).item() * advantage
-                value_loss = torch.square(torch.subtract(target, value))
-
-            absolute_errors.append(torch.abs(value - target).detach().item())
-
-            self.current_optimizer.zero_grad()
-            loss = (policy_loss + value_loss) * is_weight
-            loss.requires_grad = True
-            loss.backward()
-            self.current_optimizer.step()
-
-        memory.batch_update(tree_index, absolute_errors)
 
     def get_representation(self, state: CircuitStateDQN):
         """
