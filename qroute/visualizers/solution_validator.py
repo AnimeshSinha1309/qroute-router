@@ -6,13 +6,15 @@ from qroute.environment.env import Moment
 from qroute.environment.device import DeviceTopology
 
 
-def validate_solution(circuit: CircuitRepDQN, output: list, initial_locations: np.ndarray, device: DeviceTopology):
+def validate_solution(circuit: CircuitRepDQN, output: list, initial_locations: np.ndarray, device: DeviceTopology,
+                      verbose=True):
     """
 
     :param circuit: CircuitRep object, defines the input problem
     :param output: list, Gates in the array as (n1, n2, type)
     :param initial_locations: The starting node to qubit mapping
     :param device: The device we are compiling the circuit on
+    :param verbose: bool, whether to print the circuits
     :return:
     """
     output_circuit = cirq.Circuit()
@@ -40,8 +42,11 @@ def validate_solution(circuit: CircuitRepDQN, output: list, initial_locations: n
         assert progress == len(circuit.circuit[idx]), "Operations were not completed"
 
     # Print to see what your circuit looks like
-    print("Input Circuit\n", circuit.cirq)
-    print("Output Circuit\n", output_circuit)
+    if verbose:
+        print()
+        print("Initial State:", initial_locations)
+        print("Input Circuit\n", circuit.cirq)
+        print("Output Circuit\n", output_circuit)
     return output_circuit
 
 

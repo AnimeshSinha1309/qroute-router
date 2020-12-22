@@ -5,10 +5,10 @@ import tqdm
 import qroute
 
 
-def train_step(agent: qroute.algorithms.actanneal.AnnealerAct,
+def train_step(agent: qroute.metas.CombinerAgent,
                device: qroute.environment.device.DeviceTopology,
                circuit: qroute.environment.circuits.CircuitRepDQN,
-               memory: qroute.memory.list.MemorySimple,
+               memory: qroute.metas.ReplayMemory,
                training_steps=500, episode_id=1):
 
     input_circuit = circuit
@@ -21,8 +21,12 @@ def train_step(agent: qroute.algorithms.actanneal.AnnealerAct,
         action, _ = agent.act(state)
         next_state, reward, done, debugging_output = qroute.environment.env.step(action, state)
         solution_moments.append(debugging_output)
-        # noinspection PyUnusedLocal
+        memory.store(qroute.metas.MemoryItem(state=state, action=action, next_state=next_state,
+                                             reward=reward, done=done))
         state = next_state
+
+        if (time + 1) % 500 == 0:
+            agent.replay(memory)
 
         if done:
             num_actions = time + 1
@@ -39,4 +43,5 @@ def train_step(agent: qroute.algorithms.actanneal.AnnealerAct,
             return solution_start, solution_moments, True
 
     agent.replay(memory)
+
     return solution_start, solution_moments, False

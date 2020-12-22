@@ -53,7 +53,7 @@ class ActorCriticAgent(torch.nn.Module):
 
         return probs.detach().numpy(), value.detach().item()
 
-    def evaluate(self, current_state, next_state=None, solution=None):
+    def evaluate(self, current_state, next_state, solution):
         """
         Get the value function of the current solution
         :param current_state: the current state
@@ -69,7 +69,7 @@ class ActorCriticAgent(torch.nn.Module):
         _, solution_dist = self.get_representation(next_state)
         # Assumes that the baseline is 70% of the Softmax can be covered at any time
         # TODO: Change the Softmax to get individual probs then normalize for softer values
-        probs_value = torch.multiply(torch.dot(probs, solution), value) - value * 0.8
+        probs_value = torch.multiply(torch.dot(probs[:-1], solution), value) - value * 0.8
         critic_value = self.critic_model(solution_dist) - value
         return (probs_value + critic_value).detach().item()
 

@@ -1,30 +1,10 @@
 import abc
 import collections
-import qroute
+
+import numpy as np
 
 
 MemoryItem = collections.namedtuple('MemoryItem', ['state', 'reward', 'action', 'next_state', 'done'])
-
-
-class CombinerAgent(abc.ABC):
-    """
-    Class to train and act using the model, by combining the actions taken by the model in a single step
-    """
-
-    @abc.abstractmethod
-    def act(self, state: qroute.environment.state.CircuitStateDQN):
-        """
-        Chooses an action to perform in the environment and returns it
-        (i.e. does not alter environment state)
-        :param state: the state of the environment
-        :return: np.array of shape (len(device),), the chosen action mask after annealing
-        """
-
-    @abc.abstractmethod
-    def replay(self):
-        """
-        Learns from past experiences
-        """
 
 
 class TransformationState(abc.ABC):
@@ -34,7 +14,7 @@ class TransformationState(abc.ABC):
     """
 
     @abc.abstractmethod
-    def execute_swap(self, solution):
+    def execute_swap(self, solution: np.ndarray):
         """
         Updates the state of the system with whatever swaps are executed in the solution.
         This function MUTATES the state.
@@ -112,4 +92,31 @@ class ReplayMemory(abc.ABC):
         """
         Returns an iterator over the items in memory
         :return: the iterator
+        """
+
+    @abc.abstractmethod
+    def clear(self):
+        """
+        Clears out the memory
+        """
+
+
+class CombinerAgent(abc.ABC):
+    """
+    Class to train and act using the model, by combining the actions taken by the model in a single step
+    """
+
+    @abc.abstractmethod
+    def act(self, state: TransformationState):
+        """
+        Chooses an action to perform in the environment and returns it
+        (i.e. does not alter environment state)
+        :param state: the state of the environment
+        :return: np.array of shape (len(device),), the chosen action mask after annealing
+        """
+
+    @abc.abstractmethod
+    def replay(self, memory: ReplayMemory):
+        """
+        Learns from past experiences
         """

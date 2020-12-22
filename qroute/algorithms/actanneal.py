@@ -7,7 +7,7 @@ import math
 import numpy as np
 import torch
 
-from qroute.environment.state import CircuitStateDQN
+from qroute.metas import TransformationState
 from qroute.environment.env import step
 from qroute.visualizers.solution_validator import check_valid_solution
 
@@ -36,7 +36,7 @@ class AnnealerAct:
         :param edge_probs: vector with the probability values for each edge to swap
         :return: list, initial solution as boolean array of whether to swap each node
         """
-        initial_solution = np.zeros(len(self.device.edges))
+        initial_solution = np.full(len(self.device.edges), fill_value=False)
         available_edges = self.device.swappable_edges(initial_solution)
         probs = np.multiply(available_edges, edge_probs)
         if not np.any(available_edges):
@@ -52,7 +52,7 @@ class AnnealerAct:
         :return: list, neighbor solution
         """
         neighbour_solution = copy.copy(current_solution)
-        available_edges = self.device.swappable_edges(neighbour_solution)
+        available_edges = np.bitwise_or(neighbour_solution, self.device.swappable_edges(neighbour_solution))
         if not np.any(available_edges):
             raise RuntimeError("Ran out of edges to swap")
 
@@ -77,7 +77,7 @@ class AnnealerAct:
             probability = math.exp(-energy_diff / temperature)
             return probability
 
-    def act(self, state: CircuitStateDQN):
+    def act(self, state: TransformationState):
         """
         Chooses an action to perform in the environment and returns it
         (i.e. does not alter environment state)
@@ -134,10 +134,11 @@ class AnnealerAct:
         :param search_limit: int, max iterations to search for
         :return: best_solution, value of best_energy
         """
-        temp_state: CircuitStateDQN = copy.copy(current_state)
+        temp_state: TransformationState = copy.copy(current_state)
         edge_probs, current_value = self.model(current_state)
+        edge_probs = edge_probs[:-1]  # Remove the STOP token element
         current_solution = self._generate_initial_solution(edge_probs)
-        new_state: CircuitStateDQN = copy.copy(current_state)
+        new_state: TransformationState = copy.copy(current_state)
         assert temp_state == new_state, "State not preserved when selecting action"
 
         if np.all(current_solution == 0):
