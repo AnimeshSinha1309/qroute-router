@@ -28,7 +28,7 @@ class AnnealerAct:
         self.cooling_multiplier = 0.95
 
         self.device = device
-        self.agent = agent
+        self.model = agent
 
     def _generate_initial_solution(self, edge_probs):
         """
@@ -101,7 +101,7 @@ class AnnealerAct:
         for experience, is_weight in zip(minibatch, is_weights):
             state, reward, next_state, done = experience
             # Train the current model (model.fit in current state)
-            probs, value = self.agent(state)
+            probs, value = self.model(state)
 
             if done:
                 target = torch.tensor(reward)
@@ -110,18 +110,18 @@ class AnnealerAct:
             else:
                 solution, value = self.simulated_annealing(next_state, search_limit=10)
                 probs, solution = torch.from_numpy(probs), torch.from_numpy(solution)
-                target = torch.tensor(reward + self.agent.gamma * value)
+                target = torch.tensor(reward + self.model.gamma * value)
                 advantage = torch.square(torch.subtract(target, value))
                 policy_loss = torch.sum(torch.multiply(probs, solution)).item() * advantage
                 value_loss = torch.square(torch.subtract(target, value))
 
             absolute_errors.append(torch.abs(value - target).detach().item())
 
-            self.agent.current_optimizer.zero_grad()
+            self.model.optimizer.zero_grad()
             loss = (policy_loss + value_loss) * is_weight
             loss.requires_grad = True
             loss.backward()
-            self.agent.current_optimizer.step()
+            self.model.optimizer.step()
 
         memory.batch_update(tree_index, absolute_errors)
 
@@ -135,7 +135,7 @@ class AnnealerAct:
         :return: best_solution, value of best_energy
         """
         temp_state: CircuitStateDQN = copy.copy(current_state)
-        edge_probs, current_value = self.agent(current_state)
+        edge_probs, current_value = self.model(current_state)
         current_solution = self._generate_initial_solution(edge_probs)
         new_state: CircuitStateDQN = copy.copy(current_state)
         assert temp_state == new_state, "State not preserved when selecting action"
@@ -156,7 +156,7 @@ class AnnealerAct:
 
             new_solution = self._get_neighbour_solution(current_solution)
             new_state, _, _, _ = step(new_solution, current_state)
-            new_value = self.agent(current_state, new_state, new_solution)
+            new_value = self.model.evaluate(current_state, new_state, new_solution)
             accept_prob = self.acceptance_probability(current_value, new_value, temp)
 
             if accept_prob > np.random.random():

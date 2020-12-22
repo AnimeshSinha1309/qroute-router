@@ -6,11 +6,14 @@
       <w>cirq</w>
       <w>immutator</w>
       <w>indegree</w>
+      <w>manimce</w>
       <w>probs</w>
       <w>qasm</w>
       <w>qroute</w>
       <w>qubit</w>
       <w>qubits</w>
+      <w>regressor</w>
+      <w>tqdm</w>
       <w>wandb</w>
       <w>warshall</w>
     </words>

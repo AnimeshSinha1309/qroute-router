@@ -93,9 +93,6 @@ class DeviceTopology(cirq.Device):
         for idx, edge in enumerate(self.edges):
             if edge[0] in current_action_nodes or edge[1] in current_action_nodes:
                 available_edges_mask[idx] = False
-        for idx, used in enumerate(current_action):
-            if used:
-                available_edges_mask[idx] = True
         return available_edges_mask
 
     # Methods to check if the circuit is working on the device without violating the Topology

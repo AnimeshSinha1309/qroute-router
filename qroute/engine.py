@@ -21,7 +21,6 @@ def train_step(agent: qroute.algorithms.actanneal.AnnealerAct,
         action, _ = agent.act(state)
         next_state, reward, done, debugging_output = qroute.environment.env.step(action, state)
         solution_moments.append(debugging_output)
-        memory.store((state, reward, next_state, done))
         # noinspection PyUnusedLocal
         state = next_state
 

@@ -2,9 +2,10 @@ import numpy as np
 
 from qroute.environment.device import DeviceTopology
 from qroute.environment.circuits import CircuitRepDQN
+from qroute.metas import TransformationState
 
 
-class CircuitStateDQN:
+class CircuitStateDQN(TransformationState):
     """
     Represents the State of the system when transforming a circuit. This holds the reference
     copy of the environment and the state of the transformation (even within a step).
