@@ -27,6 +27,13 @@ class AutoRegressor(CombinerAgent):
     def act(self, state: TransformationState):
         state = copy.copy(state)
         solution, value = np.full(shape=len(self.device.edges), fill_value=False), 0
+
+        # Force at least 1 swap
+        available = self.device.swappable_edges(solution)
+        probs, value = self.agent(state)
+        swap_edge = np.argmax(np.multiply(available, probs[:-1]))
+        solution[swap_edge] = True
+
         while True:
             available = np.concatenate([self.device.swappable_edges(solution), np.array([True])])
             probs, value = self.agent(state)

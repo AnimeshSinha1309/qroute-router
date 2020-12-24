@@ -10,9 +10,10 @@ import torch
 from qroute.metas import TransformationState
 from qroute.environment.env import step
 from qroute.visualizers.solution_validator import check_valid_solution
+from qroute.metas import CombinerAgent
 
 
-class AnnealerAct:
+class AnnealerAct(CombinerAgent):
     """
     Class to perform simulated annealing using a policy gradient model + value function approximator
     """

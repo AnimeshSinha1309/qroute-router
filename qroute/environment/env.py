@@ -30,12 +30,12 @@ def step(action, input_state: CircuitStateDQN):
     post_swap_distances = np.copy(state.target_distance)
     swap_reward_dec = qroute.hyperparams.REWARD_DISTANCE_REDUCTION * np.sum(
         np.clip(pre_swap_distances - post_swap_distances, 0, 1000))
-    swap_reward_inc = qroute.hyperparams.REWARD_DISTANCE_REDUCTION * np.sum(
+    swap_reward_inc = qroute.hyperparams.PENALTY_DISTANCE_INCREASE * np.sum(
         np.clip(pre_swap_distances - post_swap_distances, -1000, 0))
     # Check if the circuit is done executing
     done = state.is_done()
     reward_completion = qroute.hyperparams.REWARD_CIRCUIT_COMPLETION if done else 0
     # Return everything
-    reward = gate_reward + swap_reward_inc + swap_reward_dec + reward_completion
+    reward = gate_reward + swap_reward_inc + swap_reward_dec + reward_completion + qroute.hyperparams.REWARD_TIMESTEP
     debugging_output = Moment(cnots_executed, swaps_executed, reward)
     return state, reward, done, debugging_output
