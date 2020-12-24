@@ -7,7 +7,7 @@ class CircuitRepDQN:
     Keeps a global usable representation of a logical circuit
     """
 
-    def __init__(self, circuit: cirq.Circuit):
+    def __init__(self, circuit: cirq.Circuit, n_qubits=None):
         """
         Takes in a circuit (logical circuit - LC) and initializes the state object
         which will maintain the leaf nodes (operations which can be executed without dependencies)
@@ -15,9 +15,10 @@ class CircuitRepDQN:
         :param circuit: cirq.Circuit, The input logical circuit
         """
         self.cirq = circuit
-        self.qubits = list(circuit.all_qubits())
+        self.qubits = sorted(list(circuit.all_qubits()))
         operators = circuit.all_operations()
-        self.circuit: list = [[] for _ in self.qubits]
+        n_qubits = len(self.qubits) if n_qubits is None else n_qubits
+        self.circuit: list = [[] for _ in range(n_qubits)]
         for operator in operators:
             if len(operator.qubits) == 1:
                 continue
@@ -32,7 +33,7 @@ class CircuitRepDQN:
         return self.circuit[item]
 
     def __len__(self):
-        return len(self.qubits)
+        return len(self.circuit)
 
 
 def circuit_from_qasm(filename):

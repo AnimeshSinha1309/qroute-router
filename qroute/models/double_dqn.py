@@ -147,9 +147,9 @@ class DoubleDQNAgent(torch.nn.Module):
         If there are n qubits, then the length of this vector will also be n.
         """
         nodes_to_target_qubits = [
-            state.qubit_targets[state.qubit_locations[n]] for n in range(0, len(state.qubit_locations))]
+            state._qubit_targets[state._node_to_qubit[n]] for n in range(0, len(state._node_to_qubit))]
         nodes_to_target_nodes = [
-            next(iter(np.where(np.array(state.qubit_locations) == q)[0]), -1) for q in nodes_to_target_qubits]
+            next(iter(np.where(np.array(state._node_to_qubit) == q)[0]), -1) for q in nodes_to_target_qubits]
 
         distance_vector = np.zeros(self.device.max_distance)
 
