@@ -8,7 +8,7 @@ import qroute.hyperparams
 
 class ActorCriticAgent(torch.nn.Module):
 
-    def __init__(self, device: DeviceTopology):
+    def __init__(self, device: DeviceTopology, stop_move: bool = False):
         """
         Initializes the graph network as a torch module and makes the
         architecture and the graph.
@@ -23,7 +23,7 @@ class ActorCriticAgent(torch.nn.Module):
             torch.nn.ReLU(),
             torch.nn.Linear(32, 32),
             torch.nn.ReLU(),
-            torch.nn.Linear(32, len(self.device.edges) + 1),
+            torch.nn.Linear(32, len(self.device.edges) + (1 if stop_move else 0)),
             torch.nn.Softmax(dim=-1)
         ).to(qroute.hyperparams.DEVICE)
         self.critic_model = torch.nn.Sequential(

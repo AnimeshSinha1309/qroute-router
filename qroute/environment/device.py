@@ -1,3 +1,5 @@
+import typing
+
 import cirq
 import networkx as nx
 import numpy as np
@@ -15,7 +17,7 @@ class DeviceTopology(cirq.Device):
         :param nodes: iterable, list of qubits, eg. [1, 2, 3, 4]
         :param edges: iterable, list of edges, eg. [(1, 2), (2, 3), (2, 4), (3, 4)]
         """
-        self.edges = edges
+        self.edges: typing.List[tuple] = edges
         self.nodes = nodes
         self.graph = nx.empty_graph(nodes)
         self.graph.add_edges_from(edges)
