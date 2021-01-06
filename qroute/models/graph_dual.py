@@ -10,7 +10,7 @@ from qroute.environment.state import CircuitStateDQN
 
 class GraphDualModel(torch.nn.Module):
 
-    def __init__(self, device: DeviceTopology):
+    def __init__(self, device: DeviceTopology, stop_move: bool = False):
         """
         Create the decision model for the given device topology
         :param device: the device object on which the agent should propose actions
@@ -35,7 +35,7 @@ class GraphDualModel(torch.nn.Module):
             torch.nn.Linear(16, 1),
         )
         self.policy_head = torch.nn.Sequential(
-            torch.nn.Linear(len(self.device) * 4, len(self.device.edges)),
+            torch.nn.Linear(len(self.device) * 4, len(self.device.edges) + 1 if stop_move else 0),
             torch.nn.Softmax(dim=-1),
         )
 

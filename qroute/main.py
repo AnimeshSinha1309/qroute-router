@@ -15,11 +15,9 @@ if __name__ == '__main__':
     device = qroute.environment.device.GridComputerDevice(3, 3)
     cirq = qroute.environment.circuits.circuit_generated_randomly(len(device), 20)
     circuit = qroute.environment.circuits.CircuitRepDQN(cirq, len(device))
-    model = qroute.models.graph_dual.GraphDualModel(device)
-    agent = qroute.algorithms.autoregress.AutoRegressor(model, device)
+    model = qroute.models.graph_dual.GraphDualModel(device, True)
+    agent = qroute.algorithms.mcts.MCTSAgent(model, device)
     memory = qroute.memory.list.MemorySimple(500)
 
-    state = qroute.environment.state.CircuitStateDQN(circuit, device)
-    print(model(state))
-    # for e in range(300):
-    #     qroute.engine.train_step(agent, device, circuit, memory, training_steps=5000, episode_id=e+1)
+    for e in range(300):
+        qroute.engine.train_step(agent, device, circuit, memory, training_steps=5000, episode_id=e+1)

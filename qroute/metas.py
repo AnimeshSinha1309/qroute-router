@@ -2,6 +2,8 @@ import abc
 import collections
 
 import numpy as np
+from environment.device import DeviceTopology
+from environment.circuits import CircuitRepDQN
 
 
 MemoryItem = collections.namedtuple('MemoryItem', ['state', 'reward', 'action', 'next_state', 'done'])
@@ -12,6 +14,10 @@ class TransformationState(abc.ABC):
     Represents the State of the system when transforming a circuit. This holds the reference
     copy of the environment and the state of the transformation (even within a step).
     """
+
+    def __init__(self):
+        self.device: DeviceTopology
+        self.circuit: CircuitRepDQN
 
     @abc.abstractmethod
     def execute_swap(self, solution: np.ndarray):

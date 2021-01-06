@@ -4,9 +4,12 @@
       <w>animesh</w>
       <w>bffd</w>
       <w>cirq</w>
+      <w>hyperparam</w>
       <w>immutator</w>
       <w>indegree</w>
       <w>manimce</w>
+      <w>mcts</w>
+      <w>moerland</w>
       <w>probs</w>
       <w>qasm</w>
       <w>qroute</w>
