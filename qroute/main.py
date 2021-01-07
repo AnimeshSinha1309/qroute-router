@@ -20,4 +20,4 @@ if __name__ == '__main__':
     memory = qroute.memory.list.MemorySimple(500)
 
     for e in range(300):
-        qroute.engine.train_step(agent, device, circuit, memory, training_steps=5000, episode_id=e+1)
+        qroute.engine.train_step(agent, device, circuit, memory, training_steps=50, episode_id=e+1)

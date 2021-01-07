@@ -35,7 +35,7 @@ class GraphDualModel(torch.nn.Module):
             torch.nn.Linear(16, 1),
         )
         self.policy_head = torch.nn.Sequential(
-            torch.nn.Linear(len(self.device) * 4, len(self.device.edges) + 1 if stop_move else 0),
+            torch.nn.Linear(len(self.device) * 4, len(self.device.edges) + (1 if stop_move else 0)),
             torch.nn.Softmax(dim=-1),
         )
 
@@ -48,7 +48,7 @@ class GraphDualModel(torch.nn.Module):
         x = self.get_representation(state)
         x = self.edge_conv(x, self.edges)
         x = x.view(-1)
-        policy: np.ndarray = self.policy_head(x).detach().numpy()
+        policy = self.policy_head(x).detach().numpy()
         value: int = self.value_head(x).detach().item()
         return policy, value
 

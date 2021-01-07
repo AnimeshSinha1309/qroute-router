@@ -4,16 +4,14 @@ CREDITS : Thomas Moerland, Delft University of Technology
 """
 
 import copy
-import typing
+import typing as ty
 
 import numpy as np
-import tqdm
 import torch
 
 from metas import ReplayMemory
 from qroute.metas import CombinerAgent
 from qroute.environment.state import CircuitStateDQN
-from qroute.models.graph_dual import GraphDualModel
 from qroute.environment.env import step
 
 
@@ -34,21 +32,20 @@ class MCTSAgent(CombinerAgent):
             self.state: CircuitStateDQN = state
             self.parent_state, self.parent_action = parent_state, parent_action
             self.r_previous = r_previous
-            self.num_actions = len(self.state.device.edges) + 1
+            self.num_actions = len(self.state.device.edges)
             self.solution: np.ndarray = copy.copy(solution) if solution is not None else np.zeros(self.num_actions)
 
             self.rollout_reward = self.calc_rollout_reward() if self.parent_action is not None else 0.0
             self.action_mask = np.concatenate([self.state.device.swappable_edges(self.solution), np.array([False])])
 
-            self.n_value = torch.zeros(self.num_actions)
-            self.q_value = torch.zeros(self.num_actions)
-            self.child_states: typing.List[typing.Optional[MCTSAgent.MCTSState]] = \
-                [None for _ in range(self.num_actions)]
+            self.n_value = torch.zeros(self.num_actions + 1)
+            self.q_value = torch.zeros(self.num_actions + 1)
+            self.child_states: ty.List[ty.Optional[MCTSAgent.MCTSState]] = [None for _ in range(self.num_actions)]
 
             self.model = model
             self.priors, _ = self.model(self.state)
 
-            self.priors[(self.action_mask == 0).nonzero()] = -1e8
+            self.priors += np.bitwise_not(self.action_mask) * -1e8
             self.priors = (torch.softmax(torch.tensor(self.priors), dim=0) *
                            torch.tensor(self.action_mask).float()).flatten()
             self.prior_noise()
@@ -64,8 +61,7 @@ class MCTSAgent(CombinerAgent):
             n_visits = torch.sum(self.n_value).item()
             uct = self.q_value + (self.priors * c * np.sqrt(n_visits + 1) / (self.n_value + 1))
             best_val = torch.max(uct)
-            best_moves: torch.Tensor = torch.eq(best_val, uct)
-            best_move_indices, _ = torch.where(best_moves)
+            best_move_indices: torch.Tensor = torch.where(torch.eq(best_val, uct))[0]
             winner: int = np.random.choice(best_move_indices.numpy())
             return winner
 
@@ -76,18 +72,33 @@ class MCTSAgent(CombinerAgent):
             """
             if sum(self.solution) < 1e-6:
                 return False
-            noise = np.reshape(np.random.dirichlet([self.HYPERPARAM_NOISE_ALPHA] * int(sum(self.solution)),
-                                                   size=self.priors.shape), (13,))
+            noise = np.random.dirichlet([self.HYPERPARAM_NOISE_ALPHA for _ in self.priors])
             self.priors = self.HYPERPARAM_PRIOR_FRACTION * self.priors + (1 - self.HYPERPARAM_PRIOR_FRACTION) * noise
 
-        def calc_rollout_reward(self):
+        def calc_rollout_reward(self, num_rollouts=None):
             """
             performs R random rollout, the total reward in each rollout is computed.
             returns: mean across the R random rollouts.
             """
-            next_state, _, _, _ = step(self.solution, self.state)
-            _, self.rollout_reward = self.model(next_state)
-            return self.rollout_reward
+            if num_rollouts is None:
+                next_state, _, _, _ = step(self.solution, self.state)
+                _, self.rollout_reward = self.model(next_state)
+                return self.rollout_reward
+            else:
+                total_reward = 0
+                for i in range(num_rollouts):
+                    solution = np.copy(self.solution)
+                    while True:
+                        mask = np.concatenate([self.state.device.swappable_edges(solution), np.array([False])])
+                        if not np.any(mask):
+                            break
+                        swap = np.random.choice(np.where(mask)[0])
+                        if swap == len(solution):
+                            break
+                        solution[swap] = True
+                    _, reward, _, _ = step(self.solution, self.state)
+                    total_reward += reward
+                return total_reward / num_rollouts
 
     class MCTSStepper:
         """
@@ -104,16 +115,20 @@ class MCTSAgent(CombinerAgent):
             self.state = state
             self.model = model
             self.root = MCTSAgent.MCTSState(state, self.model)
-            self.model = GraphDualModel(state.device)
 
         def search(self, n_mcts):
             """Perform the MCTS search from the root"""
             for _ in range(n_mcts):
                 mcts_state = self.root  # reset to root for new trace
 
-                while not np.any(self.state.device.swappable_edges(mcts_state.solution)):
-                    action_index = mcts_state.select()
-                    if mcts_state.child_states[action_index] is not None:
+                while np.any(self.state.device.swappable_edges(mcts_state.solution)):
+                    action_index: int = mcts_state.select()
+                    if action_index == len(mcts_state.solution):
+                        # MCTS Algorithm: SELECT STAGE - terminal action
+                        mcts_state.update_q(mcts_state.r_previous + self.HYPERPARAM_DISCOUNT_FACTOR *
+                                            mcts_state.rollout_reward, action_index)
+                        break
+                    elif mcts_state.child_states[action_index] is not None:
                         # MCTS Algorithm: SELECT STAGE
                         mcts_state = mcts_state.child_states[action_index]
                         continue
