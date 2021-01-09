@@ -39,3 +39,17 @@ def step(action, input_state: CircuitStateDQN):
     reward = gate_reward + swap_reward_inc + swap_reward_dec + reward_completion + qroute.hyperparams.REWARD_TIMESTEP
     debugging_output = Moment(cnots_executed, swaps_executed, reward)
     return state, reward, done, debugging_output
+
+
+def evaluate(action, input_state: CircuitStateDQN):
+    """
+    Takes one step in the environment
+    :param action: list of bool, whether we want to swap on each of the hardware connected nodes
+    :param input_state: State, the state in the previous step
+    :return: state, the state in the upcoming step
+    :return: reward, the reward obtained from the operations in the current step
+    :return: done, True if execution is complete, False otherwise
+    :return: debugging output, Moment containing the gates executed and the reward obtained
+    """
+    _next_state, reward, _done, _debug = step(action, input_state)
+    return reward
