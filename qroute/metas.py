@@ -2,8 +2,8 @@ import abc
 import collections
 
 import numpy as np
-from environment.device import DeviceTopology
-from environment.circuits import CircuitRepDQN
+from qroute.environment.device import DeviceTopology
+from qroute.environment.circuits import CircuitRepDQN
 
 
 MemoryItem = collections.namedtuple('MemoryItem', ['state', 'reward', 'action', 'next_state', 'done'])

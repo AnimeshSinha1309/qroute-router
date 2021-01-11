@@ -13,11 +13,11 @@ logging.basicConfig(level=logging.DEBUG)
 
 if __name__ == '__main__':
     device = qroute.environment.device.GridComputerDevice(3, 3)
-    cirq = qroute.environment.circuits.circuit_generated_randomly(len(device), 20)
+    cirq = qroute.environment.circuits.circuit_generated_randomly(len(device), 5)
     circuit = qroute.environment.circuits.CircuitRepDQN(cirq, len(device))
     model = qroute.models.graph_dual.GraphDualModel(device, True)
     agent = qroute.algorithms.mcts.MCTSAgent(model, device)
     memory = qroute.memory.list.MemorySimple(500)
 
     for e in range(300):
-        qroute.engine.train_step(agent, device, circuit, memory, training_steps=500, episode_id=e+1)
+        qroute.engine.train_step(agent, device, circuit, memory, training_steps=100, episode_id=e+1)

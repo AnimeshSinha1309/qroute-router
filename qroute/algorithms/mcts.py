@@ -9,8 +9,7 @@ import typing as ty
 import numpy as np
 import torch
 
-from metas import ReplayMemory
-from qroute.metas import CombinerAgent
+from qroute.metas import CombinerAgent, ReplayMemory
 from qroute.environment.state import CircuitStateDQN
 from qroute.environment.env import step, evaluate
 
@@ -161,7 +160,7 @@ class MCTSAgent(CombinerAgent):
             """Process the output at the root node"""
             while True:
                 self.search(100)
-                pos = torch.argmax(self.root.q_value).item()
+                pos = self.root.select()
                 if pos == len(self.root.child_states) or self.root.child_states[pos] is None:
                     return self.root.solution
                 else:
@@ -172,7 +171,8 @@ class MCTSAgent(CombinerAgent):
         self.device = device
 
     def act(self, state: CircuitStateDQN):
-        return self.MCTSStepper(state, self.model).act(), 0.0
+        solution = self.MCTSStepper(state, self.model).act()
+        return solution, 0.0
 
     def replay(self, memory: ReplayMemory):
         pass
