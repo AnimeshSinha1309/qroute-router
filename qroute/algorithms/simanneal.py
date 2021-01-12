@@ -40,7 +40,7 @@ class AnnealerDQN:
         :return: list, neighbor solution
         """
         neighbour_solution = copy.copy(current_solution)
-        available_edges = current_state.swappable_edges(neighbour_solution)
+        available_edges = current_state.device.swappable_edges(neighbour_solution)
 
         if available_edges is None or len(available_edges) == 0:
             raise RuntimeError("Ran out of edges to swap")
@@ -146,7 +146,7 @@ class AnnealerDQN:
         :return: list, initial solution as boolean array of whether to swap each node
         """
         initial_solution = np.zeros(len(self.device.edges))
-        available_edges = current_state.swappable_edges(initial_solution)
+        available_edges = current_state.device.swappable_edges(initial_solution)
         if available_edges is None or len(available_edges) == 0:
             return initial_solution
 

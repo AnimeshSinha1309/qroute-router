@@ -11,6 +11,7 @@ from qroute.metas import TransformationState
 from qroute.environment.env import step
 from qroute.visualizers.solution_validator import check_valid_solution
 from qroute.metas import CombinerAgent
+from qroute.memory.per import MemoryPER
 
 
 class AnnealerAct(CombinerAgent):
@@ -89,7 +90,7 @@ class AnnealerAct(CombinerAgent):
         action, value = self.simulated_annealing(state)
         return action, -value
 
-    def replay(self, memory, batch_size=32):
+    def replay(self, memory: MemoryPER, batch_size=32):
         """
         Learns from past experiences
         :param memory: MemoryTree object, the experience buffer to sample from
@@ -137,7 +138,7 @@ class AnnealerAct(CombinerAgent):
         """
         temp_state: TransformationState = copy.copy(current_state)
         edge_probs, current_value = self.model(current_state)
-        edge_probs = edge_probs[:-1]  # Remove the STOP token element
+        edge_probs = edge_probs  # Remove the STOP token element
         current_solution = self._generate_initial_solution(edge_probs)
         new_state: TransformationState = copy.copy(current_state)
         assert temp_state == new_state, "State not preserved when selecting action"
