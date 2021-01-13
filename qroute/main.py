@@ -19,5 +19,6 @@ if __name__ == '__main__':
     agent = qroute.algorithms.deepmcts.MCTSAgent(model, device)
     memory = qroute.memory.list.MemorySimple(500)
 
+    print(qroute.visualizers.greedy_schedulers.cirq_routing(circuit, device))
     for e in range(300):
         qroute.engine.train_step(agent, device, circuit, memory, training_steps=100, episode_id=e+1)
