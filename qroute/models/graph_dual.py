@@ -50,7 +50,7 @@ class GraphDualModel(torch.nn.Module):
         x = x.view(-1)
         policy = self.policy_head(x).detach().numpy()
         value: int = self.value_head(x).detach().item()
-        policy[-1] = -1e10
+        # policy[-1] = -1e10  FIXME: Force this constraint for all other functions
         return policy, value
 
     def get_representation(self, state: CircuitStateDQN):

@@ -36,7 +36,8 @@ class MCTSAgent(CombinerAgent):
             self.solution: np.ndarray = copy.copy(solution) if solution is not None else np.zeros(self.num_actions)
 
             self.rollout_reward = self.calc_rollout_reward() if self.parent_action is not None else 0.0
-            self.action_mask = np.concatenate([self.state.device.swappable_edges(self.solution), np.array([False])])
+            self.action_mask = np.concatenate([self.state.device.swappable_edges(self.solution),
+                                               np.array([solution is not None])])
 
             self.n_value = torch.zeros(self.num_actions + 1)
             self.q_value = torch.zeros(self.num_actions + 1)
@@ -95,7 +96,7 @@ class MCTSAgent(CombinerAgent):
                 for i in range(num_rollouts):
                     solution = np.copy(self.solution)
                     while True:
-                        mask = np.concatenate([self.state.device.swappable_edges(solution), np.array([False])])
+                        mask = np.concatenate([self.state.device.swappable_edges(solution), np.array([True])])
                         if not np.any(mask):
                             break
                         swap = np.random.choice(np.where(mask)[0])
@@ -124,10 +125,16 @@ class MCTSAgent(CombinerAgent):
 
         def search(self, n_mcts):
             """Perform the MCTS search from the root"""
+            max_depth, mean_depth = 0, 0
+
             for _ in range(n_mcts):
                 mcts_state: MCTSAgent.MCTSState = self.root  # reset to root for new trace
                 # input(str(self.root.n_value) + " " + str(self.root.q_value))  # To Debug the tree
-                while np.any(self.state.device.swappable_edges(mcts_state.solution)):
+                depth = 0
+
+                while True:
+                    depth += 1
+
                     action_index: int = mcts_state.select()
                     if mcts_state.child_states[action_index] is not None:
                         # MCTS Algorithm: SELECT STAGE
@@ -136,10 +143,10 @@ class MCTSAgent(CombinerAgent):
                     else:
                         # MCTS Algorithm: EXPAND STAGE
                         if action_index == len(mcts_state.solution):
-                            next_solution = np.full(size=mcts_state.num_actions + 1, fill_value=False)
                             next_state, _reward, _done, _debug = step(mcts_state.solution, self.state)
                             mcts_state.child_states[action_index] = MCTSAgent.MCTSState(
-                                next_state, self.model, next_solution, 0, mcts_state, action_index)
+                                next_state, self.model,
+                                r_previous=0, parent_state=mcts_state, parent_action=action_index)
                         else:
                             next_solution = np.copy(mcts_state.solution)
                             next_solution[action_index] = True
@@ -156,12 +163,17 @@ class MCTSAgent(CombinerAgent):
                     mcts_state.parent_state.update_q(total_reward, mcts_state.parent_action)
                     mcts_state = mcts_state.parent_state
 
+                max_depth = max(max_depth, depth)
+                mean_depth += depth / n_mcts
+
+            return max_depth, mean_depth
+
         def act(self):
             """Process the output at the root node"""
             while True:
-                self.search(100)
+                self.search(1000)
                 pos = self.root.select()
-                if pos == len(self.root.child_states) or self.root.child_states[pos] is None:
+                if pos == len(self.root.solution) or self.root.child_states[pos] is None:
                     return self.root.solution
                 else:
                     self.root = self.root.child_states[pos]
