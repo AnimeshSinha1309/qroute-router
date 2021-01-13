@@ -16,7 +16,7 @@ if __name__ == '__main__':
     cirq = qroute.environment.circuits.circuit_generated_randomly(len(device), 5)
     circuit = qroute.environment.circuits.CircuitRepDQN(cirq, len(device))
     model = qroute.models.graph_dual.GraphDualModel(device, True)
-    agent = qroute.algorithms.mcts.MCTSAgent(model, device)
+    agent = qroute.algorithms.deepmcts.MCTSAgent(model, device)
     memory = qroute.memory.list.MemorySimple(500)
 
     for e in range(300):
