@@ -1,67 +1,8 @@
 import abc
 import collections
 
-import numpy as np
-from qroute.environment.device import DeviceTopology
-from qroute.environment.circuits import CircuitRepDQN
-
 
 MemoryItem = collections.namedtuple('MemoryItem', ['state', 'reward', 'action', 'next_state', 'done'])
-
-
-class TransformationState(abc.ABC):
-    """
-    Represents the State of the system when transforming a circuit. This holds the reference
-    copy of the environment and the state of the transformation (even within a step).
-    """
-
-    def __init__(self):
-        self.device: DeviceTopology
-        self.circuit: CircuitRepDQN
-
-    @abc.abstractmethod
-    def execute_swap(self, solution: np.ndarray):
-        """
-        Updates the state of the system with whatever swaps are executed in the solution.
-        This function MUTATES the state.
-        :param solution: boolean np.array, whether to take each edge on the device
-        :return list of pairs, pairs of nodes representing gates which will be executed
-        """
-
-    @abc.abstractmethod
-    def execute_cnot(self):
-        """
-        Updates the state of the system with whatever interactions can be executed on the hardware.
-        This function MUTATES the state.
-        :return list of pairs, pairs of nodes representing gates which will be executed
-        """
-
-    @abc.abstractmethod
-    def is_done(self):
-        """
-        Returns True iff each qubit has completed all of its interactions
-        :return: bool, True if the entire circuit is executed
-        """
-
-    # Other utility functions and properties
-
-    @abc.abstractmethod
-    def __copy__(self):
-        """
-        Makes a copy, keeping the reference to the same environment, but
-        instantiating the rest of the state again.
-
-        :return: State, a copy of the original, but independent of the first one, except env
-        """
-
-    @abc.abstractmethod
-    def __eq__(self, other):
-        """
-        Checks whether two state are identical
-
-        :param other: State, the other state to compare against
-        :return: True if they are the same, False otherwise
-        """
 
 
 class ReplayMemory(abc.ABC):
@@ -113,7 +54,7 @@ class CombinerAgent(abc.ABC):
     """
 
     @abc.abstractmethod
-    def act(self, state: TransformationState):
+    def act(self, state):
         """
         Chooses an action to perform in the environment and returns it
         (i.e. does not alter environment state)

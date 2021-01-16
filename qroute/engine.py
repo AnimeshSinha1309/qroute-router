@@ -40,7 +40,7 @@ def train_step(agent: qroute.metas.CombinerAgent,
             progress_bar.set_postfix(circuit_depth=depth, num_actions=num_actions, total_reward=total_reward)
             progress_bar.close()
 
-            print(solution_start, "\n", input_circuit.cirq, "\n", result_circuit, "\n", flush=True)
+            # print(solution_start, "\n", input_circuit.cirq, "\n", result_circuit, "\n", flush=True)
             # wandb.log({'Circuit Depth': depth,
             #            'Number of Actions': num_actions,
             #            'Input Circuit': str(input_circuit.cirq),
