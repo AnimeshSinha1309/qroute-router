@@ -141,5 +141,15 @@ class CircuitStateDQN:
         return target_distances
 
     @property
+    def remaining_targets(self):
+        qubit_to_node = np.zeros(len(self._node_to_qubit), dtype=np.int)
+        for i, v in enumerate(self._node_to_qubit):
+            qubit_to_node[v] = i
+        remaining_targets = np.zeros(len(self._node_to_qubit), dtype=np.int)
+        for i, v in enumerate(self._circuit_progress):
+            remaining_targets[i] = len(self.circuit[i]) - v
+        return remaining_targets
+
+    @property
     def node_to_qubit(self):
         return np.copy(self._node_to_qubit)
