@@ -2,10 +2,9 @@ import numpy as np
 
 from qroute.environment.device import DeviceTopology
 from qroute.environment.circuits import CircuitRepDQN
-from qroute.metas import TransformationState
 
 
-class CircuitStateDQN(TransformationState):
+class CircuitStateDQN:
     """
     Represents the State of the system when transforming a circuit. This holds the reference
     copy of the environment and the state of the transformation (even within a step).
@@ -18,7 +17,7 @@ class CircuitStateDQN(TransformationState):
     """
 
     def __init__(self, circuit: CircuitRepDQN, device: DeviceTopology, node_to_qubit=None,
-                 qubit_targets=None, circuit_progress=None):
+                 qubit_targets=None, circuit_progress=None, locked_edges=None):
         """
         Gets the state the DQN starts on. Randomly initializes the mapping if not specified
         otherwise, and sets the progress to 0 and gets the first gates to be scheduled.
@@ -35,6 +34,8 @@ class CircuitStateDQN(TransformationState):
             if qubit_targets is None else qubit_targets
         self._circuit_progress = np.zeros(len(self.circuit), dtype=np.int) \
             if circuit_progress is None else circuit_progress
+        self._locked_edges = np.zeros(len(self.device.edges), dtype=np.int) \
+            if locked_edges is None else locked_edges
 
     def execute_swap(self, solution):
         """
@@ -82,6 +83,18 @@ class CircuitStateDQN(TransformationState):
         """
         return np.all(self._qubit_targets == -1)
 
+    # Edge locking functions
+
+    def update_locks(self, mask=None, multiplier=None):
+        if mask is None:
+            self._locked_edges -= self._locked_edges > 0
+        else:
+            self._locked_edges += mask * multiplier
+
+    @property
+    def locked_edges(self):
+        return self._locked_edges > 0
+
     # Other utility functions and properties
 
     def __copy__(self):
@@ -91,8 +104,8 @@ class CircuitStateDQN(TransformationState):
 
         :return: State, a copy of the original, but independent of the first one, except env
         """
-        return CircuitStateDQN(self.circuit, self.device, np.copy(self._node_to_qubit),
-                               np.copy(self._qubit_targets), np.copy(self._circuit_progress))
+        return CircuitStateDQN(self.circuit, self.device, np.copy(self._node_to_qubit), np.copy(self._qubit_targets),
+                               np.copy(self._circuit_progress), np.copy(self._locked_edges))
 
     # noinspection PyProtectedMember
     def __eq__(self, other):
@@ -104,7 +117,8 @@ class CircuitStateDQN(TransformationState):
         """
         return np.array_equal(self._node_to_qubit, other._node_to_qubit) and \
                np.array_equal(self._qubit_targets, other._qubit_targets) and \
-               np.array_equal(self._circuit_progress, other._circuit_progress)
+               np.array_equal(self._circuit_progress, other._circuit_progress) and \
+               np.array_equal(self._locked_edges, other._locked_edges)
 
     @property
     def target_nodes(self):
@@ -125,6 +139,16 @@ class CircuitStateDQN(TransformationState):
         for i, v in enumerate(self._qubit_targets):
             target_distances[i] = self.device.distances[qubit_to_node[i], qubit_to_node[v]]
         return target_distances
+
+    @property
+    def remaining_targets(self):
+        qubit_to_node = np.zeros(len(self._node_to_qubit), dtype=np.int)
+        for i, v in enumerate(self._node_to_qubit):
+            qubit_to_node[v] = i
+        remaining_targets = np.zeros(len(self._node_to_qubit), dtype=np.int)
+        for i, v in enumerate(self._circuit_progress):
+            remaining_targets[i] = len(self.circuit[i]) - v
+        return remaining_targets
 
     @property
     def node_to_qubit(self):

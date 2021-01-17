@@ -7,7 +7,7 @@ import math
 import numpy as np
 import torch
 
-from qroute.metas import TransformationState
+from qroute.environment.state import CircuitStateDQN
 from qroute.environment.env import step
 from qroute.visualizers.solution_validator import check_valid_solution
 from qroute.metas import CombinerAgent
@@ -79,7 +79,7 @@ class AnnealerAct(CombinerAgent):
             probability = math.exp(-energy_diff / temperature)
             return probability
 
-    def act(self, state: TransformationState):
+    def act(self, state: CircuitStateDQN):
         """
         Chooses an action to perform in the environment and returns it
         (i.e. does not alter environment state)
@@ -136,11 +136,11 @@ class AnnealerAct(CombinerAgent):
         :param search_limit: int, max iterations to search for
         :return: best_solution, value of best_energy
         """
-        temp_state: TransformationState = copy.copy(current_state)
+        temp_state: CircuitStateDQN = copy.copy(current_state)
         edge_probs, current_value = self.model(current_state)
         edge_probs = edge_probs  # Remove the STOP token element
         current_solution = self._generate_initial_solution(edge_probs)
-        new_state: TransformationState = copy.copy(current_state)
+        new_state: CircuitStateDQN = copy.copy(current_state)
         assert temp_state == new_state, "State not preserved when selecting action"
 
         if np.all(current_solution == 0):

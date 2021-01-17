@@ -7,7 +7,8 @@ import numpy as np
 import torch
 
 from qroute.environment.device import DeviceTopology
-from qroute.metas import CombinerAgent, TransformationState, ReplayMemory, MemoryItem
+from qroute.environment.state import CircuitStateDQN
+from qroute.metas import CombinerAgent, ReplayMemory, MemoryItem
 
 
 class AutoRegressor(CombinerAgent):
@@ -24,7 +25,7 @@ class AutoRegressor(CombinerAgent):
         self.device: DeviceTopology = device
         self.agent: torch.nn.Module = agent
 
-    def act(self, state: TransformationState):
+    def act(self, state: CircuitStateDQN):
         state = copy.copy(state)
         solution, value = np.full(shape=len(self.device.edges), fill_value=False), 0
 
