@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 
 if __name__ == '__main__':
-    device = qroute.environment.device.GridComputerDevice(5, 5)
+    device = qroute.environment.device.GridComputerDevice(6, 6)
     cirq = qroute.environment.circuits.circuit_generated_randomly(len(device), 50)
     circuit = qroute.environment.circuits.CircuitRepDQN(cirq, len(device))
     model = qroute.models.graph_dual.GraphDualModel(device, True)

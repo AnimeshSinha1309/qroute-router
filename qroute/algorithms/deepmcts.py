@@ -173,7 +173,7 @@ class MCTSAgent(CombinerAgent):
         def act(self):
             """Process the output at the root node"""
             while True:
-                self.search(1000)
+                self.search(100)
                 pos = self.root.select()
                 if pos == len(self.root.solution) or self.root.child_states[pos] is None:
                     return self.root.solution

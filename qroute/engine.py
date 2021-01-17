@@ -20,7 +20,8 @@ def train_step(agent: CombinerAgent,
     state = CircuitStateDQN(input_circuit, device)
     solution_start, solution_moments = np.array(state.node_to_qubit), []
 
-    state, total_reward, done, _debug = step(np.full(len(state.device.edges), False), state)
+    state, total_reward, done, debugging_output = step(np.full(len(state.device.edges), False), state)
+    solution_moments.append(debugging_output)
     if done:
         print("Episode %03d: The initial circuit is executable with no additional swaps" % episode_id)
         return

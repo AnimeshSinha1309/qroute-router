@@ -24,6 +24,11 @@ def validate_solution(circuit: CircuitRepDQN, output: list, initial_locations: n
 
     moment: Moment
     for moment in output:
+        for n1, n2 in moment.swaps:
+            q1, q2 = qubit_locations[n1], qubit_locations[n2]
+            assert device.is_adjacent((n1, n2)), "Cannot Schedule gate on non-adjacent bits"
+            qubit_locations[n1], qubit_locations[n2] = q2, q1
+            output_circuit.append(cirq.SWAP(output_qubits[q1], output_qubits[q2]))
         for n1, n2 in moment.cnots:
             q1, q2 = qubit_locations[n1], qubit_locations[n2]
             assert device.is_adjacent((n1, n2)), "Cannot Schedule gate on non-adjacent bits"
@@ -32,11 +37,6 @@ def validate_solution(circuit: CircuitRepDQN, output: list, initial_locations: n
             circuit_progress[qubit_locations[n1]] += 1
             circuit_progress[qubit_locations[n2]] += 1
             output_circuit.append(cirq.CX(output_qubits[q1], output_qubits[q2]))
-        for n1, n2 in moment.swaps:
-            q1, q2 = qubit_locations[n1], qubit_locations[n2]
-            assert device.is_adjacent((n1, n2)), "Cannot Schedule gate on non-adjacent bits"
-            qubit_locations[n1], qubit_locations[n2] = q2, q1
-            output_circuit.append(cirq.SWAP(output_qubits[q1], output_qubits[q2]))
     for idx, progress in enumerate(circuit_progress):
         assert progress == len(circuit.circuit[idx]), "Operations were not completed"
 
