@@ -12,7 +12,9 @@ Moment = collections.namedtuple('Moment', ['cnots', 'swaps', 'reward'])
 
 def step(action, input_state: CircuitStateDQN):
     """
-    Takes one step in the environment
+    Takes one step in the environment.
+    This is actually the combination of 2 steps, the swaps in the current step and
+    the cnot and setup for the next step.
     :param action: list of bool, whether we want to swap on each of the hardware connected nodes
     :param input_state: State, the state in the previous step
     :return: state, the state in the upcoming step
@@ -21,9 +23,6 @@ def step(action, input_state: CircuitStateDQN):
     :return: debugging output, Moment containing the gates executed and the reward obtained
     """
     state: CircuitStateDQN = copy.copy(input_state)
-    # Execute the gates you have on queue
-    cnots_executed = state.execute_cnot()
-    gate_reward = len(cnots_executed) * qroute.hyperparams.REWARD_GATE
     # Swaps the required qubits and collects rewards for the gain in distances
     pre_swap_distances = np.copy(state.target_distance)
     swaps_executed = state.execute_swap(action)
@@ -32,6 +31,14 @@ def step(action, input_state: CircuitStateDQN):
         np.clip(pre_swap_distances - post_swap_distances, 0, 1000))
     swap_reward_inc = qroute.hyperparams.PENALTY_DISTANCE_INCREASE * np.sum(
         np.clip(pre_swap_distances - post_swap_distances, -1000, 0))
+    state.update_locks(action, 3)
+    state.update_locks()
+
+    # Execute the gates you have on queue
+    cnots_executed = state.execute_cnot()
+    gate_reward = len(cnots_executed) * qroute.hyperparams.REWARD_GATE
+    cnot_action = np.array([gate in cnots_executed for gate in state.device.edges])
+    state.update_locks(cnot_action, 1)
     # Check if the circuit is done executing
     done = state.is_done()
     reward_completion = qroute.hyperparams.REWARD_CIRCUIT_COMPLETION if done else 0

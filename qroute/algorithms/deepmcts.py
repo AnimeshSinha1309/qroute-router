@@ -33,10 +33,11 @@ class MCTSAgent(CombinerAgent):
             self.parent_state, self.parent_action = parent_state, parent_action
             self.r_previous = r_previous
             self.num_actions = len(self.state.device.edges)
-            self.solution: np.ndarray = copy.copy(solution) if solution is not None else np.zeros(self.num_actions)
+            self.solution: np.ndarray = copy.copy(solution) if solution is not None else \
+                np.full(self.num_actions, False)
 
             self.rollout_reward = self.calc_rollout_reward() if self.parent_action is not None else 0.0
-            self.action_mask = np.concatenate([self.state.device.swappable_edges(self.solution),
+            self.action_mask = np.concatenate([state.device.swappable_edges(self.solution, self.state.locked_edges),
                                                np.array([solution is not None])])
 
             self.n_value = torch.zeros(self.num_actions + 1)
@@ -96,7 +97,8 @@ class MCTSAgent(CombinerAgent):
                 for i in range(num_rollouts):
                     solution = np.copy(self.solution)
                     while True:
-                        mask = np.concatenate([self.state.device.swappable_edges(solution), np.array([True])])
+                        mask = np.concatenate([self.state.device.swappable_edges(solution, self.state.locked_edges),
+                                               np.array([True])])
                         if not np.any(mask):
                             break
                         swap = np.random.choice(np.where(mask)[0])
