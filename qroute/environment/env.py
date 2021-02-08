@@ -31,7 +31,7 @@ def step(action, input_state: CircuitStateDQN):
         np.clip(pre_swap_distances - post_swap_distances, 0, 1000))
     swap_reward_inc = qroute.hyperparams.PENALTY_DISTANCE_INCREASE * np.sum(
         np.clip(pre_swap_distances - post_swap_distances, -1000, 0))
-    state.update_locks(action, 3)
+    state.update_locks(action, 1)
     state.update_locks()
 
     # Execute the gates you have on queue

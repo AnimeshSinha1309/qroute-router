@@ -6,7 +6,6 @@ import copy
 import numpy as np
 import torch
 
-from qroute.environment.device import DeviceTopology
 from qroute.environment.state import CircuitStateDQN
 from qroute.metas import CombinerAgent, ReplayMemory, MemoryItem
 
@@ -16,14 +15,13 @@ class AutoRegressor(CombinerAgent):
     Class to perform simulated annealing using a policy gradient model + value function approximator
     """
 
-    def __init__(self, agent, device):
+    def __init__(self, model, device):
         """
         Sets hyper-parameters and stores the agent and environment to initialize Annealer
-        :param agent: Agent, to evaluate the value function
+        :param model: Agent, to evaluate the value function
         :param device: environment, maintaining the device and state
         """
-        self.device: DeviceTopology = device
-        self.agent: torch.nn.Module = agent
+        super(AutoRegressor, self).__init__(model, device)
 
     def act(self, state: CircuitStateDQN):
         state = copy.copy(state)
@@ -31,13 +29,13 @@ class AutoRegressor(CombinerAgent):
 
         # Force at least 1 swap
         available = self.device.swappable_edges(solution)
-        probs, value = self.agent(state)
+        probs, value = self.model(state)
         swap_edge = np.argmax(np.multiply(available, probs[:-1]))
         solution[swap_edge] = True
 
         while True:
             available = np.concatenate([self.device.swappable_edges(solution), np.array([True])])
-            probs, value = self.agent(state)
+            probs, value = self.model(state)
             swap_edge = np.argmax(np.multiply(available, probs))
             if swap_edge == len(self.device.edges):  # If STOP action is selected.
                 break
@@ -50,23 +48,23 @@ class AutoRegressor(CombinerAgent):
         experience: MemoryItem
         for experience in memory:
             # Train the current model (model.fit in current state)
-            probs, value = self.agent(experience.state)
+            probs, value = self.model(experience.state)
             _, next_value = (None, 0) if experience.done else self.act(experience.next_state)
 
             probs = torch.from_numpy(probs[:-1])
             action = torch.from_numpy(experience.action)
 
-            target = torch.tensor(experience.reward + self.agent.gamma * next_value)
+            target = torch.tensor(experience.reward + self.model.gamma * next_value)
             advantage = torch.subtract(target, value)
             policy_loss = torch.sum(probs * action).item() * advantage
             value_loss = torch.square(torch.subtract(target, value))
 
             absolute_errors.append(torch.abs(value - target).detach().item())
 
-            self.agent.optimizer.zero_grad()
+            self.model.optimizer.zero_grad()
             loss = (policy_loss + value_loss)
             loss.requires_grad = True
             loss.backward()
-            self.agent.optimizer.step()
+            self.model.optimizer.step()
 
         memory.clear()

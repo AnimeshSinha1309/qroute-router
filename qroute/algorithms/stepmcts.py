@@ -167,8 +167,7 @@ class MCTSAgent(CombinerAgent):
                     self.root = self.root.child_states[pos]
 
     def __init__(self, model, device):
-        self.model = model
-        self.device = device
+        super(MCTSAgent, self).__init__(model, device)
 
     def act(self, state: CircuitStateDQN):
         solution = self.MCTSStepper(state, self.model).act()

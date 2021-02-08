@@ -19,18 +19,16 @@ class AnnealerAct(CombinerAgent):
     Class to perform simulated annealing using a policy gradient model + value function approximator
     """
 
-    def __init__(self, agent, device):
+    def __init__(self, model, device):
         """
         Sets hyper-parameters and stores the agent and environment to initialize Annealer
-        :param agent: Agent, to evaluate the value function
+        :param model: Agent, to evaluate the value function
         :param device: environment, maintaining the device and state
         """
+        super(AnnealerAct, self).__init__(model, device)
         self.initial_temperature = 60.0
         self.min_temperature = 0.1
         self.cooling_multiplier = 0.95
-
-        self.device = device
-        self.model = agent
 
     def _generate_initial_solution(self, edge_probs):
         """

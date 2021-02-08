@@ -1,10 +1,11 @@
 import numpy as np
 import tqdm
+import torch
 # import wandb
 
 from qroute.metas import CombinerAgent, ReplayMemory, MemoryItem
 from qroute.environment.env import step
-from qroute.environment.circuits import CircuitRepDQN
+from qroute.environment.circuits import CircuitRepDQN, circuit_to_json
 from qroute.environment.device import DeviceTopology
 from qroute.environment.state import CircuitStateDQN
 from qroute.visualizers.solution_validator import validate_solution
@@ -14,7 +15,7 @@ def train_step(agent: CombinerAgent,
                device: DeviceTopology,
                circuit: CircuitRepDQN,
                memory: ReplayMemory,
-               training_steps=500, episode_id=1):
+               training_steps=500, episode_id="Unnamed Run"):
 
     input_circuit = circuit
     state = CircuitStateDQN(input_circuit, device)
@@ -26,7 +27,7 @@ def train_step(agent: CombinerAgent,
         print("Episode %03d: The initial circuit is executable with no additional swaps" % episode_id)
         return
     progress_bar = tqdm.trange(training_steps)
-    progress_bar.set_description('Episode %03d' % episode_id)
+    progress_bar.set_description()
 
     for time in progress_bar:
         action, _ = agent.act(state)
@@ -36,13 +37,15 @@ def train_step(agent: CombinerAgent,
         memory.store(MemoryItem(state=state, action=action, next_state=next_state, reward=reward, done=done))
         state = next_state
 
-        if (time + 1) % 500 == 0:
+        if (time + 1) % 1000 == 0:
             agent.replay(memory)
+            torch.save(agent.model.state_dict(), "model-weights.h5")
 
         progress_bar.set_postfix(total_reward=total_reward)
         if done:
             num_actions = time + 1
             result_circuit = validate_solution(input_circuit, solution_moments, solution_start, device)
+            circuit_to_json(result_circuit, "result_%s.qasm" % episode_id)
             depth = len(result_circuit.moments)
             progress_bar.set_postfix(circuit_depth=depth, num_actions=num_actions, total_reward=total_reward)
             progress_bar.close()
@@ -55,5 +58,6 @@ def train_step(agent: CombinerAgent,
             return solution_start, solution_moments, True
 
     agent.replay(memory)
+    torch.save(agent.model.state_dict(), "model-weights.h5")
 
     return solution_start, solution_moments, False
