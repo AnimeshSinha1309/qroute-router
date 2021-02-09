@@ -69,10 +69,10 @@ class MCTSAgent(CombinerAgent):
             Select one of the child actions based on UCT rule
             """
             n_visits = torch.sum(self.n_value).item()
-            uct = self.q_value + (self.priors * c * np.sqrt(n_visits + 1) / (self.n_value + 1))  # TODO: get priors?!
+            uct = self.q_value + (self.priors * c * np.sqrt(n_visits + 1) / (self.n_value + 1))
             best_val = torch.max(uct)
             best_move_indices: torch.Tensor = torch.where(torch.eq(best_val, uct))[0]
-            winner: int = np.random.choice(best_move_indices.numpy())  # TODO: Do we really need to resolve ties?
+            winner: int = np.random.choice(best_move_indices.numpy())
             return winner
 
         def prior_noise(self):

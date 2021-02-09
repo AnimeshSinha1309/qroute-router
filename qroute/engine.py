@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 import tqdm
 import torch
@@ -17,6 +19,7 @@ def train_step(agent: CombinerAgent,
                memory: ReplayMemory,
                training_steps=500, episode_id="Unnamed Run"):
 
+    os.makedirs("../test/test_results", exist_ok=True)
     input_circuit = circuit
     state = CircuitStateDQN(input_circuit, device)
     solution_start, solution_moments = np.array(state.node_to_qubit), []
@@ -27,7 +30,7 @@ def train_step(agent: CombinerAgent,
         print("Episode %03d: The initial circuit is executable with no additional swaps" % episode_id)
         return
     progress_bar = tqdm.trange(training_steps)
-    progress_bar.set_description()
+    progress_bar.set_description(episode_id)
 
     for time in progress_bar:
         action, _ = agent.act(state)
@@ -43,11 +46,10 @@ def train_step(agent: CombinerAgent,
 
         progress_bar.set_postfix(total_reward=total_reward)
         if done:
-            num_actions = time + 1
             result_circuit = validate_solution(input_circuit, solution_moments, solution_start, device)
-            circuit_to_json(result_circuit, "result_%s.qasm" % episode_id)
+            circuit_to_json(result_circuit, ("../test/test_results/%s.json" % episode_id))
             depth = len(result_circuit.moments)
-            progress_bar.set_postfix(circuit_depth=depth, num_actions=num_actions, total_reward=total_reward)
+            progress_bar.set_postfix(circuit_depth=depth, total_reward=total_reward)
             progress_bar.close()
 
             # print(solution_start, "\n", input_circuit.cirq, "\n", result_circuit, "\n", flush=True)
