@@ -19,7 +19,7 @@ def train_step(agent: CombinerAgent,
                memory: ReplayMemory,
                training_steps=100000, episode_id="Unnamed Run"):
 
-    os.makedirs("../test/test_results", exist_ok=True)
+    os.makedirs("./test/test_results", exist_ok=True)
     input_circuit = circuit
     state = CircuitStateDQN(input_circuit, device)
     solution_start, solution_moments = np.array(state.node_to_qubit), []
@@ -48,7 +48,7 @@ def train_step(agent: CombinerAgent,
         progress_bar.set_postfix(total_reward=total_reward, time=time)
         if done:
             result_circuit = validate_solution(input_circuit, solution_moments, solution_start, device)
-            circuit_to_json(result_circuit, ("../test/test_results/%s.json" % episode_id))
+            circuit_to_json(result_circuit, ("./test/test_results/%s.json" % episode_id))
             depth = len(result_circuit.moments)
             progress_bar.set_postfix(circuit_depth=depth, total_reward=total_reward, time=time)
             progress_bar.close()
