@@ -9,9 +9,9 @@ import typing as ty
 import numpy as np
 import torch
 
-from qroute.metas import CombinerAgent, ReplayMemory
-from qroute.environment.state import CircuitStateDQN
-from qroute.environment.env import step, evaluate
+from ..metas import CombinerAgent, ReplayMemory
+from ..environment.state import CircuitStateDQN
+from ..environment.env import step, evaluate
 
 
 class MCTSAgent(CombinerAgent):

@@ -7,10 +7,10 @@ import math
 import numpy as np
 from collections import deque
 
-from qroute.environment.state import CircuitStateDQN
-from qroute.environment.env import step
-from qroute.visualizers.solution_validator import check_valid_solution
-from qroute.metas import CombinerAgent
+from ..environment.state import CircuitStateDQN
+from ..environment.env import step
+from ..visualizers.solution_validator import check_valid_solution
+from ..metas import CombinerAgent
 
 
 class AnnealerDQN(CombinerAgent):

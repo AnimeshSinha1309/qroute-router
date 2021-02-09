@@ -1,18 +1,27 @@
 # noinspection PyPackageRequirements
-from manim import *
+import numpy as np
 
-import qroute
+from manim import Scene, Square, Text, DecimalNumber, VGroup, ShowCreation, \
+    FadeIn, FadeOut, Rectangle, ApplyMethod, BLUE, PINK, GREEN, LEFT, RIGHT, DOWN
+
+from qroute.environment.device import GridComputerDevice
+from qroute.environment.circuits import circuit_generated_randomly, CircuitRepDQN
+from qroute.models.actor_critic import ActorCriticAgent
+from qroute.algorithms.actanneal import AnnealerAct
+from qroute.memory.list import MemorySimple
+from qroute.engine import train_step
+from qroute.environment.env import Moment
 
 
 def model_run(grid_size):
-    device = qroute.environment.device.GridComputerDevice(grid_size, grid_size)
-    cirq = qroute.environment.circuits.circuit_generated_randomly(len(device), 5)
-    circuit = qroute.environment.circuits.CircuitRepDQN(cirq, len(device))
+    device = GridComputerDevice(grid_size, grid_size)
+    cirq = circuit_generated_randomly(len(device), 5)
+    circuit = CircuitRepDQN(cirq, len(device))
     assert len(circuit) == len(device), "All qubits on target hardware need to be used once #FIXME"
-    model = qroute.models.actor_critic.ActorCriticAgent(device)
-    agent = qroute.algorithms.actanneal.AnnealerAct(model, device)
-    memory = qroute.memory.list.MemorySimple(500)
-    solution_start, solution_moments, successful = qroute.engine.train_step(
+    model = ActorCriticAgent(device)
+    agent = AnnealerAct(model, device)
+    memory = MemorySimple(500)
+    solution_start, solution_moments, successful = train_step(
         agent, device, circuit, memory, training_steps=50, episode_id=1)
 
     print("Visualizing Solution:")
@@ -74,7 +83,7 @@ class GridComputeScene(Scene):
                 self.circuit[self.loc[pos]][self.done[self.loc[pos]]])
             return []
 
-    def moment(self, moment: qroute.environment.env.Moment):
+    def moment(self, moment: Moment):
         self.reward_label.set_value(moment.reward)
         for ops in [moment.swaps, moment.cnots]:
             animations, outro = [], []

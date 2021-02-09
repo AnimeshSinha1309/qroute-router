@@ -1,9 +1,9 @@
 import numpy as np
 import cirq
 
-from qroute.environment.circuits import CircuitRepDQN
-from qroute.environment.env import Moment
-from qroute.environment.device import DeviceTopology
+from ..environment.circuits import CircuitRepDQN
+from ..environment.env import Moment
+from ..environment.device import DeviceTopology
 
 
 def validate_solution(circuit: CircuitRepDQN, output: list, initial_locations: np.ndarray, device: DeviceTopology):

@@ -5,19 +5,19 @@ import tqdm
 import torch
 # import wandb
 
-from qroute.metas import CombinerAgent, ReplayMemory, MemoryItem
-from qroute.environment.env import step
-from qroute.environment.circuits import CircuitRepDQN, circuit_to_json
-from qroute.environment.device import DeviceTopology
-from qroute.environment.state import CircuitStateDQN
-from qroute.visualizers.solution_validator import validate_solution
+from .metas import CombinerAgent, ReplayMemory, MemoryItem
+from .environment.env import step
+from .environment.circuits import CircuitRepDQN, circuit_to_json
+from .environment.device import DeviceTopology
+from .environment.state import CircuitStateDQN
+from .visualizers.solution_validator import validate_solution
 
 
 def train_step(agent: CombinerAgent,
                device: DeviceTopology,
                circuit: CircuitRepDQN,
                memory: ReplayMemory,
-               training_steps=500, episode_id="Unnamed Run"):
+               training_steps=100000, episode_id="Unnamed Run"):
 
     os.makedirs("../test/test_results", exist_ok=True)
     input_circuit = circuit
@@ -29,14 +29,15 @@ def train_step(agent: CombinerAgent,
     if done:
         print("Episode %03d: The initial circuit is executable with no additional swaps" % episode_id)
         return
-    progress_bar = tqdm.trange(training_steps)
+    progress_bar = tqdm.tqdm(total=len(list(circuit.cirq.all_operations())))
     progress_bar.set_description(episode_id)
 
-    for time in progress_bar:
+    for time in range(training_steps):
         action, _ = agent.act(state)
         next_state, reward, done, debugging_output = step(action, state)
         total_reward += reward
         solution_moments.append(debugging_output)
+        progress_bar.update(len(debugging_output.cnots))
         memory.store(MemoryItem(state=state, action=action, next_state=next_state, reward=reward, done=done))
         state = next_state
 
@@ -44,12 +45,12 @@ def train_step(agent: CombinerAgent,
             agent.replay(memory)
             torch.save(agent.model.state_dict(), "model-weights.h5")
 
-        progress_bar.set_postfix(total_reward=total_reward)
+        progress_bar.set_postfix(total_reward=total_reward, time=time)
         if done:
             result_circuit = validate_solution(input_circuit, solution_moments, solution_start, device)
             circuit_to_json(result_circuit, ("../test/test_results/%s.json" % episode_id))
             depth = len(result_circuit.moments)
-            progress_bar.set_postfix(circuit_depth=depth, total_reward=total_reward)
+            progress_bar.set_postfix(circuit_depth=depth, total_reward=total_reward, time=time)
             progress_bar.close()
 
             # print(solution_start, "\n", input_circuit.cirq, "\n", result_circuit, "\n", flush=True)

@@ -4,8 +4,8 @@ import numpy as np
 import torch
 import torch_geometric
 
-from qroute.environment.device import DeviceTopology
-from qroute.environment.state import CircuitStateDQN
+from ..environment.device import DeviceTopology
+from ..environment.state import CircuitStateDQN
 
 
 class GraphDualModel(torch.nn.Module):

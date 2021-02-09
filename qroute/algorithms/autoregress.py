@@ -6,8 +6,8 @@ import copy
 import numpy as np
 import torch
 
-from qroute.environment.state import CircuitStateDQN
-from qroute.metas import CombinerAgent, ReplayMemory, MemoryItem
+from ..environment.state import CircuitStateDQN
+from ..metas import CombinerAgent, ReplayMemory, MemoryItem
 
 
 class AutoRegressor(CombinerAgent):

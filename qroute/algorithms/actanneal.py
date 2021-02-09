@@ -7,11 +7,11 @@ import math
 import numpy as np
 import torch
 
-from qroute.environment.state import CircuitStateDQN
-from qroute.environment.env import step
-from qroute.visualizers.solution_validator import check_valid_solution
-from qroute.metas import CombinerAgent
-from qroute.memory.per import MemoryPER
+from ..environment.state import CircuitStateDQN
+from ..environment.env import step
+from ..visualizers.solution_validator import check_valid_solution
+from ..metas import CombinerAgent
+from ..memory.per import MemoryPER
 
 
 class AnnealerAct(CombinerAgent):

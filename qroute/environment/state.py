@@ -1,7 +1,7 @@
 import numpy as np
 
-from qroute.environment.device import DeviceTopology
-from qroute.environment.circuits import CircuitRepDQN
+from ..environment.device import DeviceTopology
+from ..environment.circuits import CircuitRepDQN
 
 
 class CircuitStateDQN:
