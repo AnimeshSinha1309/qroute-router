@@ -36,6 +36,16 @@ class CircuitRepDQN:
         return len(self.circuit)
 
 
+def circuit_to_json(circuit, filename):
+    """
+    Saves a JSON file containing the circuit
+    :param circuit: cirq.Circuit object to save
+    :param filename: str, name of the file
+    """
+    with open(filename, 'w') as f:
+        f.write(cirq.to_json(circuit))
+
+
 def circuit_from_qasm(filename):
     """
     Loads a QASM file and returns the circuit from it
@@ -66,7 +76,8 @@ def circuit_generated_randomly(num_qubits=20, num_cx=100):
 
 
 def circuit_generated_full_layer(n_qubits, n_layers: int = 1):
-    """    Generates a Circuit object (in our framework) with all pairs interactions
+    """
+    Generates a Circuit object (in our framework) with all pairs interactions
 
     :param n_qubits: number of qubits
     :param n_layers: number of layers in circuit

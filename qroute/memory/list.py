@@ -1,5 +1,5 @@
 import numpy as np
-from qroute.metas import ReplayMemory
+from ..metas import ReplayMemory
 
 
 class MemorySimple(ReplayMemory):

@@ -3,8 +3,8 @@ import collections
 
 import numpy as np
 
-from qroute.environment.state import CircuitStateDQN
-import qroute.hyperparams
+from ..environment.state import CircuitStateDQN
+from ..hyperparams import *
 
 
 Moment = collections.namedtuple('Moment', ['cnots', 'swaps', 'reward'])
@@ -27,23 +27,23 @@ def step(action, input_state: CircuitStateDQN):
     pre_swap_distances = np.copy(state.target_distance)
     swaps_executed = state.execute_swap(action)
     post_swap_distances = np.copy(state.target_distance)
-    swap_reward_dec = qroute.hyperparams.REWARD_DISTANCE_REDUCTION * np.sum(
+    swap_reward_dec = REWARD_DISTANCE_REDUCTION * np.sum(
         np.clip(pre_swap_distances - post_swap_distances, 0, 1000))
-    swap_reward_inc = qroute.hyperparams.PENALTY_DISTANCE_INCREASE * np.sum(
+    swap_reward_inc = PENALTY_DISTANCE_INCREASE * np.sum(
         np.clip(pre_swap_distances - post_swap_distances, -1000, 0))
-    state.update_locks(action, 3)
+    state.update_locks(action, 1)
     state.update_locks()
 
     # Execute the gates you have on queue
     cnots_executed = state.execute_cnot()
-    gate_reward = len(cnots_executed) * qroute.hyperparams.REWARD_GATE
+    gate_reward = len(cnots_executed) * REWARD_GATE
     cnot_action = np.array([gate in cnots_executed for gate in state.device.edges])
     state.update_locks(cnot_action, 1)
     # Check if the circuit is done executing
     done = state.is_done()
-    reward_completion = qroute.hyperparams.REWARD_CIRCUIT_COMPLETION if done else 0
+    reward_completion = REWARD_CIRCUIT_COMPLETION if done else 0
     # Return everything
-    reward = gate_reward + swap_reward_inc + swap_reward_dec + reward_completion + qroute.hyperparams.REWARD_TIMESTEP
+    reward = gate_reward + swap_reward_inc + swap_reward_dec + reward_completion + REWARD_TIMESTEP
     debugging_output = Moment(cnots_executed, swaps_executed, reward)
     return state, reward, done, debugging_output
 

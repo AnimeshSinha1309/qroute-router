@@ -9,9 +9,9 @@ import typing as ty
 import numpy as np
 import torch
 
-from qroute.metas import CombinerAgent, ReplayMemory
-from qroute.environment.state import CircuitStateDQN
-from qroute.environment.env import step, evaluate
+from ..metas import CombinerAgent, ReplayMemory
+from ..environment.state import CircuitStateDQN
+from ..environment.env import step, evaluate
 
 
 class MCTSAgent(CombinerAgent):
@@ -167,8 +167,7 @@ class MCTSAgent(CombinerAgent):
                     self.root = self.root.child_states[pos]
 
     def __init__(self, model, device):
-        self.model = model
-        self.device = device
+        super(MCTSAgent, self).__init__(model, device)
 
     def act(self, state: CircuitStateDQN):
         solution = self.MCTSStepper(state, self.model).act()

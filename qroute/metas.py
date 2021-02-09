@@ -53,6 +53,15 @@ class CombinerAgent(abc.ABC):
     Class to train and act using the model, by combining the actions taken by the model in a single step
     """
 
+    def __init__(self, model, device):
+        """
+        Sets up the state and the model for the agent
+        :param model: The neural network for deciding each step
+        :param device: The device on which to compile
+        """
+        self.model = model
+        self.device = device
+
     @abc.abstractmethod
     def act(self, state):
         """

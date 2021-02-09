@@ -1,9 +1,9 @@
 import torch
 
-from qroute.environment.device import DeviceTopology
-from qroute.environment.state import CircuitStateDQN
-from qroute.utils.histogram import histogram
-import qroute.hyperparams
+from ..environment.device import DeviceTopology
+from ..environment.state import CircuitStateDQN
+from ..utils.histogram import histogram
+from ..hyperparams import DEVICE
 
 
 class ActorCriticAgent(torch.nn.Module):
@@ -25,7 +25,7 @@ class ActorCriticAgent(torch.nn.Module):
             torch.nn.ReLU(),
             torch.nn.Linear(32, len(self.device.edges) + (1 if stop_move else 0)),
             torch.nn.Softmax(dim=-1)
-        ).to(qroute.hyperparams.DEVICE)
+        ).to(DEVICE)
         self.critic_model = torch.nn.Sequential(
             torch.nn.Linear(self.device.max_distance, 32),
             torch.nn.ReLU(),
@@ -34,7 +34,7 @@ class ActorCriticAgent(torch.nn.Module):
             torch.nn.Linear(32, 32),
             torch.nn.ReLU(),
             torch.nn.Linear(32, 1),
-        ).to(qroute.hyperparams.DEVICE)
+        ).to(DEVICE)
         self.optimizer = torch.optim.Adam(
             list(self.actor_model.parameters()) + list(self.critic_model.parameters()))
 
@@ -79,7 +79,7 @@ class ActorCriticAgent(torch.nn.Module):
         """
         nodes_to_target_nodes = state.target_nodes
         distance_vector = histogram(state.target_distance, self.device.max_distance, 1)
-        distance_vector = torch.from_numpy(distance_vector).to(qroute.hyperparams.DEVICE).float()
+        distance_vector = torch.from_numpy(distance_vector).to(DEVICE).float()
 
         interaction_map = torch.zeros((len(self.device), len(self.device)))
         for idx, target in enumerate(nodes_to_target_nodes):

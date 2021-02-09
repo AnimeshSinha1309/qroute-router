@@ -3,10 +3,10 @@ import random
 import torch
 import numpy as np
 
-from qroute.environment.device import DeviceTopology
-from qroute.environment.state import CircuitStateDQN
-from qroute.algorithms.simanneal import AnnealerDQN
-import qroute.hyperparams
+from ..environment.device import DeviceTopology
+from ..environment.state import CircuitStateDQN
+from ..algorithms.simanneal import AnnealerDQN
+from ..hyperparams import DEVICE
 
 
 class DoubleDQNAgent(torch.nn.Module):
@@ -27,7 +27,7 @@ class DoubleDQNAgent(torch.nn.Module):
             torch.nn.Linear(32, 32),
             torch.nn.ReLU(),
             torch.nn.Linear(32, 1),
-        ).to(qroute.hyperparams.DEVICE)
+        ).to(DEVICE)
         self.target_model = torch.nn.Sequential(
             torch.nn.Linear(2 * self.device.max_distance, 32),
             torch.nn.ReLU(),
@@ -36,7 +36,7 @@ class DoubleDQNAgent(torch.nn.Module):
             torch.nn.Linear(32, 32),
             torch.nn.ReLU(),
             torch.nn.Linear(32, 1),
-        ).to(qroute.hyperparams.DEVICE)
+        ).to(DEVICE)
         self.current_optimizer = torch.optim.Adam(self.current_model.parameters())
         self.annealer = AnnealerDQN(self, device)
 
@@ -147,9 +147,9 @@ class DoubleDQNAgent(torch.nn.Module):
         If there are n qubits, then the length of this vector will also be n.
         """
         nodes_to_target_qubits = [
-            state._qubit_targets[state._node_to_qubit[n]] for n in range(0, len(state._node_to_qubit))]
+            state._qubit_targets[state.node_to_qubit[n]] for n in range(0, len(state.node_to_qubit))]
         nodes_to_target_nodes = [
-            next(iter(np.where(np.array(state._node_to_qubit) == q)[0]), -1) for q in nodes_to_target_qubits]
+            next(iter(np.where(np.array(state.node_to_qubit) == q)[0]), -1) for q in nodes_to_target_qubits]
 
         distance_vector = np.zeros(self.device.max_distance)
 
@@ -160,5 +160,5 @@ class DoubleDQNAgent(torch.nn.Module):
             d = int(self.device.distances[node, target])
             distance_vector[d - 1] += 1
 
-        distance_vector = torch.from_numpy(distance_vector).to(qroute.hyperparams.DEVICE).float()
+        distance_vector = torch.from_numpy(distance_vector).to(DEVICE).float()
         return distance_vector

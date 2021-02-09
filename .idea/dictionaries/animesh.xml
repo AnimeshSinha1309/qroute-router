@@ -4,11 +4,13 @@
       <w>animesh</w>
       <w>bffd</w>
       <w>cirq</w>
+      <w>graycode</w>
       <w>hyperparam</w>
       <w>immutator</w>
       <w>indegree</w>
       <w>manimce</w>
       <w>mcts</w>
+      <w>misex</w>
       <w>moerland</w>
       <w>probs</w>
       <w>qasm</w>
@@ -16,6 +18,7 @@
       <w>qubit</w>
       <w>qubits</w>
       <w>regressor</w>
+      <w>timestep</w>
       <w>tqdm</w>
       <w>wandb</w>
       <w>warshall</w>

@@ -158,6 +158,24 @@ class IBMqx5Device(DeviceTopology):
         )
 
 
+class IBMqx20TokyoDevice(DeviceTopology):
+    """
+    Specific device topology for the IBM QX5 device
+    """
+
+    def __init__(self):
+        """
+        Initialize the graph for the IBM QX5 topology
+        """
+        super(IBMqx20TokyoDevice, self).__init__(
+            nodes=20,
+            edges=[(0, 1), (1, 4), (4, 5), (5, 7), (19, 2), (2, 3), (3, 6), (6, 8),
+                   (18, 15), (15, 14), (14, 11), (11, 9), (17, 16), (16, 13), (13, 12), (12, 10),
+                   (19, 15), (18, 2), (1, 3), (2, 4), (3, 11), (14, 6),
+                   (5, 8), (6, 7), (11, 10), (9, 12), (15, 13), (16, 14)]
+        )
+
+
 class GridComputerDevice(DeviceTopology):
     """
     Specific device topology for the IBM QX5 device

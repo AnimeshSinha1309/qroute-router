@@ -4,8 +4,8 @@ import numpy as np
 import torch
 import torch_geometric
 
-from qroute.environment.device import DeviceTopology
-from qroute.environment.state import CircuitStateDQN
+from ..environment.device import DeviceTopology
+from ..environment.state import CircuitStateDQN
 
 
 class GraphDualModel(torch.nn.Module):
@@ -21,7 +21,7 @@ class GraphDualModel(torch.nn.Module):
             torch.nn.Linear(len(self.device) * 2, 10),
             torch.nn.ReLU(),
             torch.nn.Linear(10, 4),
-            torch.nn.Softmax(dim=-1),
+            torch.nn.ReLU(),
         )
         self.edge_conv = torch_geometric.nn.EdgeConv(aggr='add', nn=mlp)
         self.edges = torch.tensor(self.device.edges).transpose(1, 0)

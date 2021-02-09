@@ -7,29 +7,29 @@ import math
 import numpy as np
 from collections import deque
 
-from qroute.environment.state import CircuitStateDQN
-from qroute.environment.env import step
-from qroute.visualizers.solution_validator import check_valid_solution
+from ..environment.state import CircuitStateDQN
+from ..environment.env import step
+from ..visualizers.solution_validator import check_valid_solution
+from ..metas import CombinerAgent
 
 
-class AnnealerDQN:
+class AnnealerDQN(CombinerAgent):
     """
     Class to perform simulated annealing using a value function approximator
     """
 
-    def __init__(self, agent, device):
+    def __init__(self, model, device):
         """
         Sets hyper-parameters and stores the agent and environment to initialize Annealer
 
-        :param agent: Agent, to evaluate the value function
+        :param model: Agent, to evaluate the value function
         :param device: environment, maintaining the device and state
         """
+        super().__init__(model, device)
         self.initial_temperature = 60.0
         self.min_temperature = 0.1
         self.cooling_multiplier = 0.95
 
-        self.device = device
-        self.agent = agent
         self.reversed_gates_deque = deque(maxlen=20)
 
     def get_neighbour_solution(self, current_solution, current_state: CircuitStateDQN):
@@ -62,7 +62,7 @@ class AnnealerDQN:
         :return: int or float, the energy value
         """
         next_state_temp, _, _, _ = step(solution, current_state)
-        q_val = self.agent(current_state, next_state_temp, action_chooser)
+        q_val = self.model(current_state, next_state_temp, action_chooser)
         return -q_val.detach()
 
     @staticmethod
