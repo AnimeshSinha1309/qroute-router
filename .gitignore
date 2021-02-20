@@ -7,6 +7,16 @@
 **/wandb
 **/media
 
+# Latex Files
+*.aux
+*.bbl
+*.bit
+*.blg
+*.fls
+*.synctex.gz
+*.fdb_latexmk
+*Notes.bib
+
 # For this project only
 replications/
 
