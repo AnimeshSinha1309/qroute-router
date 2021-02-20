@@ -45,10 +45,11 @@ class GraphDualModel(torch.nn.Module):
         :param state: input state of the circuit
         :return: the probability of each of the actions and value function for state
         """
-        x, r = self.get_representation(state)
+        x, r, l = self.get_representation(state)
         x = self.edge_conv(x, self.edges)
         x = x.view(-1)
-        r = torch.cat([x, r])
+        value_input = torch.cat([x, r, l])
+        policy_input = torch.cat([x, r, l])
         policy = self.policy_head(x).detach().numpy()
         value: int = self.value_head(r).detach().item()
         # policy[-1] = -1e10  FIXME: Force this constraint for all other functions
@@ -67,5 +68,5 @@ class GraphDualModel(torch.nn.Module):
             interaction_map[idx, target] = 1
 
         remaining_targets = torch.from_numpy(state.remaining_targets)
-
-        return interaction_map, remaining_targets
+        mutex_locks = torch.from_numpy(state.locked_edges)
+        return interaction_map, remaining_targets, mutex_locks

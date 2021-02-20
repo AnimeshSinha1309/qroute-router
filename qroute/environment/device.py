@@ -88,7 +88,6 @@ class DeviceTopology(cirq.Device):
         if locked_edges is not None:
             current_action = np.bitwise_or(current_action, locked_edges)
         available_edges_mask = np.full(shape=len(self.edges), fill_value=True)
-        # We block any edges connected to nodes already involved in a swap, except those actually being swapped
         current_action_nodes = set()
         for i, used in enumerate(current_action):
             if used:
@@ -98,6 +97,7 @@ class DeviceTopology(cirq.Device):
         for idx, edge in enumerate(self.edges):
             if edge[0] in current_action_nodes or edge[1] in current_action_nodes:
                 available_edges_mask[idx] = False
+        assert not np.any(np.bitwise_and(available_edges_mask, locked_edges))
         return available_edges_mask
 
     # Methods to check if the circuit is working on the device without violating the Topology
@@ -181,7 +181,7 @@ class GridComputerDevice(DeviceTopology):
     Specific device topology for the IBM QX5 device
     """
 
-    def __init__(self, rows=4, cols=5):
+    def __init__(self, rows, cols=-1):
         """
         Add links to the grid topology.
 
@@ -189,7 +189,7 @@ class GridComputerDevice(DeviceTopology):
         :param cols: number of columns in the grid
         """
         self.rows = rows
-        self.cols = cols
+        self.cols = cols if cols != -1 else rows
 
         topology = []
         for i in range(0, rows):

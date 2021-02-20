@@ -32,8 +32,10 @@ def train_step(agent: CombinerAgent,
     progress_bar = tqdm.tqdm(total=len(list(circuit.cirq.all_operations())))
     progress_bar.set_description(episode_id)
 
-    for time in range(training_steps):
+    for time in range(2, training_steps + 1):
         action, _ = agent.act(state)
+        assert not np.any(np.bitwise_and(state.locked_edges, action)), "Bad Action"
+
         next_state, reward, done, debugging_output = step(action, state)
         total_reward += reward
         solution_moments.append(debugging_output)
@@ -52,7 +54,6 @@ def train_step(agent: CombinerAgent,
             depth = len(result_circuit.moments)
             progress_bar.set_postfix(circuit_depth=depth, total_reward=total_reward, time=time)
             progress_bar.close()
-
             # print(solution_start, "\n", input_circuit.cirq, "\n", result_circuit, "\n", flush=True)
             # wandb.log({'Circuit Depth': depth,
             #            'Number of Actions': num_actions,

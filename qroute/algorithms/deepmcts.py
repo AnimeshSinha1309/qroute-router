@@ -36,6 +36,8 @@ class MCTSAgent(CombinerAgent):
             self.solution: np.ndarray = copy.copy(solution) if solution is not None else \
                 np.full(self.num_actions, False)
 
+            assert not np.any(np.bitwise_and(self.state.locked_edges, self.solution)), "Bad Action"
+
             self.rollout_reward = self.calc_rollout_reward() if self.parent_action is not None else 0.0
             self.action_mask = np.concatenate([state.device.swappable_edges(self.solution, self.state.locked_edges),
                                                np.array([solution is not None])])
@@ -64,7 +66,7 @@ class MCTSAgent(CombinerAgent):
             self.q_value[index] = (self.q_value[index] * self.n_value[index] + reward) / (self.n_value[index] + 1)
             self.n_value[index] += 1
 
-        def select(self, c=100) -> int:
+        def select(self, c=1000) -> int:
             """
             Select one of the child actions based on UCT rule
             """
@@ -89,6 +91,7 @@ class MCTSAgent(CombinerAgent):
             returns: mean across the R random rollouts.
             """
             if num_rollouts is None:
+                assert not np.any(np.bitwise_and(self.state.locked_edges, self.solution)), "Bad Action"
                 next_state, _, _, _ = step(self.solution, self.state)
                 _, self.rollout_reward = self.model(next_state)
                 return self.rollout_reward
@@ -138,6 +141,9 @@ class MCTSAgent(CombinerAgent):
                     depth += 1
 
                     action_index: int = mcts_state.select()
+                    if action_index != len(mcts_state.solution):
+                        assert not mcts_state.state.locked_edges[action_index], "Selecting a Bad Action"
+
                     if mcts_state.child_states[action_index] is not None:
                         # MCTS Algorithm: SELECT STAGE
                         mcts_state = mcts_state.child_states[action_index]
@@ -145,16 +151,17 @@ class MCTSAgent(CombinerAgent):
                     else:
                         # MCTS Algorithm: EXPAND STAGE
                         if action_index == len(mcts_state.solution):
-                            next_state, _reward, _done, _debug = step(mcts_state.solution, self.state)
+                            next_state, _reward, _done, _debug = step(mcts_state.solution, mcts_state.state)
                             mcts_state.child_states[action_index] = MCTSAgent.MCTSState(
                                 next_state, self.model,
                                 r_previous=0, parent_state=mcts_state, parent_action=action_index)
                         else:
                             next_solution = np.copy(mcts_state.solution)
                             next_solution[action_index] = True
-                            reward = evaluate(next_solution, self.state) - evaluate(mcts_state.solution, self.state)
+                            reward = evaluate(next_solution, mcts_state.state) - \
+                                     evaluate(mcts_state.solution, mcts_state.state)
                             mcts_state.child_states[action_index] = MCTSAgent.MCTSState(
-                                self.state, self.model, next_solution, reward, mcts_state, action_index)
+                                mcts_state.state, self.model, next_solution, reward, mcts_state, action_index)
                         mcts_state = mcts_state.child_states[action_index]
                         break
 
@@ -176,6 +183,7 @@ class MCTSAgent(CombinerAgent):
                 self.search(100)
                 pos = self.root.select()
                 if pos == len(self.root.solution) or self.root.child_states[pos] is None:
+                    assert not np.any(np.bitwise_and(self.state.locked_edges, self.root.solution)), "Bad Action"
                     return self.root.solution
                 else:
                     self.root = self.root.child_states[pos]

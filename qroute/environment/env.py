@@ -23,6 +23,7 @@ def step(action, input_state: CircuitStateDQN):
     :return: debugging output, Moment containing the gates executed and the reward obtained
     """
     state: CircuitStateDQN = copy.copy(input_state)
+    assert not np.any(np.bitwise_and(state.locked_edges, action)), "Bad Action"
     # Swaps the required qubits and collects rewards for the gain in distances
     pre_swap_distances = np.copy(state.target_distance)
     swaps_executed = state.execute_swap(action)
@@ -33,7 +34,6 @@ def step(action, input_state: CircuitStateDQN):
         np.clip(pre_swap_distances - post_swap_distances, -1000, 0))
     state.update_locks(action, 1)
     state.update_locks()
-
     # Execute the gates you have on queue
     cnots_executed = state.execute_cnot()
     gate_reward = len(cnots_executed) * REWARD_GATE
@@ -58,5 +58,6 @@ def evaluate(action, input_state: CircuitStateDQN):
     :return: done, True if execution is complete, False otherwise
     :return: debugging output, Moment containing the gates executed and the reward obtained
     """
+    assert not np.any(np.bitwise_and(input_state.locked_edges, action)), "Bad Action"
     _next_state, reward, _done, _debug = step(action, input_state)
     return reward
