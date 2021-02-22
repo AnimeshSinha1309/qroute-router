@@ -185,6 +185,8 @@ We want to find the $a$, for each $s$ which maximizes $Q(s, a)$, however, since 
         Scaling of Initial Depth overhead with size of hardware}
 \end{figure}
 
+To search over the action space, we employ a tree search which consists of 4 steps. The first is a selection step which chooses the optimal node to explore. This choice is made by maximizing the Upper Confidence Bound on Trees value, which is a sum of the expected reward $Q$ and expected standard deviation multiplied by a constant $c$. This constant weights the exploration tendency of the agent against the exploitation (choosing the best action based on current knowledge). The next step, called Expansion, explores the futures of the selected state. The third step is rollout, where we use our Neural Network to approximate the value function of the state. The fourth and final step is using the explicitly obtained rewards and the value function at the expanded state to update the $Q$ functions of all states in it's ancestory. 
+
 \begin{equation}
     UCT_s(a) = Q(s, a) + \sqrt{\frac{n(s, a)}{1 + n(a)}} \times p(s, a)
 \end{equation}
@@ -197,7 +199,7 @@ Our tree search needs a value function approximator and a policy function approx
 
 is a neural network which helps approximate the value function, which is an estimate of the number of additional timesteps that the circuit might take to compile, and the policy function, which is a vector of size $n\_edges$, with real valued elements between 0 and 1.
 
-\begin{figure*}[t]
+\begin{figure*}[btp]
     \includegraphics[width=\textwidth]{images/network-architecture.jpg}
     \caption{\label{fig:network-architecture}
         Graph Neural Network Architecture with a Value head and a Policy head}
@@ -220,14 +222,18 @@ Given a good initial mapping, we manage to transform the circuit with no depth o
 
 \subsection{\label{sec:results-random}Random Test Circuits}
 
+We test the scaling of our algorithms on randomized circuits of varying number of gates to schedule and the number of qubits on target hardware.
+
+We note that our method is relatively unphased by the growth in the size of the hardware, and scales better than other methods as the number of operations to schedule grow.
+
 \begin{figure}[H]
-    \includegraphics[width=\linewidth]{images/results-random.png}
+    \includegraphics[width=0.8\linewidth]{images/results-random.png}
     \caption{\label{fig:results-random}
         Depth overhead on random circuits against number of gates in input circuit and number of qubits in the hardware.}
 \end{figure}
 
 \begin{figure}[H]
-    \includegraphics[width=\linewidth]{images/results-hardwares.png}
+    \includegraphics[width=0.8\linewidth]{images/results-hardwares.png}
     \caption{\label{fig:results-hardware}
         Comparative performance against other methods across real world hardware}
 \end{figure}
@@ -241,23 +247,19 @@ Given a good initial mapping, we manage to transform the circuit with no depth o
     }
     \begin{ruledtabular}
         \begin{tabular}{lrrr}
-            \textrm{Circuit}        &
-            \textrm{Gate Count}     &
-            \textrm{Cirq Depth}     &
-            \textrm{MCTS Depth}                 \\
+            \textrm{Circuit}       &
+            \textrm{Gate Count}    &
+            \textrm{Cirq Depth}    &
+            \textrm{MCTS Depth}             \\
             \colrule
 
-            \verb+rd84_142+  & 154  &  & \\
-            \verb+adr4_197+  & 1498 &  & \\
-            \verb+radd_250+  & 1405 &  & \\
-            \verb+z4_268+  & 1343 &  & \\
-            \verb+sym6_145+  & 1701 &  & \\
-            \verb+misex1_241+  & 2100 &  & \\
-            \verb+rd73_252+  & 2319 &  & \\
-            \verb+cycle10_2_110+  & 2648 &  & \\
-            \verb+square_root_7+  & 3089 &  & \\
-            \verb+sqn_258+ & 4459 &  & \\
-            \verb+rd84_253+ & 5960 &  & \\
+            \verb+alu-v0_27+ &   &  & \\
+            \verb+ex1_226+ &   &  & \\
+            \verb+graycode6_47+ &   &  & \\
+            \verb+ham3_102+ &   &  & \\
+            \verb+mod5d1_63+ &   &  & \\
+            \verb+mod5mils_65+ &   &  & \\
+            \verb+xor5_254+ &   &  & \\
         \end{tabular}
     \end{ruledtabular}
 \end{table}
@@ -275,8 +277,8 @@ Given a good initial mapping, we manage to transform the circuit with no depth o
             \textrm{MCTS Depth}                 \\
             \colrule
 
-            \verb+rd84_142+ & 154  &  & \\
-            \verb+adr4_197+ & 1498 &  & \\
+            \verb+rd84_142+  & 154  &  & \\
+            \verb+adr4_197+  & 1498 &  & \\
             \verb+radd_250+ & 1405 &  & \\
             \verb+z4_268+ & 1343 &  & \\
             \verb+sym6_145+ & 1701 &  & \\
@@ -289,14 +291,6 @@ Given a good initial mapping, we manage to transform the circuit with no depth o
         \end{tabular}
     \end{ruledtabular}
 \end{table}
-
-\subsection{\label{sec:results-full}Full Layer Circuits}
-
-Since we always greedily enqueue all operations that are executable, the depth overhead due to the routing algorithm is non-existant, we never try to introduce any swaps. This just gives us a test of our initial mapping method and provides a sanity check.
-
-\subsection{\label{sec:results-rnd}Randomized Circuit}
-
-We test the scaling of our algorithms on randomized circuits of varying lenghts as
 
 \subsection{\label{sec:results-rnd}Speed of Transformation Process}
 
@@ -311,13 +305,14 @@ Our Method is significantly faster than all other classical methods while still 
 
 \section{Discussion and Future Scope}
 
-However, this is my no means a definitive solution to the task of Quantum Circuit Transformations, and offers great scope of improvement. We believe that the following are avenues in which
+This method of Quantum Circuit Transformation provides competitive and many a times superior performance to other methods. However, this is my no means a definitive solution to the task of Quantum Circuit Transformations, and offers great scope of improvement. We believe that the following are avenues in which the algorithm can be significantly improved:
+\begin{itemize}
+    \item Augmenting the Neural Network to take the future gates as an input. We propose to use a Transformer architecture for this, to learn a mapping from arbitrary-length list of gates to a feature vector which can be used in the Graph Neural Network to estimate the value function better.
+    \item Finding more systematic approaches to manage the hyperparameters, e.g. Exploration-Exploitation tradeoff constant, Reward Parameters, etc.
+\end{itemize}
+Our software library allows easy access to implementing these neural networks by changing just a single file. We hope that this will aid future improvements and research in the task of quantum circuit transformations.
 
 \appendix
-
-\section{Visualization Library}
-
-Along with the method, we also provide a visualization library written using the Manim library for Grid Architectures.
 
 \subsection{\label{sec:method-mcts}Monte Carlo Tree Search}
 
@@ -351,8 +346,6 @@ This is the basic structure of a generic Monte Carlo Tree Search algorithm aided
         \ENDFOR
     \end{algorithmic}
 \end{algorithm}
-
-We recognize that running MCTS on this problem results in a highly assymetric tree, since some actions block a lot of other actions, and some actions don't interfere with any other action at all. So we add a Dirichlet noise term to prevent our tree search from getting stuck down a single path. \citep{mcts_assymetric}
 
 \begin{algorithm}[H]
     \caption{Selection Algorithm}
