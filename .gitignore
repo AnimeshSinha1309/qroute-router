@@ -10,7 +10,6 @@
 # Latex Files
 *.aux
 *.bbl
-*.bit
 *.blg
 *.fls
 *.synctex.gz

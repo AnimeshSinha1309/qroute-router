@@ -185,7 +185,7 @@ We want to find the $a$, for each $s$ which maximizes $Q(s, a)$, however, since 
         Scaling of Initial Depth overhead with size of hardware}
 \end{figure}
 
-To search over the action space, we employ a tree search which consists of 4 steps. The first is a selection step which chooses the optimal node to explore. This choice is made by maximizing the Upper Confidence Bound on Trees value, which is a sum of the expected reward $Q$ and expected standard deviation multiplied by a constant $c$. This constant weights the exploration tendency of the agent against the exploitation (choosing the best action based on current knowledge). The next step, called Expansion, explores the futures of the selected state. The third step is rollout, where we use our Neural Network to approximate the value function of the state. The fourth and final step is using the explicitly obtained rewards and the value function at the expanded state to update the $Q$ functions of all states in it's ancestory. 
+To search over the action space, we employ a tree search which consists of 4 steps. The first is a selection step which chooses the optimal node to explore. This choice is made by maximizing the Upper Confidence Bound on Trees value, which is a sum of the expected reward $Q$ and expected standard deviation multiplied by a constant $c$. This constant weights the exploration tendency of the agent against the exploitation (choosing the best action based on current knowledge). The next step, called Expansion, explores the futures of the selected state. The third step is rollout, where we use our Neural Network to approximate the value function of the state. The fourth and final step is using the explicitly obtained rewards and the value function at the expanded state to update the $Q$ functions of all states in it's ancestory.
 
 \begin{equation}
     UCT_s(a) = Q(s, a) + \sqrt{\frac{n(s, a)}{1 + n(a)}} \times p(s, a)
@@ -274,20 +274,20 @@ We note that our method is relatively unphased by the growth in the size of the 
             \textrm{Circuit}        &
             \textrm{Gate Count}     &
             \textrm{Cirq Depth}     &
-            \textrm{MCTS Depth}                 \\
+            \textrm{MCTS Depth}                     \\
             \colrule
 
-            \verb+rd84_142+  & 154  &  & \\
-            \verb+adr4_197+  & 1498 &  & \\
-            \verb+radd_250+ & 1405 &  & \\
-            \verb+z4_268+ & 1343 &  & \\
-            \verb+sym6_145+ & 1701 &  & \\
-            \verb+misex1_241+ & 2100 &  & \\
-            \verb+rd73_252+ & 2319 &  & \\
-            \verb+cycle10_2_110+ & 2648 &  & \\
-            \verb+square_root_7+ & 3089 &  & \\
-            \verb+sqn_258+ & 4459 &  & \\
-            \verb+rd84_253+ & 5960 &  & \\
+            \verb+rd84_142+  & 154  & 154  & \\
+            \verb+adr4_197+  & 1498 & 2016 & \\
+            \verb+radd_250+ & 1405 & 1864 & \\
+            \verb+z4_268+ & 1343 & 1833 & \\
+            \verb+sym6_145+ & 1701 & 2357 & \\
+            \verb+misex1_241+ & 2100 & 2883 & \\
+            \verb+rd73_252+ & 2319 & 3143 & \\
+            \verb+cycle10_2_110+ & 2648 & 3595 & \\
+            \verb+square_root_7+ & 3089 & 3967 & \\
+            \verb+sqn_258+ & 4459 & 6067 & \\
+            % \verb+rd84_253+      & 5960 &   &   \\
         \end{tabular}
     \end{ruledtabular}
 \end{table}

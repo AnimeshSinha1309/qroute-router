@@ -5,7 +5,7 @@ import tqdm
 import torch
 # import wandb
 
-from .metas import CombinerAgent, ReplayMemory, MemoryItem
+from .metas import CombinerAgent, ReplayMemory
 from .environment.env import step
 from .environment.circuits import CircuitRepDQN, circuit_to_json
 from .environment.device import DeviceTopology
@@ -16,7 +16,6 @@ from .visualizers.solution_validator import validate_solution
 def train_step(agent: CombinerAgent,
                device: DeviceTopology,
                circuit: CircuitRepDQN,
-               memory: ReplayMemory,
                training_steps=100000, episode_id="Unnamed Run"):
 
     os.makedirs("./test/test_results", exist_ok=True)
@@ -33,18 +32,17 @@ def train_step(agent: CombinerAgent,
     progress_bar.set_description(episode_id)
 
     for time in range(2, training_steps + 1):
-        action, _ = agent.act(state)
+        action = agent.act(state)
         assert not np.any(np.bitwise_and(state.locked_edges, action)), "Bad Action"
 
         next_state, reward, done, debugging_output = step(action, state)
         total_reward += reward
         solution_moments.append(debugging_output)
         progress_bar.update(len(debugging_output.cnots))
-        memory.store(MemoryItem(state=state, action=action, next_state=next_state, reward=reward, done=done))
         state = next_state
 
         if (time + 1) % 1000 == 0:
-            agent.replay(memory)
+            agent.replay()
             torch.save(agent.model.state_dict(), "model-weights.h5")
 
         progress_bar.set_postfix(total_reward=total_reward, time=time)
@@ -59,9 +57,10 @@ def train_step(agent: CombinerAgent,
             #            'Number of Actions': num_actions,
             #            'Input Circuit': str(input_circuit.cirq),
             #            'Output Circuit': str(result_circuit)})
+            agent.replay()
             return solution_start, solution_moments, True
 
-    agent.replay(memory)
+    agent.replay()
     torch.save(agent.model.state_dict(), "model-weights.h5")
 
     return solution_start, solution_moments, False

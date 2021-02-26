@@ -2,7 +2,7 @@ import os
 import logging
 import argparse
 
-# import wandb
+import wandb
 import torch
 
 from .environment.device import IBMqx20TokyoDevice, GridComputerDevice
@@ -16,8 +16,8 @@ from .visualizers.greedy_schedulers import cirq_routing
 
 logging.basicConfig(level=logging.DEBUG)
 
-# os.system("wandb login d43f6dc5f4f9981ac8b6bffd1ab5db7d9ac45480")
-# wandb.init(project='qroute-rl', name='dqn-basic-1', save_code=False)
+os.system("wandb login d43f6dc5f4f9981ac8b6bffd1ab5db7d9ac45480")
+wandb.init(project='qroute-rl', name='dqn-basic-1', save_code=False)
 
 
 if __name__ == '__main__':
@@ -36,8 +36,8 @@ if __name__ == '__main__':
     device = IBMqx20TokyoDevice() if args.hardware == "qx20" else \
         GridComputerDevice(int(args.hardware.split("/")[-1]))
     model = GraphDualModel(device, True)
-    agent = MCTSAgent(model, device)
     memory = MemorySimple(0)
+    agent = MCTSAgent(model, device, memory)
 
     if os.path.exists("model-weights.h5"):
         model.load_state_dict(torch.load("model-weights.h5"))
@@ -49,7 +49,7 @@ if __name__ == '__main__':
             cirq = circuit_from_qasm(
                 os.path.join("./test/circuit_qasm", file + "_onlyCX.qasm"))
             circuit = CircuitRepDQN(cirq, len(device))
-            train_step(agent, device, circuit, memory, episode_id=file)
+            train_step(agent, device, circuit, episode_id=file)
             print("Cirq Routing Distance: ",
                   len(cirq_routing(circuit, device).circuit.moments))
     elif args.dataset == "large":
@@ -59,14 +59,14 @@ if __name__ == '__main__':
             cirq = circuit_from_qasm(
                 os.path.join("./test/circuit_qasm", file + "_onlyCX.qasm"))
             circuit = CircuitRepDQN(cirq, len(device))
-            train_step(agent, device, circuit, memory, episode_id=file)
+            train_step(agent, device, circuit, episode_id=file)
     elif args.dataset == "random":
         for e in range(args.iterations):
             cirq = circuit_generated_randomly(len(device), args.gates)
             circuit = CircuitRepDQN(cirq, len(device))
-            train_step(agent, device, circuit, memory, episode_id=f"random_{e}")
+            train_step(agent, device, circuit, episode_id=f"random_{e}")
     elif args.dataset == "full":
         for e in range(args.iterations):
             cirq = circuit_generated_full_layer(len(device), args.gates)
             circuit = CircuitRepDQN(cirq, len(device))
-            train_step(agent, device, circuit, memory, episode_id=f"full_{e}")
+            train_step(agent, device, circuit, episode_id=f"full_{e}")

@@ -7,7 +7,7 @@ import numpy as np
 import torch
 
 from ..environment.state import CircuitStateDQN
-from ..metas import CombinerAgent, ReplayMemory, MemoryItem
+from ..metas import CombinerAgent, ReplayMemory
 
 
 class AutoRegressor(CombinerAgent):
@@ -45,7 +45,6 @@ class AutoRegressor(CombinerAgent):
     def replay(self, memory: ReplayMemory):
         absolute_errors = []
 
-        experience: MemoryItem
         for experience in memory:
             # Train the current model (model.fit in current state)
             probs, value = self.model(experience.state)
