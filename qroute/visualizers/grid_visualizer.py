@@ -22,7 +22,7 @@ def model_run(grid_size):
     agent = AnnealerAct(model, device)
     memory = MemorySimple(500)
     solution_start, solution_moments, successful = train_step(
-        agent, device, circuit, memory, training_steps=50, episode_id=1)
+        agent, device, circuit, memory, training_steps=50, episode_name=1)
 
     print("Visualizing Solution:")
     print(solution_start)

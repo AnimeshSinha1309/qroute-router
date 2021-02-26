@@ -78,11 +78,12 @@ class DeviceTopology(cirq.Device):
 
     # Get the list of edges which can be swapped after given action
 
-    def swappable_edges(self, current_action, locked_edges=None):
+    def swappable_edges(self, current_action, locked_edges=None, dummy_nodes=None):
         """
         List of edges that can be operated with swaps, given the current state and blocked edges
         :param current_action: np.array, boolean array of edges being currently swapped (current solution)
         :param locked_edges: np.array, edges which were blocked before the previous action
+        :param dummy_nodes: np.array, boolean array of the nodes, True if they have no operations left
         :return: list, edges which can still be swapped
         """
         if locked_edges is not None:
@@ -97,7 +98,10 @@ class DeviceTopology(cirq.Device):
         for idx, edge in enumerate(self.edges):
             if edge[0] in current_action_nodes or edge[1] in current_action_nodes:
                 available_edges_mask[idx] = False
-        assert not np.any(np.bitwise_and(available_edges_mask, locked_edges))
+        if dummy_nodes is not None:
+            for idx, edge in enumerate(self.edges):
+                if dummy_nodes[edge[0]] and dummy_nodes[edge[1]]:
+                    available_edges_mask[idx] = False
         return available_edges_mask
 
     # Methods to check if the circuit is working on the device without violating the Topology

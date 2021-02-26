@@ -20,9 +20,7 @@ class GraphDualModel(torch.nn.Module):
         mlp = torch.nn.Sequential(
             torch.nn.Linear(len(self.device) * 2, 50),
             torch.nn.ReLU(),
-            torch.nn.Linear(50, 30),
-            torch.nn.ReLU(),
-            torch.nn.Linear(30, 10),
+            torch.nn.Linear(50, 10),
             torch.nn.ReLU(),
             torch.nn.Linear(10, 4),
             torch.nn.ReLU(),
@@ -32,9 +30,7 @@ class GraphDualModel(torch.nn.Module):
         self.value_head = torch.nn.Sequential(
             torch.nn.Linear(len(self.device) * 4 + len(self.device) + len(self.device.edges), 64),
             torch.nn.ReLU(),
-            torch.nn.Linear(64, 32),
-            torch.nn.ReLU(),
-            torch.nn.Linear(32, 16),
+            torch.nn.Linear(64, 16),
             torch.nn.ReLU(),
             torch.nn.Linear(16, 1),
         )
