@@ -39,8 +39,6 @@ class MCTSAgent(CombinerAgent):
             self.solution: np.ndarray = copy.copy(solution) if solution is not None else \
                 np.full(self.num_actions, False)
 
-            assert not np.any(np.bitwise_and(self.state.locked_edges, self.solution)), "Bad Action"
-
             self.rollout_reward = self.rollout() if self.parent_action is not None else 0.0
             self.action_mask = np.concatenate([state.device.swappable_edges(
                 self.solution, self.state.locked_edges, self.state.target_nodes == -1),
@@ -189,7 +187,7 @@ class MCTSAgent(CombinerAgent):
         if self.root is None or self.root.state != state:
             self.root = MCTSAgent.MCTSState(state, self.model)
         while True:
-            self.search(100)
+            self.search(10)
             self.memory.store(state,
                               torch.sum((self.root.n_value / torch.sum(self.root.n_value)) * self.root.q_value),
                               self._stable_normalizer(self.root.n_value))

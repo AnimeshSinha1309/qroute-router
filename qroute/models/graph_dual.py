@@ -8,6 +8,18 @@ from ..environment.device import DeviceTopology
 from ..environment.state import CircuitStateDQN
 
 
+class SquashActivation(torch.nn.Module):
+
+    def __init__(self, dim=-1):
+        super().__init__()
+        self.dim = dim
+
+    def forward(self, tensor):
+        squared_norm = (tensor ** 2).sum(dim=self.dim, keepdim=True)
+        scale = squared_norm / (1 + squared_norm)
+        return scale * tensor / torch.sqrt(squared_norm)
+
+
 class GraphDualModel(torch.nn.Module):
 
     def __init__(self, device: DeviceTopology, stop_move: bool = False):
@@ -19,25 +31,25 @@ class GraphDualModel(torch.nn.Module):
         self.device = device
         mlp = torch.nn.Sequential(
             torch.nn.Linear(len(self.device) * 2, 50),
-            torch.nn.ReLU(),
+            torch.nn.SiLU(),
             torch.nn.Linear(50, 10),
-            torch.nn.ReLU(),
+            torch.nn.SiLU(),
             torch.nn.Linear(10, 4),
-            torch.nn.ReLU(),
+            torch.nn.SiLU(),
         )
         self.edge_conv = torch_geometric.nn.EdgeConv(aggr='add', nn=mlp)
         self.edges = torch.tensor(self.device.edges).transpose(1, 0)
         self.value_head = torch.nn.Sequential(
             torch.nn.Linear(len(self.device) * 4 + len(self.device) + len(self.device.edges), 64),
-            torch.nn.ReLU(),
+            torch.nn.SiLU(),
             torch.nn.Linear(64, 16),
-            torch.nn.ReLU(),
+            torch.nn.SiLU(),
             torch.nn.Linear(16, 1),
         )
         self.policy_head = torch.nn.Sequential(
             torch.nn.Linear(len(self.device) * 4 + len(self.device.edges),
                             len(self.device.edges) + (1 if stop_move else 0)),
-            torch.nn.Softmax(dim=-1),
+            SquashActivation(dim=-1),
         )
         self.optimizer = torch.optim.Adam(self.parameters())
 

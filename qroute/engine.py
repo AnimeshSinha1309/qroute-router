@@ -55,7 +55,7 @@ def train_step(agent: CombinerAgent,
             depth = len(result_circuit.moments)
             progress_bar.set_postfix(circuit_depth=depth, total_reward=total_reward, time=time)
             progress_bar.close()
-            # print(solution_start, "\n", input_circuit.cirq, "\n", result_circuit, "\n", flush=True)
+            print(solution_start, "\n", input_circuit.cirq, "\n", result_circuit, "\n", flush=True)
             if train_model:
                 loss_v, loss_p = agent.replay()
                 if use_wandb:

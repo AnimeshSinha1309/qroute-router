@@ -125,9 +125,10 @@ class CircuitStateDQN:
         qubit_to_node = np.zeros(len(self._node_to_qubit), dtype=np.int)
         for i, v in enumerate(self._node_to_qubit):
             qubit_to_node[v] = i
-        target_nodes = np.zeros(len(self._node_to_qubit), dtype=np.int)
+        target_nodes = np.full(shape=len(self._node_to_qubit), fill_value=-1)
         for i, v in enumerate(self._qubit_targets):
-            target_nodes[qubit_to_node[i]] = qubit_to_node[v]
+            if v != -1:
+                target_nodes[qubit_to_node[i]] = qubit_to_node[v]
         return target_nodes
 
     @property
