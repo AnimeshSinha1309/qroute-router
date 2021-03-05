@@ -186,6 +186,10 @@ class MCTSAgent(CombinerAgent):
         """Process the output at the root node"""
         if self.root is None or self.root.state != state:
             self.root = MCTSAgent.MCTSState(state, self.model)
+        else:
+            self.root.parent_state = None
+            self.root.parent_action = None
+
         while True:
             self.search(self.search_depth)
             self.memory.store(state,
