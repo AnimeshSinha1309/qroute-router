@@ -76,7 +76,7 @@ class MCTSAgent(CombinerAgent):
             Select one of the child actions based on UCT rule
             """
             n_visits = torch.sum(self.n_value).item()
-            uct = self.q_value + (self.priors * c * np.sqrt(n_visits + 1) / (self.n_value + 1))
+            uct = self.q_value + (self.priors * c * np.sqrt(n_visits + 0.001) / (self.n_value + 0.001))
             best_val = torch.max(uct)
             best_move_indices: torch.Tensor = torch.where(torch.eq(best_val, uct))[0]
             winner: int = np.random.choice(best_move_indices.numpy())
@@ -117,16 +117,16 @@ class MCTSAgent(CombinerAgent):
     This at the moment does not look into the future steps, just calls an evaluator
     """
 
-    HYPERPARAM_DISCOUNT_FACTOR = 1.00  # No discounting for single stage MCTS
+    HYPERPARAM_DISCOUNT_FACTOR = 0.95
     HYPERPARAM_EXPLORE_C = 100
     HYPERPARAM_POLICY_TEMPERATURE = 0
 
-    def __init__(self, model, device, memory):
-
+    def __init__(self, model, device, memory, search_depth=100):
         super().__init__(model, device)
         self.model = model
         self.root: ty.Optional[MCTSAgent.MCTSState] = None
         self.memory = memory
+        self.search_depth = search_depth
 
     def search(self, n_mcts):
         """Perform the MCTS search from the root"""
@@ -187,7 +187,7 @@ class MCTSAgent(CombinerAgent):
         if self.root is None or self.root.state != state:
             self.root = MCTSAgent.MCTSState(state, self.model)
         while True:
-            self.search(10)
+            self.search(self.search_depth)
             self.memory.store(state,
                               torch.sum((self.root.n_value / torch.sum(self.root.n_value)) * self.root.q_value),
                               self._stable_normalizer(self.root.n_value))

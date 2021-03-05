@@ -8,16 +8,16 @@ from ..environment.device import DeviceTopology
 from ..environment.state import CircuitStateDQN
 
 
-class SquashActivation(torch.nn.Module):
+class NormActivation(torch.nn.Module):
 
     def __init__(self, dim=-1):
         super().__init__()
         self.dim = dim
 
     def forward(self, tensor):
-        squared_norm = (tensor ** 2).sum(dim=self.dim, keepdim=True)
-        scale = squared_norm / (1 + squared_norm)
-        return scale * tensor / torch.sqrt(squared_norm)
+        tensor = tensor ** 2
+        length = tensor.sum(dim=self.dim, keepdim=True)
+        return tensor / length
 
 
 class GraphDualModel(torch.nn.Module):
@@ -49,7 +49,7 @@ class GraphDualModel(torch.nn.Module):
         self.policy_head = torch.nn.Sequential(
             torch.nn.Linear(len(self.device) * 4 + len(self.device.edges),
                             len(self.device.edges) + (1 if stop_move else 0)),
-            SquashActivation(dim=-1),
+            NormActivation(dim=-1),
         )
         self.optimizer = torch.optim.Adam(self.parameters())
 
@@ -97,11 +97,12 @@ class GraphDualModel(torch.nn.Module):
         return loss
 
     def fit(self, state, v, p):
+        self.optimizer.zero_grad()
         self.train()
         v = v.reshape(1)
         pred_v, pred_p = self(state)
-        p_loss = self._loss_v(pred_v, v)
-        v_loss = self._loss_p(pred_p, p)
+        v_loss = self._loss_v(pred_v, v)
+        p_loss = self._loss_p(pred_p, p)
         loss = v_loss + p_loss
         loss.backward()
         self.optimizer.step()
