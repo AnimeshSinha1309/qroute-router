@@ -42,7 +42,7 @@ class MCTSAgent(CombinerAgent):
             self.rollout_reward = self.rollout() if self.parent_action is not None else 0.0
             self.action_mask = np.concatenate([state.device.swappable_edges(
                 self.solution, self.state.locked_edges, self.state.target_nodes == -1),
-                np.array([solution is not None])])
+                np.array([solution is not None or not np.all(self.state.locked_edges)])])
 
             self.n_value = torch.zeros(self.num_actions + 1)
             self.q_value = torch.zeros(self.num_actions + 1)

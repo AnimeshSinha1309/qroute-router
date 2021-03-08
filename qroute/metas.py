@@ -1,5 +1,4 @@
 import abc
-import collections
 
 
 class ReplayMemory(abc.ABC):
