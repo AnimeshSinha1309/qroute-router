@@ -69,7 +69,8 @@ class MemoryPER:
 
         self.tree = self.SumTree(capacity)
 
-    def store(self, experience):
+    def store(self, *args):
+        experience = args[0]
         max_priority = np.max(self.tree.tree[-self.tree.capacity:])
 
         if max_priority == 0:

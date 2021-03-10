@@ -1,8 +1,4 @@
 import abc
-import collections
-
-
-MemoryItem = collections.namedtuple('MemoryItem', ['state', 'reward', 'action', 'next_state', 'done'])
 
 
 class ReplayMemory(abc.ABC):
@@ -12,10 +8,10 @@ class ReplayMemory(abc.ABC):
     """
 
     @abc.abstractmethod
-    def store(self, experience):
+    def store(self, *args):
         """
         Stores a MemoryItem in the data structure
-        :param experience: the item to store
+        :param args: the items to store
         """
 
     @abc.abstractmethod
@@ -72,7 +68,7 @@ class CombinerAgent(abc.ABC):
         """
 
     @abc.abstractmethod
-    def replay(self, memory: ReplayMemory):
+    def replay(self):
         """
         Learns from past experiences
         """

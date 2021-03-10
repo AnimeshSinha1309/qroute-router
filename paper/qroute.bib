@@ -1,0 +1,166 @@
+@PREAMBLE{
+ "\providecommand{\noopsort}[1]{}" 
+ # "\providecommand{\singleletter}[1]{#1}%" 
+}
+
+@misc{qroute_dqn1,
+      title={Using Reinforcement Learning to find Efficient Qubit Routing Policies for Deployment in Near-term Quantum Computers}, 
+      author={Steven Herbert and Akash Sengupta},
+      year={2019},
+      eprint={1812.11619},
+      archivePrefix={arXiv},
+      primaryClass={quant-ph}
+}
+
+@misc{qroute_dqn2,
+  title={Using Reinforcement Learning to Perform Qubit Routing in Quantum Compilers}, 
+  author={Matteo G. Pozzi and Steven J. Herbert and Akash Sengupta and Robert D. Mullins},
+  year={2020},
+  eprint={2007.15957},
+  archivePrefix={arXiv},
+  primaryClass={quant-ph}
+}
+
+@inproceedings{qroute_mcts,
+    author = {Zhou, Xiangzhen and Feng, Yuan and Li, Sanjiang},
+    title = {A Monte Carlo Tree Search Framework for Quantum Circuit Transformation},
+    year = {2020},
+    isbn = {9781450380263},
+    publisher = {Association for Computing Machinery},
+    address = {New York, NY, USA},
+    url = {https://doi.org/10.1145/3400302.3415621},
+    doi = {10.1145/3400302.3415621},
+    abstract = {In Noisy Intermediate-Scale Quantum (NISQ) era, quantum processing units (QPUs) suffer from, among others, highly limited connectivity between physical qubits. To make a quantum circuit executable, a circuit transformation process is necessary to transform it into a functionally equivalent one so that the connectivity constraints imposed by the QPU are satisfied. Due to the high branching factor and vast search space, almost all existing algorithms search very shallowly and thus, very often, can reach (at most) locally optimal solutions. We propose a Monte Carlo Tree Search framework to tackle this problem, which enables the search process to go deeper. In particular, we design, by taking both short- and long-term rewards into consideration, a scoring mechanism, and propose to use a fast random strategy for simulation. The thus designed search algorithm is polynomial in all relevant parameters and empirical results on extensive realistic circuits show that it can reduce, in average, the size of the output circuits by at least 30% when compared with the state-of-the-art algorithms on IBM Q20.},
+    booktitle = {Proceedings of the 39th International Conference on Computer-Aided Design},
+    articleno = {138},
+    numpages = {7},
+    keywords = {monte carlo tree search, QPU, quantum computing, qubit mapping, quantum circuit transformation},
+    location = {Virtual Event, USA},
+    series = {ICCAD '20}
+}
+
+@inproceedings{qroute_tket,
+  author =	{Alexander Cowtan and Silas Dilkes and Ross Duncan and Alexandre Krajenbrink and Will Simmons and Seyon Sivarajah},
+  title =	{{On the Qubit Routing Problem}},
+  booktitle =	{14th Conference on the Theory of Quantum Computation, Communication and Cryptography (TQC 2019)},
+  pages =	{5:1--5:32},
+  series =	{Leibniz International Proceedings in Informatics (LIPIcs)},
+  ISBN =	{978-3-95977-112-2},
+  ISSN =	{1868-8969},
+  year =	{2019},
+  volume =	{135},
+  editor =	{Wim van Dam and Laura Mancinska},
+  publisher =	{Schloss Dagstuhl--Leibniz-Zentrum fuer Informatik},
+  address =	{Dagstuhl, Germany},
+  URL =		{http://drops.dagstuhl.de/opus/volltexte/2019/10397},
+  URN =		{urn:nbn:de:0030-drops-103972},
+  doi =		{10.4230/LIPIcs.TQC.2019.5},
+  annote =	{Keywords: Quantum Computing, Qubit routing, Compilation}
+}
+
+@article{photo_architecture_graph,
+  title={Reducing the CNOT count for Clifford+T circuits on NISQ architectures},
+  author={Vlad Gheorghiu and Sarah Li and M. Mosca and P. Mukhopadhyay},
+  journal={arXiv: Quantum Physics},
+  year={2020}
+}
+
+@article{mcts_alphago,
+    author={Silver, David
+    and Huang, Aja
+    and Maddison, Chris J.
+    and Guez, Arthur
+    and Sifre, Laurent
+    and van den Driessche, George
+    and Schrittwieser, Julian
+    and Antonoglou, Ioannis
+    and Panneershelvam, Veda
+    and Lanctot, Marc
+    and Dieleman, Sander
+    and Grewe, Dominik
+    and Nham, John
+    and Kalchbrenner, Nal
+    and Sutskever, Ilya
+    and Lillicrap, Timothy
+    and Leach, Madeleine
+    and Kavukcuoglu, Koray
+    and Graepel, Thore
+    and Hassabis, Demis},
+    title={Mastering the game of Go with deep neural networks and tree search},
+    journal={Nature},
+    year={2016},
+    month={Jan},
+    day={01},
+    volume={529},
+    number={7587},
+    pages={484-489},
+    abstract={The game of Go has long been viewed as the most challenging of classic games for artificial intelligence owing to its enormous search space and the difficulty of evaluating board positions and moves. Here we introduce a new approach to computer Go that uses `value networks' to evaluate board positions and `policy networks' to select moves. These deep neural networks are trained by a novel combination of supervised learning from human expert games, and reinforcement learning from games of self-play. Without any lookahead search, the neural networks play Go at the level of state-of-the-art Monte Carlo tree search programs that simulate thousands of random games of self-play. We also introduce a new search algorithm that combines Monte Carlo simulation with value and policy networks. Using this search algorithm, our program AlphaGo achieved a 99.8{\%} winning rate against other Go programs, and defeated the human European Go champion by 5 games to 0. This is the first time that a computer program has defeated a human professional player in the full-sized game of Go, a feat previously thought to be at least a decade away.},
+    issn={1476-4687},
+    doi={10.1038/nature16961},
+    url={https://doi.org/10.1038/nature16961}
+}
+
+@misc{mcts_assymetric,
+      title={Monte Carlo Tree Search for Asymmetric Trees}, 
+      author={Thomas M. Moerland and Joost Broekens and Aske Plaat and Catholijn M. Jonker},
+      year={2018},
+      eprint={1805.09218},
+      archivePrefix={arXiv},
+      primaryClass={stat.ML}
+}
+
+@inproceedings{mcts_bandits_0,
+  title={Bandit Based Monte-Carlo Planning},
+  author={L. Kocsis and Csaba Szepesvari},
+  booktitle={ECML},
+  year={2006}
+}
+
+@article{mcts_bandits_1,
+  title={From Bandits to Monte-Carlo Tree Search: The Optimistic Principle Applied to Optimization and Planning},
+  author={R. Munos},
+  journal={Found. Trends Mach. Learn.},
+  year={2014},
+  volume={7},
+  pages={1-129}
+}
+
+@inproceedings{mcts_uct,
+  title={On the Parallelization of UCT},
+  author={Tristan Cazenave and N. Jouandeau},
+  year={2007}
+}
+
+@InProceedings{others_childs,
+  author =	{Andrew M. Childs and Eddie Schoute and Cem M. Unsal},
+  title =	{{Circuit Transformations for Quantum Architectures}},
+  booktitle =	{14th Conference on the Theory of Quantum Computation, Communication and Cryptography (TQC 2019)},
+  pages =	{3:1--3:24},
+  series =	{Leibniz International Proceedings in Informatics (LIPIcs)},
+  ISBN =	{978-3-95977-112-2},
+  ISSN =	{1868-8969},
+  year =	{2019},
+  volume =	{135},
+  editor =	{Wim van Dam and Laura Mancinska},
+  publisher =	{Schloss Dagstuhl--Leibniz-Zentrum fuer Informatik},
+  address =	{Dagstuhl, Germany},
+  URL =		{http://drops.dagstuhl.de/opus/volltexte/2019/10395},
+  URN =		{urn:nbn:de:0030-drops-103958},
+  doi =		{10.4230/LIPIcs.TQC.2019.3},
+  annote =	{Keywords: quantum circuit, quantum architectures, circuit mapping}
+}
+
+@Inbook{mutex_dijkstra,
+    author="Dijkstra, Edsger W.",
+    editor="Hansen, Per Brinch",
+    title="Cooperating Sequential Processes",
+    bookTitle="The Origin of Concurrent Programming: From Semaphores to Remote Procedure Calls",
+    year="2002",
+    publisher="Springer New York",
+    address="New York, NY",
+    pages="65--138",
+    abstract="This chapter is intended for all those who expect that in their future activities they will become seriously involved in the problems that arise in either the design or the more advanced applications of digital information processing equipment; they are further intended for all those who are just interested in information processing.",
+    isbn="978-1-4757-3472-0",
+    doi="10.1007/978-1-4757-3472-0_2",
+    url="https://doi.org/10.1007/978-1-4757-3472-0_2"
+}

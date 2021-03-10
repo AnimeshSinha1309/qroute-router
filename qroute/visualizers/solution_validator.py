@@ -13,13 +13,13 @@ def validate_solution(circuit: CircuitRepDQN, output: list, initial_locations: n
     :param output: list, Gates in the array as (n1, n2, type)
     :param initial_locations: The starting node to qubit mapping
     :param device: The device we are compiling the circuit on
-    :param verbose: bool, whether to print the circuits
     :return:
     """
     output_circuit = cirq.Circuit()
     output_qubits = cirq.LineQubit.range(len(initial_locations))
+    first_cnot = np.full(shape=len(initial_locations), fill_value=False)
 
-    qubit_locations = initial_locations
+    qubit_locations = np.copy(initial_locations)
     circuit_progress = np.zeros(len(circuit), dtype=np.int)
 
     moment: Moment
@@ -28,7 +28,10 @@ def validate_solution(circuit: CircuitRepDQN, output: list, initial_locations: n
             q1, q2 = qubit_locations[n1], qubit_locations[n2]
             assert device.is_adjacent((n1, n2)), "Cannot Schedule gate on non-adjacent bits"
             qubit_locations[n1], qubit_locations[n2] = q2, q1
-            output_circuit.append(cirq.SWAP(output_qubits[q1], output_qubits[q2]))
+            if first_cnot[n1] or first_cnot[n2]:
+                output_circuit.append(cirq.SWAP(output_qubits[q1], output_qubits[q2]))
+            else:
+                initial_locations[n1], initial_locations[n2] = initial_locations[n2], initial_locations[n1]
         for n1, n2 in moment.cnots:
             q1, q2 = qubit_locations[n1], qubit_locations[n2]
             assert device.is_adjacent((n1, n2)), "Cannot Schedule gate on non-adjacent bits"
@@ -36,6 +39,7 @@ def validate_solution(circuit: CircuitRepDQN, output: list, initial_locations: n
             assert circuit.circuit[q2][circuit_progress[q2]] == q1, "Unexpected CNOT scheduled"
             circuit_progress[qubit_locations[n1]] += 1
             circuit_progress[qubit_locations[n2]] += 1
+            first_cnot[n1], first_cnot[n2] = True, True
             output_circuit.append(cirq.CX(output_qubits[q1], output_qubits[q2]))
     for idx, progress in enumerate(circuit_progress):
         assert progress == len(circuit.circuit[idx]), "Operations were not completed"

@@ -69,11 +69,10 @@ class CircuitStateDQN:
             # Increment the progress for both qubits by 1
             self._circuit_progress[q1] += 1
             self._circuit_progress[q2] += 1
-            # Updates the qubit targets
-            self._qubit_targets[q1] = self.circuit[q1][self._circuit_progress[q1]] \
-                if self._circuit_progress[q1] < len(self.circuit[q1]) else -1
-            self._qubit_targets[q2] = self.circuit[q2][self._circuit_progress[q2]] \
-                if self._circuit_progress[q2] < len(self.circuit[q2]) else -1
+        # Updates the qubit targets
+        for q in range(len(self.device)):
+            self._qubit_targets[q] = self.circuit[q][self._circuit_progress[q]] \
+                if self._circuit_progress[q] < len(self.circuit[q]) else -1
         return gates_being_executed
 
     def is_done(self):
@@ -122,16 +121,25 @@ class CircuitStateDQN:
 
     @property
     def target_nodes(self):
+        """
+        For each node, returns the target node in the current timestep
+        :return: np.array, list of target nodes or -1 if no target
+        """
         qubit_to_node = np.zeros(len(self._node_to_qubit), dtype=np.int)
         for i, v in enumerate(self._node_to_qubit):
             qubit_to_node[v] = i
-        target_nodes = np.zeros(len(self._node_to_qubit), dtype=np.int)
+        target_nodes = np.full(shape=len(self._node_to_qubit), fill_value=-1)
         for i, v in enumerate(self._qubit_targets):
-            target_nodes[qubit_to_node[i]] = qubit_to_node[v]
+            if v != -1:
+                target_nodes[qubit_to_node[i]] = qubit_to_node[v]
         return target_nodes
 
     @property
     def target_distance(self):
+        """
+        For each node, returns the distance from each node to it's target
+        :return: np.array, list of shortest distances on device to the next targets, 0 if no target
+        """
         qubit_to_node = np.zeros(len(self._node_to_qubit), dtype=np.int)
         for i, v in enumerate(self._node_to_qubit):
             qubit_to_node[v] = i
@@ -142,6 +150,10 @@ class CircuitStateDQN:
 
     @property
     def remaining_targets(self):
+        """
+        Number of targets left
+        :return: np.array, number of targets left for each node
+        """
         qubit_to_node = np.zeros(len(self._node_to_qubit), dtype=np.int)
         for i, v in enumerate(self._node_to_qubit):
             qubit_to_node[v] = i
@@ -152,4 +164,19 @@ class CircuitStateDQN:
 
     @property
     def node_to_qubit(self):
+        """
+        Node to Qubit mapping
+        :return: np.array, qubit present at each given node
+        """
         return np.copy(self._node_to_qubit)
+
+    @property
+    def qubit_to_node(self):
+        """
+        Node to Qubit mapping
+        :return: np.array, qubit present at each given node
+        """
+        qubit_to_node = np.zeros(len(self._node_to_qubit), dtype=np.int)
+        for i, v in enumerate(self._node_to_qubit):
+            qubit_to_node[v] = i
+        return qubit_to_node

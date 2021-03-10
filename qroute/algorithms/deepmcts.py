@@ -5,13 +5,16 @@ CREDITS : Thomas Moerland, Delft University of Technology
 
 import copy
 import typing as ty
+import collections
 
 import numpy as np
 import torch
 
-from ..metas import CombinerAgent, ReplayMemory
+from ..metas import CombinerAgent
 from ..environment.state import CircuitStateDQN
 from ..environment.env import step, evaluate
+
+MemoryItem = collections.namedtuple('MemoryItem', ['state', 'reward', 'action', 'next_state', 'done'])
 
 
 class MCTSAgent(CombinerAgent):
@@ -36,21 +39,23 @@ class MCTSAgent(CombinerAgent):
             self.solution: np.ndarray = copy.copy(solution) if solution is not None else \
                 np.full(self.num_actions, False)
 
-            assert not np.any(np.bitwise_and(self.state.locked_edges, self.solution)), "Bad Action"
-
-            self.rollout_reward = self.calc_rollout_reward() if self.parent_action is not None else 0.0
-            self.action_mask = np.concatenate([state.device.swappable_edges(self.solution, self.state.locked_edges),
-                                               np.array([solution is not None])])
+            self.rollout_reward = self.rollout() if self.parent_action is not None else 0.0
+            self.action_mask = np.concatenate([state.device.swappable_edges(
+                self.solution, self.state.locked_edges, self.state.target_nodes == -1),
+                np.array([solution is not None or not np.all(self.state.locked_edges)])])
 
             self.n_value = torch.zeros(self.num_actions + 1)
             self.q_value = torch.zeros(self.num_actions + 1)
             self.child_states: ty.List[ty.Optional[MCTSAgent.MCTSState]] = [None for _ in range(self.num_actions + 1)]
 
-            self.priors, _ = self.model(self.state)
-
-            self.priors += np.bitwise_not(self.action_mask) * -1e8
-            self.priors = torch.flatten(torch.tensor(self.priors))  # TODO: is softmax needed?
-            self.prior_noise()
+            model.eval()
+            with torch.no_grad():
+                _value, self.priors = self.model(self.state)
+                self.priors = self.priors.detach().numpy()
+                self.priors += np.bitwise_not(self.action_mask) * -1e8
+                self.priors = torch.flatten(torch.tensor(self.priors))  # TODO: is softmax needed?
+            noise = np.random.dirichlet([self.HYPERPARAM_NOISE_ALPHA for _ in self.priors]) * self.action_mask
+            self.priors = self.HYPERPARAM_PRIOR_FRACTION * self.priors + (1 - self.HYPERPARAM_PRIOR_FRACTION) * noise
 
         def update_q(self, reward, index):
             """
@@ -71,21 +76,13 @@ class MCTSAgent(CombinerAgent):
             Select one of the child actions based on UCT rule
             """
             n_visits = torch.sum(self.n_value).item()
-            uct = self.q_value + (self.priors * c * np.sqrt(n_visits + 1) / (self.n_value + 1))
+            uct = self.q_value + (self.priors * c * np.sqrt(n_visits + 0.001) / (self.n_value + 0.001))
             best_val = torch.max(uct)
             best_move_indices: torch.Tensor = torch.where(torch.eq(best_val, uct))[0]
             winner: int = np.random.choice(best_move_indices.numpy())
             return winner
 
-        def prior_noise(self):
-            """
-            Adds dirichlet noise to priors.
-            Called when the state is the root node
-            """
-            noise = np.random.dirichlet([self.HYPERPARAM_NOISE_ALPHA for _ in self.priors]) * self.action_mask
-            self.priors = self.HYPERPARAM_PRIOR_FRACTION * self.priors + (1 - self.HYPERPARAM_PRIOR_FRACTION) * noise
-
-        def calc_rollout_reward(self, num_rollouts=None):  # TODO: Benchmark this on 100 rollouts
+        def rollout(self, num_rollouts=None):  # TODO: Benchmark this on 100 rollouts
             """
             performs R random rollout, the total reward in each rollout is computed.
             returns: mean across the R random rollouts.
@@ -93,8 +90,10 @@ class MCTSAgent(CombinerAgent):
             if num_rollouts is None:
                 assert not np.any(np.bitwise_and(self.state.locked_edges, self.solution)), "Bad Action"
                 next_state, _, _, _ = step(self.solution, self.state)
-                _, self.rollout_reward = self.model(next_state)
-                return self.rollout_reward
+                with torch.no_grad():
+                    self.model.eval()
+                    self.rollout_reward, _priors = self.model(next_state)
+                return self.rollout_reward.item()
             else:
                 total_reward = 0
                 for i in range(num_rollouts):
@@ -112,88 +111,106 @@ class MCTSAgent(CombinerAgent):
                     total_reward += reward
                 return total_reward / num_rollouts
 
-    class MCTSStepper:
-        """
-        Monte Carlo Tree Search combiner object for evaluating the combination of moves
-        that will form one step of the simulation.
-        This at the moment does not look into the future steps, just calls an evaluator
-        """
+    """
+    Monte Carlo Tree Search combiner object for evaluating the combination of moves
+    that will form one step of the simulation.
+    This at the moment does not look into the future steps, just calls an evaluator
+    """
 
-        HYPERPARAM_DISCOUNT_FACTOR = 1.00  # No discounting for single stage MCTS
-        HYPERPARAM_EXPLORE_C = 100
-        HYPERPARAM_POLICY_TEMPERATURE = 0
+    HYPERPARAM_DISCOUNT_FACTOR = 0.95
+    HYPERPARAM_EXPLORE_C = 100
+    HYPERPARAM_POLICY_TEMPERATURE = 0
 
-        def __init__(self, state, model):
-            self.state = state
-            self.model = model
-            self.root = MCTSAgent.MCTSState(state, self.model)
+    def __init__(self, model, device, memory, search_depth=100):
+        super().__init__(model, device)
+        self.model = model
+        self.root: ty.Optional[MCTSAgent.MCTSState] = None
+        self.memory = memory
+        self.search_depth = search_depth
 
-        def search(self, n_mcts):
-            """Perform the MCTS search from the root"""
-            max_depth, mean_depth = 0, 0
+    def search(self, n_mcts):
+        """Perform the MCTS search from the root"""
+        max_depth, mean_depth = 0, 0
 
-            for _ in range(n_mcts):
-                mcts_state: MCTSAgent.MCTSState = self.root  # reset to root for new trace
-                # input(str(self.root.n_value) + " " + str(self.root.q_value))  # To Debug the tree
-                depth = 0
+        for _ in range(n_mcts):
+            mcts_state: MCTSAgent.MCTSState = self.root  # reset to root for new trace
+            # input(str(self.root.n_value) + " " + str(self.root.q_value))  # To Debug the tree
+            depth = 0
 
-                while True:
-                    depth += 1
-
-                    action_index: int = mcts_state.select()
-                    if action_index != len(mcts_state.solution):
-                        assert not mcts_state.state.locked_edges[action_index], "Selecting a Bad Action"
-
-                    if mcts_state.child_states[action_index] is not None:
-                        # MCTS Algorithm: SELECT STAGE
-                        mcts_state = mcts_state.child_states[action_index]
-                        continue
-                    else:
-                        # MCTS Algorithm: EXPAND STAGE
-                        if action_index == len(mcts_state.solution):
-                            next_state, _reward, _done, _debug = step(mcts_state.solution, mcts_state.state)
-                            mcts_state.child_states[action_index] = MCTSAgent.MCTSState(
-                                next_state, self.model,
-                                r_previous=0, parent_state=mcts_state, parent_action=action_index)
-                        else:
-                            next_solution = np.copy(mcts_state.solution)
-                            next_solution[action_index] = True
-                            reward = evaluate(next_solution, mcts_state.state) - \
-                                     evaluate(mcts_state.solution, mcts_state.state)
-                            mcts_state.child_states[action_index] = MCTSAgent.MCTSState(
-                                mcts_state.state, self.model, next_solution, reward, mcts_state, action_index)
-                        mcts_state = mcts_state.child_states[action_index]
-                        break
-
-                # MCTS Algorithm: BACKUP STAGE
-                total_reward = mcts_state.rollout_reward
-                while mcts_state.parent_action is not None:
-                    total_reward = mcts_state.r_previous + self.HYPERPARAM_DISCOUNT_FACTOR * total_reward
-                    mcts_state.parent_state.update_q(total_reward, mcts_state.parent_action)
-                    mcts_state = mcts_state.parent_state
-
-                max_depth = max(max_depth, depth)
-                mean_depth += depth / n_mcts
-
-            return max_depth, mean_depth
-
-        def act(self):
-            """Process the output at the root node"""
             while True:
-                self.search(100)
-                pos = self.root.select()
-                if pos == len(self.root.solution) or self.root.child_states[pos] is None:
-                    assert not np.any(np.bitwise_and(self.state.locked_edges, self.root.solution)), "Bad Action"
-                    return self.root.solution
+                depth += 1
+
+                action_index: int = mcts_state.select()
+                if action_index != len(mcts_state.solution):
+                    assert not mcts_state.state.locked_edges[action_index], "Selecting a Bad Action"
+
+                if mcts_state.child_states[action_index] is not None:
+                    # MCTS Algorithm: SELECT STAGE
+                    mcts_state = mcts_state.child_states[action_index]
+                    continue
                 else:
-                    self.root = self.root.child_states[pos]
+                    # MCTS Algorithm: EXPAND STAGE
+                    if action_index == len(mcts_state.solution):
+                        next_state, _reward, _done, _debug = step(mcts_state.solution, mcts_state.state)
+                        mcts_state.child_states[action_index] = MCTSAgent.MCTSState(
+                            next_state, self.model,
+                            r_previous=0, parent_state=mcts_state, parent_action=action_index)
+                    else:
+                        next_solution = np.copy(mcts_state.solution)
+                        next_solution[action_index] = True
+                        reward = evaluate(next_solution, mcts_state.state) - \
+                                 evaluate(mcts_state.solution, mcts_state.state)
+                        mcts_state.child_states[action_index] = MCTSAgent.MCTSState(
+                            mcts_state.state, self.model, next_solution, reward, mcts_state, action_index)
+                    mcts_state = mcts_state.child_states[action_index]
+                    break
 
-    def __init__(self, model, device):
-        super(MCTSAgent, self).__init__(model, device)
+            # MCTS Algorithm: BACKUP STAGE
+            total_reward = mcts_state.rollout_reward
+            while mcts_state.parent_action is not None:
+                total_reward = mcts_state.r_previous + self.HYPERPARAM_DISCOUNT_FACTOR * total_reward
+                mcts_state.parent_state.update_q(total_reward, mcts_state.parent_action)
+                mcts_state = mcts_state.parent_state
 
-    def act(self, state: CircuitStateDQN):
-        solution = self.MCTSStepper(state, self.model).act()
-        return solution, 0.0
+            max_depth = max(max_depth, depth)
+            mean_depth += depth / n_mcts
 
-    def replay(self, memory: ReplayMemory):
-        pass
+        return max_depth, mean_depth
+
+    @staticmethod
+    def _stable_normalizer(x, temp=1.5):
+        x = (x / torch.max(x)) ** temp
+        return torch.abs(x / torch.sum(x))
+
+    def act(self, state):
+        """Process the output at the root node"""
+        if self.root is None or self.root.state != state:
+            self.root = MCTSAgent.MCTSState(state, self.model)
+        else:
+            self.root.parent_state = None
+            self.root.parent_action = None
+
+        while True:
+            self.search(self.search_depth)
+            self.memory.store(state,
+                              torch.sum((self.root.n_value / torch.sum(self.root.n_value)) * self.root.q_value),
+                              self._stable_normalizer(self.root.n_value))
+            pos = self.root.select()
+            if pos == len(self.root.solution) or self.root.child_states[pos] is None:
+                assert not np.any(np.bitwise_and(state.locked_edges, self.root.solution)), "Bad Action"
+                step_solution = self.root.solution
+                self.root = self.root.child_states[pos]
+                return step_solution
+            else:
+                self.root = self.root.child_states[pos]
+
+    def replay(self):
+        self.model.train()
+        value_losses = []
+        policy_losses = []
+        for state, v, p in self.memory:
+            loss_v, loss_p = self.model.fit(state, v, p)
+            value_losses.append(loss_v)
+            policy_losses.append(loss_p)
+        self.memory.clear()
+        return np.mean(value_losses), np.mean(policy_losses)

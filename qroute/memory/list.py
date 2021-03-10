@@ -7,15 +7,17 @@ class MemorySimple(ReplayMemory):
     def __init__(self, _capacity):
         self.data = []
 
-    def store(self, experience):
-        self.data.append(experience)
+    def store(self, *args):
+        self.data.append(args)
 
     def __getitem__(self, item):
-        data = self.data[item]
-        return data
+        return self.data[item]
 
     def sample(self, batch_size=1):
         return np.random.choice(self.data, size=batch_size)
+
+    def __len__(self):
+        return len(self.data)
 
     def __iter__(self):
         return iter(self.data)
