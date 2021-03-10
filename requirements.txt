@@ -1,13 +1,13 @@
 cirq~=0.9.1
 numpy~=1.17.2
-networkx~=2.5
+networkx~=2.3
 pytest~=6.2.0
-matplotlib~=3.3.3
-qiskit~=0.23.1
+matplotlib~=3.1.1
+qiskit~=0.24.0
 dgl~=0.5.3
-tqdm~=4.54.1
+tqdm~=4.36.1
 wandb~=0.10.12
-manimce~=0.1.1
+pygame~=2.0.1
 
 torch==1.7.0+cpu
 torch-scatter
