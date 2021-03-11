@@ -14,11 +14,11 @@
           "qubits": [
             {
               "cirq_type": "LineQubit",
-              "x": 0
+              "x": 3
             },
             {
               "cirq_type": "LineQubit",
-              "x": 3
+              "x": 0
             }
           ]
         }
@@ -35,13 +35,13 @@
             "global_shift": 0.0
           },
           "qubits": [
-            {
-              "cirq_type": "LineQubit",
-              "x": 0
-            },
             {
               "cirq_type": "LineQubit",
               "x": 1
+            },
+            {
+              "cirq_type": "LineQubit",
+              "x": 0
             }
           ]
         }
@@ -60,7 +60,30 @@
           "qubits": [
             {
               "cirq_type": "LineQubit",
-              "x": 6
+              "x": 1
+            },
+            {
+              "cirq_type": "LineQubit",
+              "x": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "cirq_type": "Moment",
+      "operations": [
+        {
+          "cirq_type": "GateOperation",
+          "gate": {
+            "cirq_type": "SwapPowGate",
+            "exponent": 1.0,
+            "global_shift": 0.0
+          },
+          "qubits": [
+            {
+              "cirq_type": "LineQubit",
+              "x": 7
             },
             {
               "cirq_type": "LineQubit",
@@ -81,32 +104,9 @@
             "global_shift": 0.0
           },
           "qubits": [
-            {
-              "cirq_type": "LineQubit",
-              "x": 0
-            },
             {
               "cirq_type": "LineQubit",
               "x": 5
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "cirq_type": "Moment",
-      "operations": [
-        {
-          "cirq_type": "GateOperation",
-          "gate": {
-            "cirq_type": "SwapPowGate",
-            "exponent": 1.0,
-            "global_shift": 0.0
-          },
-          "qubits": [
-            {
-              "cirq_type": "LineQubit",
-              "x": 12
             },
             {
               "cirq_type": "LineQubit",
@@ -129,11 +129,11 @@
           "qubits": [
             {
               "cirq_type": "LineQubit",
-              "x": 0
+              "x": 2
             },
             {
               "cirq_type": "LineQubit",
-              "x": 2
+              "x": 0
             }
           ]
         }
@@ -152,34 +152,11 @@
           "qubits": [
             {
               "cirq_type": "LineQubit",
-              "x": 0
-            },
-            {
-              "cirq_type": "LineQubit",
               "x": 2
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "cirq_type": "Moment",
-      "operations": [
-        {
-          "cirq_type": "GateOperation",
-          "gate": {
-            "cirq_type": "SwapPowGate",
-            "exponent": 1.0,
-            "global_shift": 0.0
-          },
-          "qubits": [
-            {
-              "cirq_type": "LineQubit",
-              "x": 0
             },
             {
               "cirq_type": "LineQubit",
-              "x": 10
+              "x": 0
             }
           ]
         }

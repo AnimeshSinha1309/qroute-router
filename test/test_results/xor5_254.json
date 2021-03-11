@@ -14,34 +14,11 @@
           "qubits": [
             {
               "cirq_type": "LineQubit",
-              "x": 3
+              "x": 0
             },
             {
               "cirq_type": "LineQubit",
-              "x": 0
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "cirq_type": "Moment",
-      "operations": [
-        {
-          "cirq_type": "GateOperation",
-          "gate": {
-            "cirq_type": "SwapPowGate",
-            "exponent": 1.0,
-            "global_shift": 0.0
-          },
-          "qubits": [
-            {
-              "cirq_type": "LineQubit",
               "x": 3
-            },
-            {
-              "cirq_type": "LineQubit",
-              "x": 0
             }
           ]
         }
@@ -76,6 +53,29 @@
         {
           "cirq_type": "GateOperation",
           "gate": {
+            "cirq_type": "SwapPowGate",
+            "exponent": 1.0,
+            "global_shift": 0.0
+          },
+          "qubits": [
+            {
+              "cirq_type": "LineQubit",
+              "x": 0
+            },
+            {
+              "cirq_type": "LineQubit",
+              "x": 13
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "cirq_type": "Moment",
+      "operations": [
+        {
+          "cirq_type": "GateOperation",
+          "gate": {
             "cirq_type": "CXPowGate",
             "exponent": 1.0,
             "global_shift": 0.0
@@ -99,29 +99,6 @@
         {
           "cirq_type": "GateOperation",
           "gate": {
-            "cirq_type": "SwapPowGate",
-            "exponent": 1.0,
-            "global_shift": 0.0
-          },
-          "qubits": [
-            {
-              "cirq_type": "LineQubit",
-              "x": 0
-            },
-            {
-              "cirq_type": "LineQubit",
-              "x": 19
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "cirq_type": "Moment",
-      "operations": [
-        {
-          "cirq_type": "GateOperation",
-          "gate": {
             "cirq_type": "CXPowGate",
             "exponent": 1.0,
             "global_shift": 0.0
@@ -129,11 +106,11 @@
           "qubits": [
             {
               "cirq_type": "LineQubit",
-              "x": 2
+              "x": 0
             },
             {
               "cirq_type": "LineQubit",
-              "x": 0
+              "x": 2
             }
           ]
         }

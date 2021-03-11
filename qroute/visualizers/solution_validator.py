@@ -20,7 +20,7 @@ def validate_solution(circuit: CircuitRepDQN, output: list, initial_locations: n
     first_cnot = np.full(shape=len(initial_locations), fill_value=False)
 
     qubit_locations = np.copy(initial_locations)
-    circuit_progress = np.zeros(len(circuit), dtype=np.int)
+    circuit_progress = np.zeros(len(circuit), dtype=np.int32)
 
     moment: Moment
     for moment in output:
