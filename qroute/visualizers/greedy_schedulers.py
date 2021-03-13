@@ -5,7 +5,7 @@ External routing software using Cirq greedy routing
 import networkx as nx
 
 import cirq.contrib.routing.greedy
-import qiskit
+import qiskit, qiskit.transpiler.exceptions
 import pytket, pytket.qasm
 
 import warnings
@@ -40,9 +40,12 @@ def qiskit_routing(circuit, device):
     coupling_map = list(map(list, device.edges)) + list(map(list, map(reversed, device.edges)))
     routing = {'basic': 0, 'lookahead': 0, 'stochastic': 0, 'sabre': 0}
     for rt in routing.keys():
-        tr_circuit = qiskit.compiler.transpile(q_circuit, coupling_map=coupling_map, routing_method=rt,
-                                               optimization_level=0)
-        routing.update({rt: tr_circuit.depth()})
+        try:
+            tr_circuit = qiskit.compiler.transpile(q_circuit, coupling_map=coupling_map, routing_method=rt,
+                                                   optimization_level=0)
+            routing.update({rt: tr_circuit.depth()})
+        except qiskit.transpiler.exceptions.TranspilerError:
+            routing.update({rt: 999999999})
     return routing
 
 

@@ -62,7 +62,7 @@ if __name__ == '__main__':
             print("PyTket Routing Distance: ", tket_routing(circuit, device))
     elif args.dataset == "large":
         large_files = ["rd84_142", "adr4_197", "radd_250", "z4_268", "sym6_145", "misex1_241",
-                       "rd73_252", "cycle10_2_110", "square_root_7", "sqn_258", "rd84_253", "rd84_142"]
+                       "rd73_252", "cycle10_2_110", "square_root_7", "sqn_258", "rd84_253"]
         for e, file in enumerate(large_files):
             cirq = circuit_from_qasm(
                 os.path.join("./test/circuit_qasm", file + "_onlyCX.qasm"))
@@ -73,7 +73,9 @@ if __name__ == '__main__':
             cirq = circuit_generated_randomly(len(device), args.gates)
             circuit = CircuitRepDQN(cirq, len(device))
             train_step(agent, device, circuit, episode_name=f"random_{e}", use_wandb=args.wandb, train_model=args.train)
-            print("Cirq Routing Distance: ", len(cirq_routing(circuit, device).circuit.moments))
+            print("Cirq Routing Distance: ", cirq_routing(circuit, device))
+            print("Qiskit Routing Distance: ", qiskit_routing(circuit, device))
+            print("PyTket Routing Distance: ", tket_routing(circuit, device))
     elif args.dataset == "full":
         for e in range(args.iterations):
             cirq = circuit_generated_full_layer(len(device), args.gates)
