@@ -82,6 +82,16 @@ class MCTSAgent(CombinerAgent):
             winner: int = np.random.choice(best_move_indices.numpy())
             return winner
 
+        def choose(self) -> int:
+            """
+            Select one of the child actions based on the best q-value which is allowed
+            """
+            q_real = self.q_value + np.bitwise_not(self.action_mask) * -1e8
+            best_val = torch.max(q_real)
+            best_move_indices: torch.Tensor = torch.where(torch.eq(best_val, q_real))[0]
+            winner: int = np.random.choice(best_move_indices.numpy())
+            return winner
+
         def rollout(self, num_rollouts=None):  # TODO: Benchmark this on 100 rollouts
             """
             performs R random rollout, the total reward in each rollout is computed.
@@ -195,7 +205,7 @@ class MCTSAgent(CombinerAgent):
             self.memory.store(state,
                               torch.sum((self.root.n_value / torch.sum(self.root.n_value)) * self.root.q_value),
                               self._stable_normalizer(self.root.n_value))
-            pos = self.root.select()
+            pos = self.root.choose()
             if pos == len(self.root.solution) or self.root.child_states[pos] is None:
                 assert not np.any(np.bitwise_and(state.locked_edges, self.root.solution)), "Bad Action"
                 step_solution = self.root.solution
