@@ -68,6 +68,8 @@ if __name__ == '__main__':
                 os.path.join("./test/circuit_qasm", file + "_onlyCX.qasm"))
             circuit = CircuitRepDQN(cirq, len(device))
             train_step(agent, device, circuit, episode_name=file, use_wandb=args.wandb, train_model=args.train)
+            print("Qiskit Routing Distance: ", qiskit_routing(circuit, device))
+            print("PyTket Routing Distance: ", tket_routing(circuit, device))
     elif args.dataset == "random":
         for e in range(args.iterations):
             cirq = circuit_generated_randomly(len(device), args.gates)

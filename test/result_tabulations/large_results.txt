@@ -1,0 +1,54 @@
+    rd84_142: 100%|██████████| 154/154 [03:24<00:00,  1.33s/it, circuit_depth=154, time=143, total_reward=84404]
+    rd84_142: 100%|██████████| 154/154 [05:53<00:00,  2.30s/it, circuit_depth=157, time=161, total_reward=84075]
+
+    Qiskit Routing Distance:  {'basic': 227, 'lookahead': 999999999, 'stochastic': 156, 'sabre': 196}
+    PyTket Routing Distance:  145
+
+    adr4_197: 100%|█████████▉| 1496/1498 [40:11<00:03,  1.61s/it, circuit_depth=2016, time=1893, total_reward=718383]
+    adr4_197: 100%|██████████| 1498/1498 [2:23:53<00:00,  5.76s/it, circuit_depth=1942, time=1970, total_reward=728032]
+    Qiskit Routing Distance:  {'basic': 2300, 'lookahead': 999999999, 'stochastic': 2145, 'sabre': 2238}
+    PyTket Routing Distance:  2036
+
+    radd_250: 100%|█████████▉| 1404/1405 [44:25<00:01,  1.90s/it, circuit_depth=1864, time=1751, total_reward=673767]
+    radd_250: 100%|██████████| 1405/1405 [1:23:31<00:00,  3.57s/it, circuit_depth=1845, time=1859, total_reward=675856]
+    Qiskit Routing Distance:  {'basic': 2210, 'lookahead': 999999999, 'stochastic': 2013, 'sabre': 2146}
+    PyTket Routing Distance:  1707
+
+    z4_268: 100%|██████████| 1343/1343 [38:31<00:00,  1.72s/it, circuit_depth=1833, time=1731, total_reward=644205]
+    z4_268: 100%|██████████| 1343/1343 [3:41:20<00:00,  9.89s/it, circuit_depth=1738, time=1782, total_reward=649749]
+    Qiskit Routing Distance:  {'basic': 2057, 'lookahead': 999999999, 'stochastic': 1879, 'sabre': 1940}
+    PyTket Routing Distance:  1743
+
+    sym6_145: 100%|██████████| 1701/1701 [48:21<00:00,  1.71s/it, circuit_depth=2357, time=2200, total_reward=813330]
+    sym6_145: 100%|██████████| 1701/1701 [1:57:41<00:00,  4.15s/it, circuit_depth=2180, time=2188, total_reward=825514]
+    Qiskit Routing Distance:  {'basic': 2537, 'lookahead': 999999999, 'stochastic': 2475, 'sabre': 2509}
+    PyTket Routing Distance:  2204
+
+    misex1_241: 100%|█████████▉| 2099/2100 [1:02:07<00:01,  1.78s/it, circuit_depth=2883, time=2721, total_reward=997181]
+    misex1_241: 100%|██████████| 2100/2100 [2:40:24<00:00,  4.58s/it, circuit_depth=2712, time=2751, total_reward=1e+6]
+    Qiskit Routing Distance:  {'basic': 3365, 'lookahead': 999999999, 'stochastic': 3051, 'sabre': 3163}
+    PyTket Routing Distance:  2854
+
+    rd73_252: 100%|██████████| 2319/2319 [1:07:02<00:00,  1.73s/it, circuit_depth=3143, time=2959, total_reward=1.1e+6]
+    rd73_252: 100%|██████████| 2319/2319 [2:46:27<00:00,  4.31s/it, circuit_depth=2922, time=2952, total_reward=1116919]
+    Qiskit Routing Distance:  {'basic': 3602, 'lookahead': 999999999, 'stochastic': 3320, 'sabre': 3461}
+    PyTket Routing Distance:  3199
+
+    cycle10_2_110: 100%|█████████▉| 2647/2648 [1:09:50<00:01,  1.58s/it, circuit_depth=3595, time=3339, total_reward=1263237]
+    cycle10_2_110: 100%|██████████| 2648/2648 [1:58:22<00:00,  2.68s/it, circuit_depth=3372, time=3395, total_reward=1268445]
+    Qiskit Routing Distance:  {'basic': 4150, 'lookahead': 999999999, 'stochastic': 3862, 'sabre': 3983}
+    PyTket Routing Distance:  3706
+
+    square_root_7: 100%|██████████| 3089/3089 [1:21:44<00:00,  1.59s/it, circuit_depth=3967, time=3716, total_reward=1474318]
+    square_root_7: 100%|██████████| 3089/3089 [2:48:13<00:00,  3.27s/it, circuit_depth=3776, time=3821, total_reward=1474248]
+    Qiskit Routing Distance:  {'basic': 5409, 'lookahead': 999999999, 'stochastic': 4372, 'sabre': 4404}
+    PyTket Routing Distance:  3997
+
+    sqn_258: 100%|██████████| 4459/4459 [2:05:02<00:00,  1.68s/it, circuit_depth=6067, time=5679, total_reward=2116028]
+    sqn_258: 100%|██████████| 4459/4459 [5:52:20<00:00,  4.74s/it, circuit_depth=5712, time=5779, total_reward=2135311]
+    Qiskit Routing Distance:  {'basic': 6622, 'lookahead': 999999999, 'stochastic': 6269, 'sabre': 6499}
+    PyTket Routing Distance:  5788
+
+    rd84_253: 100%|██████████| 5960/5960 [5:37:36<00:00,  3.40s/it, circuit_depth=7450, time=7517, total_reward=2844192]
+    Qiskit Routing Distance:  {'basic': 9178, 'lookahead': 999999999, 'stochastic': 8345, 'sabre': 8746}
+    PyTket Routing Distance:  8063

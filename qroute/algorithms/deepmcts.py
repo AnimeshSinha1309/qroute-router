@@ -53,7 +53,7 @@ class MCTSAgent(CombinerAgent):
                 _value, self.priors = self.model(self.state)
                 self.priors = self.priors.detach().numpy()
                 self.priors += np.bitwise_not(self.action_mask) * -1e8
-                self.priors = torch.flatten(torch.tensor(self.priors))  # TODO: is softmax needed?
+                self.priors = torch.flatten(torch.tensor(self.priors))
             noise = np.random.dirichlet([self.HYPERPARAM_NOISE_ALPHA for _ in self.priors]) * self.action_mask
             self.priors = self.HYPERPARAM_PRIOR_FRACTION * self.priors + (1 - self.HYPERPARAM_PRIOR_FRACTION) * noise
 
