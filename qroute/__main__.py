@@ -74,6 +74,7 @@ if __name__ == '__main__':
         for e in range(args.iterations):
             cirq = circuit_generated_randomly(len(device), args.gates)
             circuit = CircuitRepDQN(cirq, len(device))
+            print("Layers in input circuit: ", len(cirq.moments))
             train_step(agent, device, circuit, episode_name=f"random_{e}", use_wandb=args.wandb, train_model=args.train)
             print("Cirq Routing Distance: ", cirq_routing(circuit, device))
             print("Qiskit Routing Distance: ", qiskit_routing(circuit, device))

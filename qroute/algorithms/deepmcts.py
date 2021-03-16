@@ -158,6 +158,8 @@ class MCTSAgent(CombinerAgent):
                     # MCTS Algorithm: SELECT STAGE
                     mcts_state = mcts_state.child_states[action_index]
                     continue
+                elif mcts_state.state.is_done():
+                    break
                 else:
                     # MCTS Algorithm: EXPAND STAGE
                     if action_index == len(mcts_state.solution):

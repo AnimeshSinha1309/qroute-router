@@ -228,3 +228,56 @@
     Cirq Routing Distance:  121
     Qiskit Routing Distance:  {'basic': 167, 'lookahead': 999999999, 'stochastic': 74, 'sabre': 105}
     PyTket Routing Distance:  92
+
+/home/animesh/Software/anaconda/bin/python3.7 -m qroute --dataset random --search 200 --gates 20
+
+    Layers in input circuit:  6
+    random_0: 100%|██████████| 20/20 [03:19<00:00,  9.99s/it, circuit_depth=12, time=14, total_reward=19817]
+    Cirq Routing Distance:  23
+    Qiskit Routing Distance:  {'basic': 26, 'lookahead': 21, 'stochastic': 17, 'sabre': 25}
+    PyTket Routing Distance:  14
+    Layers in input circuit:  6
+    random_1: 100%|██████████| 20/20 [01:06<00:00,  3.35s/it, circuit_depth=9, time=13, total_reward=19856]
+    Cirq Routing Distance:  19
+    Qiskit Routing Distance:  {'basic': 39, 'lookahead': 19, 'stochastic': 16, 'sabre': 22}
+    PyTket Routing Distance:  15
+    Layers in input circuit:  7
+    random_2: 100%|██████████| 20/20 [02:49<00:00,  8.45s/it, circuit_depth=20, time=22, total_reward=19448]
+    Cirq Routing Distance:  30
+    Qiskit Routing Distance:  {'basic': 24, 'lookahead': 22, 'stochastic': 20, 'sabre': 19}
+    PyTket Routing Distance:  17
+    Layers in input circuit:  7
+    random_3: 100%|██████████| 20/20 [01:44<00:00,  5.21s/it, circuit_depth=17, time=19, total_reward=19712]
+    Cirq Routing Distance:  31
+    Qiskit Routing Distance:  {'basic': 23, 'lookahead': 17, 'stochastic': 17, 'sabre': 16}
+    PyTket Routing Distance:  22
+    Layers in input circuit:  6
+    random_4: 100%|██████████| 20/20 [03:59<00:00, 11.97s/it, circuit_depth=14, time=15, total_reward=19832]
+    Cirq Routing Distance:  15
+    Qiskit Routing Distance:  {'basic': 35, 'lookahead': 26, 'stochastic': 18, 'sabre': 21}
+    PyTket Routing Distance:  17
+    Layers in input circuit:  6
+    random_5: 100%|██████████| 20/20 [02:56<00:00,  8.84s/it, circuit_depth=15, time=17, total_reward=19815]
+    Cirq Routing Distance:  21
+    Qiskit Routing Distance:  {'basic': 37, 'lookahead': 16, 'stochastic': 16, 'sabre': 22}
+    PyTket Routing Distance:  10
+    Layers in input circuit:  9
+    random_6: 100%|██████████| 20/20 [02:01<00:00,  6.09s/it, circuit_depth=18, time=20, total_reward=19639]
+    Cirq Routing Distance:  35
+    Qiskit Routing Distance:  {'basic': 29, 'lookahead': 21, 'stochastic': 20, 'sabre': 29}
+    PyTket Routing Distance:  20
+    Layers in input circuit:  7
+    random_7: 100%|██████████| 20/20 [03:25<00:00, 10.28s/it, circuit_depth=18, time=19, total_reward=19680]
+    Cirq Routing Distance:  23
+    Qiskit Routing Distance:  {'basic': 27, 'lookahead': 24, 'stochastic': 17, 'sabre': 16}
+    PyTket Routing Distance:  22
+    Layers in input circuit:  7
+    random_8: 100%|██████████| 20/20 [02:35<00:00,  7.76s/it, circuit_depth=14, time=16, total_reward=19738]
+    Cirq Routing Distance:  19
+    Qiskit Routing Distance:  {'basic': 33, 'lookahead': 999999999, 'stochastic': 20, 'sabre': 28}
+    PyTket Routing Distance:  15
+    Layers in input circuit:  7
+    random_9: 100%|██████████| 20/20 [02:40<00:00,  8.01s/it, circuit_depth=17, time=21, total_reward=19621]
+    Cirq Routing Distance:  20
+    Qiskit Routing Distance:  {'basic': 32, 'lookahead': 25, 'stochastic': 18, 'sabre': 25}
+    PyTket Routing Distance:  17
