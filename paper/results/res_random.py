@@ -77,11 +77,20 @@ data = [
 ]
 
 if __name__=="__main__":
+    plt.figure(figsize=(15, 15))
     labels = ['qroute', 'cirq', 'qiskit-basic', 'qiskit-stochastic', 'qiskit-sabre', 'pytket']
-    for key in labels:
+    colors = ['IndianRed', 'yellow', 'orange', 'green', 'purple', 'RoyalBlue']
+    for key, c in zip(labels, colors):
         x, y = [], []
         for item in data:
             x.append(item['size'])
             y.append(item[key] / item['layers'])
-        plt.plot(x, y)
+        sns.lineplot(x=x, y=y, color=c)
+
+    sns.lineplot(x=[30, 50, 70, 90, 110, 130, 150], y=[2.01, 1.98, 1.95, 1.99, 1.99, 1.98, 1.99], color='black')
+    labels.append('dqn')
+
+    plt.legend(labels)
+    plt.xlabel('Number of Input Gates')
+    plt.ylabel('Circuit Depth Overhead')
     plt.show()
