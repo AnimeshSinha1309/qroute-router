@@ -49,23 +49,24 @@ if __name__ == '__main__':
     if os.path.exists("model-weights.h5"):
         model.load_state_dict(torch.load("model-weights.h5"))
 
-    if args.dataset == "sample":
-        small_files = ["graycode6_47", "xor5_254", "ex1_226", "ham3_102", "mod5d1_63",
-                       "mod5mils_65", "alu-v0_27"]
-        for e, file in enumerate(small_files):
-            cirq = circuit_from_qasm(
-                os.path.join("./test/circuit_qasm", file + "_onlyCX.qasm"))
-            circuit = CircuitRepDQN(cirq, len(device))
-            train_step(agent, device, circuit, episode_name=file, use_wandb=args.wandb, train_model=args.train)
-            print("Cirq Routing Distance: ", cirq_routing(circuit, device))
-            print("Qiskit Routing Distance: ", qiskit_routing(circuit, device))
-            print("PyTket Routing Distance: ", tket_routing(circuit, device))
-    elif args.dataset == "small":
+    if args.dataset == "small":
         for e, file in enumerate(list(filter(lambda x: '_onlyCX' in x, 
                                              os.listdir("./test/circuit_qasm")))):
             cirq = circuit_from_qasm(
                 os.path.join("./test/circuit_qasm", file))
             if len(list(cirq.all_operations())) > 100:
+                continue
+            circuit = CircuitRepDQN(cirq, len(device))
+            train_step(agent, device, circuit, episode_name=file, use_wandb=args.wandb, train_model=args.train)
+            print("Cirq Routing Distance: ", cirq_routing(circuit, device))
+            print("Qiskit Routing Distance: ", qiskit_routing(circuit, device))
+            print("PyTket Routing Distance: ", tket_routing(circuit, device))
+    elif args.dataset == "medium":
+        for e, file in enumerate(list(filter(lambda x: '_onlyCX' in x, 
+                                             os.listdir("./test/circuit_qasm")))):
+            cirq = circuit_from_qasm(
+                os.path.join("./test/circuit_qasm", file))
+            if 100 <= len(list(cirq.all_operations())) < 1000:
                 continue
             circuit = CircuitRepDQN(cirq, len(device))
             train_step(agent, device, circuit, episode_name=file, use_wandb=args.wandb, train_model=args.train)
@@ -95,4 +96,8 @@ if __name__ == '__main__':
         for e in range(args.iterations):
             cirq = circuit_generated_full_layer(len(device), args.gates)
             circuit = CircuitRepDQN(cirq, len(device))
+            print("Layers in input circuit: ", len(cirq.moments))
             train_step(agent, device, circuit, episode_name=f"full_{e}", use_wandb=args.wandb, train_model=args.train)
+            print("Cirq Routing Distance: ", cirq_routing(circuit, device))
+            print("Qiskit Routing Distance: ", qiskit_routing(circuit, device))
+            print("PyTket Routing Distance: ", tket_routing(circuit, device))

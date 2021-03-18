@@ -42,6 +42,7 @@
 
 \usepackage{algorithm}
 \usepackage{algorithmic}
+\usepackage{subcaption}
 \usepackage{graphicx}% Include figure files
 \usepackage{dcolumn}% Align table columns on decimal point
 \usepackage{bm}% bold math
@@ -49,7 +50,7 @@
 %\usepackage[mathlines]{lineno}% Enable numbering of text and display math
 %\linenumbers\relax % Commence numbering lines
 
-%\usepackage[showframe,%Uncomment any one of the following lines to test 
+%\usepackage[showframe,%Uncomment any one of the following lines to test
 %%scale=0.7, marginratio={1:1, 2:3}, ignoreall,% default settings
 %%text={7in,10in},centering,
 %%margin=1.5in,
@@ -62,7 +63,7 @@
 
 \preprint{APS/123-QED}
 
-\title{Qubit Routing using Graph Neural Network aided Monte Carlo Tree Search}
+\title{Qubit routing using Graph neural network aided Monte Carlo tree search}
 
 \author{Animesh Sinha}
 \email{animesh.sinha@research.iiit.ac.in}
@@ -81,9 +82,9 @@
 %  but any date may be explicitly specified
 
 \begin{abstract}
-    Current day Quantum Computers offer limited connectivity, two qubit operations can only be applied on physically neighboring qubits. To respect this constraint when compiling quantum circuits to some hardware, we need to insert swap gates. It's desirable that the depth of the final circuit with the inserted gates is minimized, this article aims to provide an efficient solution to this problem.
+    Current day quantum computers support two qubit operations only on physically neighboring qubits. To respect this constraint when compiling quantum circuits to target hardware, we need to insert swap gates. It's desirable that the depth of the final circuit with the inserted gates is minimized, this article aims to provide an efficient solution to this problem.
 
-    We use Monte Carlo Tree Search to perform qubit routing, which is aided by a Graph Neural Network for evaluating the long term value of states as well as estimating prior probabilities of which actions are worth exploring. Minimizing circuit depth involves being able to perform operations in parallel, we using mutex locks to efficiently maintain this information and present it to the neural network. This should be of relevance to both the particular task of Qubit routing and as a general idea in several combinatorial optimizations.
+    We use Monte Carlo tree search to perform qubit routing, which is aided by a Graph neural network used to evaluate the value function and action probabilities for each state. Minimizing circuit depth involves being able to perform operations in parallel, we using mutex locks to efficiently maintain this information and present it to the neural network. This should be of relevance to both the particular task of Qubit routing and as a general idea in several combinatorial optimizations.
 \end{abstract}
 
 \keywords{Qubit Routing, Quantum Compilation, Quantum Circuit Transformation, Reinforcement Learning, Monte Carlo Tree Search, Graph Neural Network}
@@ -102,8 +103,15 @@ the topological constraints \citep{qroute_dqn2}.
 
 \begin{figure}
     \centering
-    \includegraphics[width=\linewidth]{images/topology-graph.png}
-    \caption{Topology for Common Device Architectures \citep{photo_architecture_graph}}
+    \begin{subfigure}[b]{0.38\linewidth}
+        \includegraphics[width=\linewidth]{images/device-grid.jpg}
+        \caption{3$\times$3 Grid Architecture}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.56\linewidth}
+        \includegraphics[width=\linewidth]{images/device-ibmqx.jpg}
+        \caption{IBM QX-20 Architecture as a graph of nodes}
+    \end{subfigure}
+    \caption{Examples of common architectures}
     \label{fig:topology-example}
 \end{figure}
 
@@ -128,6 +136,11 @@ This article proposes using Monte Carlo tree search for the task of total Depth 
 \end{itemize}
 From these changes, we hope to gain an agent which is not immediately greedy since it can only see the current state and not effectively plan for the future, and to stabilize the decision process which suffered from the randomness of introduced by simulated annealing.
 
+\begin{figure*}[t]
+    \includegraphics[width=\linewidth]{images/mcts-steps.jpg}
+    \caption{\label{fig:mcts-explainer}
+        Scaling of Initial Depth overhead with size of hardware}
+\end{figure*}
 
 \section{\label{sec:method}Method}
 
@@ -146,7 +159,7 @@ We convert this to a lists of lists representation as in \citet{qroute_dqn2}, wh
 
 The core of the routing problem lies in the parallelization of the actions under the constraints that two operations in the same timestep cannot operate on the same qubit. A way to think about this is to call the qubits "resources" and the operations that are trying to use the "consumers" of this resource. This is reminiscent of several parallel processes competing for the same memory. We try to adapt the same solution of mutual exclusions locks \citep{mutex_dijkstra} in this version of the problem.
 
-Our output circuit will consist of 2 types of operations, CNOTs and SWAPs. All single qubit operations are much faster than any 2 qubit operations and therefore ignored. Depending on the primitive gates available on the hardware, a SWAP can either be an elementary gate and equivalent to CNOT, or be decomposed into 3 CNOT gates. So the locks array, which is a part of the state, should be a vector $l_t \in Z_+^{n_nodes}$. For each of the nodes, it states the number of timesteps it will stay locked for. This vector is also presented to the Neural Network so help it learn to avoid attempting to use the same node and several operations.
+Our output circuit will consist of 2 types of operations, CNOTs and SWAPs. All single qubit operations are much faster than any 2 qubit operations and therefore ignored. Depending on the primitive gates available on the hardware, a SWAP can either be an elementary gate and equivalent to CNOT, or be decomposed into 3 CNOT gates. So the locks array, which is a part of the state, should be a vector $l_t \in Z_+^{\#n}$. For each of the nodes, it states the number of timesteps it will stay locked for. This vector is also presented to the Neural Network so help it learn to avoid attempting to use the same node and several operations.
 
 \subsubsection{\label{sec:method-state-full}The State Object}
 
@@ -179,16 +192,10 @@ We want to find the $a$, for each $s$ which maximizes $Q(s, a)$, however, since 
 
 \subsection{\label{sec:method-mcts}Monte Carlo Tree Search}
 
-\begin{figure}[H]
-    \includegraphics[width=\linewidth]{images/mcts-explainer.jpg}
-    \caption{\label{fig:mcts-explainer}
-        Scaling of Initial Depth overhead with size of hardware}
-\end{figure}
-
 To search over the action space, we employ a tree search which consists of 4 steps. The first is a selection step which chooses the optimal node to explore. This choice is made by maximizing the Upper Confidence Bound on Trees value, which is a sum of the expected reward $Q$ and expected standard deviation multiplied by a constant $c$. This constant weights the exploration tendency of the agent against the exploitation (choosing the best action based on current knowledge). The next step, called Expansion, explores the futures of the selected state. The third step is rollout, where we use our Neural Network to approximate the value function of the state. The fourth and final step is using the explicitly obtained rewards and the value function at the expanded state to update the $Q$ functions of all states in it's ancestory.
 
 \begin{equation}
-    UCT_s(a) = Q(s, a) + \sqrt{\frac{n(s, a)}{1 + n(a)}} \times p(s, a)
+    UCT_s(a) = Q(s, a) + \frac{\sqrt{n(s, a)}}{1 + n(a)} \times p(s, a)
 \end{equation}
 
 We recognize that running MCTS on this problem results in a highly assymetric tree, since some actions block a lot of other actions, and some actions don't interfere with any other action at all. So we add a Dirichlet noise term in the prior generated by our neural network to prevent our tree search from getting stuck down a single path. The formulation of MCTS for asymmetric trees is adapted from \citet{mcts_assymetric}
@@ -208,18 +215,6 @@ is a neural network which helps approximate the value function, which is an esti
 
 \section{\label{sec:results}Results}
 
-\subsection{\label{sec:results-full}Full Layer Circuits}
-
-A full layer in a quantum circuit refers to a logical circuit that has operations on all qubits such that each qubit is involved in exactly one operation. Such a circuit is perfectly parallelizable and can be executed in a single step. Therefore is serves as a test for the initial mapping as well as a sanity check for the parallelization step.
-
-Given a good initial mapping, we manage to transform the circuit with no depth overhead. The results for our default algorithm (Not made specifically for this task, are shown in the graph \ref{fig:results-full})
-
-\begin{figure}[H]
-    \includegraphics[width=\linewidth]{images/results-full.png}
-    \caption{\label{fig:results-full}
-        Scaling of Initial Depth overhead with size of hardware}
-\end{figure}
-
 \subsection{\label{sec:results-random}Random Test Circuits}
 
 We test the scaling of our algorithms on randomized circuits of varying number of gates to schedule and the number of qubits on target hardware.
@@ -227,70 +222,58 @@ We test the scaling of our algorithms on randomized circuits of varying number o
 We note that our method is relatively unphased by the growth in the size of the hardware, and scales better than other methods as the number of operations to schedule grow.
 
 \begin{figure}[H]
-    \includegraphics[width=0.8\linewidth]{images/results-random.png}
+    \includegraphics[width=\linewidth]{images/results-random.png}
     \caption{\label{fig:results-random}
-        Depth overhead on random circuits against number of gates in input circuit and number of qubits in the hardware.}
-\end{figure}
-
-\begin{figure}[H]
-    \includegraphics[width=0.8\linewidth]{images/results-hardwares.png}
-    \caption{\label{fig:results-hardware}
         Comparative performance against other methods across real world hardware}
 \end{figure}
 
 
-\subsection{\label{sec:results-realistic}Realistic Test Set}
+\subsection{\label{sec:results-small}Small Realistic Circuits}
 
-\begin{table}[H]
-    \caption{\label{tab:small-circuits}%
-        Results of our algorithm on a set of realistic test circuits
-    }
-    \begin{ruledtabular}
-        \begin{tabular}{lrrr}
-            \textrm{Circuit}       &
-            \textrm{Gate Count}    &
-            \textrm{Cirq Depth}    &
-            \textrm{MCTS Depth}             \\
-            \colrule
+A full layer in a quantum circuit refers to a logical circuit that has operations on all qubits such that each qubit is involved in exactly one operation. Such a circuit is perfectly parallelizable and can be executed in a single step. Therefore is serves as a test for the initial mapping as well as a sanity check for the parallelization step.
 
-            \verb+alu-v0_27+ &   &  & \\
-            \verb+ex1_226+ &   &  & \\
-            \verb+graycode6_47+ &   &  & \\
-            \verb+ham3_102+ &   &  & \\
-            \verb+mod5d1_63+ &   &  & \\
-            \verb+mod5mils_65+ &   &  & \\
-            \verb+xor5_254+ &   &  & \\
-        \end{tabular}
-    \end{ruledtabular}
-\end{table}
+Given a good initial mapping, we manage to transform the circuit with no depth overhead. The results for our default algorithm (Not made specifically for this task, are shown in the graph \ref{fig:results-small})
+
+\begin{figure}[H]
+    \includegraphics[width=\linewidth]{images/results-small.png}
+    \caption{\label{fig:results-small}
+        Scaling of Initial Depth overhead with size of hardware}
+\end{figure}
 
 
-\begin{table}[H]
+\subsection{\label{sec:results-realistic}Large Realistic Circuit}
+
+\begin{figure*}[t]
+    \includegraphics[width=\linewidth]{images/results-large.png}
+    \caption{\label{fig:results-small}
+        Scaling of Initial Depth overhead with size of hardware}
+\end{figure*}
+
+\begin{table*}[t]
     \caption{\label{tab:large-circuits}%
         Results of our algorithm on a set of realistic test circuits
     }
     \begin{ruledtabular}
-        \begin{tabular}{lrrr}
-            \textrm{Circuit}        &
-            \textrm{Gate Count}     &
-            \textrm{Cirq Depth}     &
-            \textrm{MCTS Depth}                     \\
-            \colrule
+        \begin{tabular}{ll|rrrrr}
+            \multicolumn{2}{c}{\textrm{Input Circuit}} & \multicolumn{5}{c}{\textrm{Output Circuit Depth}} \\
 
-            \verb+rd84_142+  & 154  & 154  & \\
-            \verb+adr4_197+  & 1498 & 2016 & \\
-            \verb+radd_250+ & 1405 & 1864 & \\
-            \verb+z4_268+ & 1343 & 1833 & \\
-            \verb+sym6_145+ & 1701 & 2357 & \\
-            \verb+misex1_241+ & 2100 & 2883 & \\
-            \verb+rd73_252+ & 2319 & 3143 & \\
-            \verb+cycle10_2_110+ & 2648 & 3595 & \\
-            \verb+square_root_7+ & 3089 & 3967 & \\
-            \verb+sqn_258+ & 4459 & 6067 & \\
-            % \verb+rd84_253+      & 5960 &   &   \\
+            \textrm{Name} & \textrm{Number of Gates} & \textrm{Qroute} & \textrm{PyTket Depth} & \textrm{Qiskit-Basic} & \textrm{Qiskit-Stochastic} & \textrm{Qiskit-Sabre} \\
+
+            \colrule
+            rd84\_142 	    &  154 &  154 &  145 &  227 &  156 &  196 \\
+            adr4\_197 	    & 1343 & 1738 & 1743 & 2057 & 1879 & 1940 \\
+            radd\_250 	    & 1405 & 1845 & 1707 & 2210 & 2013 & 2146 \\
+            z4\_268 	    & 1498 & 1942 & 2036 & 2300 & 2145 & 2238 \\
+            sym6\_145 	    & 1701 & 2180 & 2204 & 2537 & 2475 & 2509 \\
+            misex1\_241 	& 2100 & 2712 & 2854 & 3365 & 3051 & 3163 \\
+            rd73\_252 	    & 2319 & 2922 & 3199 & 3602 & 3320 & 3461 \\
+            cycle10\_2\_110 & 2648 & 3372 & 3706 & 4150 & 3862 & 3983 \\
+            square\_root\_7 & 3089 & 3776 & 3997 & 5409 & 4372 & 4404 \\
+            sqn\_258 	    & 4459 & 5712 & 5788 & 6622 & 6269 & 6499 \\
+            rd84\_253 	    & 5960 & 7450 & 8063 & 9178 & 8345 & 8746 \\
         \end{tabular}
     \end{ruledtabular}
-\end{table}
+\end{table*}
 
 \subsection{\label{sec:results-rnd}Speed of Transformation Process}
 
@@ -314,7 +297,7 @@ Our software library allows easy access to implementing these neural networks by
 
 \appendix
 
-\subsection{\label{sec:method-mcts}Monte Carlo Tree Search}
+\subsection{\label{sec:method-mcts}2-Stage Monte Carlo Tree Search}
 
 This is the basic structure of a generic Monte Carlo Tree Search algorithm aided by a value network and a policy network \citep{mcts_alphago}.
 
@@ -322,72 +305,40 @@ This is the basic structure of a generic Monte Carlo Tree Search algorithm aided
     \caption{Monte Carlo Tree Search}
     \label{algmcts}
     \begin{algorithmic}
-        \STATE {\bfseries Input:} state $s_i$, model $m$
+        \STATE {\bfseries Input:} state $s_t$
+        \STATE Initialize root $\leftarrow$ \textbf{new node}($s_t$, solution)
+        \LOOP
+            \STATE node $\gets$ root
+            \REPEAT
+            \STATE Compute \textbf{UCT} values using prior from model + noise
+            \STATE action $\gets$ action from node with maximum UCT value
+            \IF{state.child[action] $\neq$ null}
+                \STATE node $\gets$ node.child[action]
+            \ELSE
+                \IF{action is commit}
+                    \STATE next-state $\gets$ \textbf{step} (node.state, node.solution)
+                    \STATE \sbox0{$\vcenter{\hbox{$\begin{array}{|c|c|c|c|c|} \hline 0 & 0 & 0 & \ldots & 0 \\ \hline\end{array}$}}$}
+                    next-solution $\leftarrow \underbrace{\vrule width0pt depth \dimexpr\dp0 + .3ex\relax\copy0}_{\textrm{\text{|device.edges|}}}$
+                \ELSE
+                    \STATE next-state $\gets$ node.state
+                    \STATE next-solution $\gets$ node.solution with a set bit at action index
+                \ENDIF
+                \STATE state.child[action] $\gets$ \textbf{new node} (node.state, next-solution)
+                \STATE \textbf{store} reward[node, action] $\gets$ \textbf{reward}(node.state, node.solution) - \textbf{reward}(next-state, next-solution)
+            \ENDIF
+            \UNTIL{previous action was \textrm{expand}}
+            \STATE final-state $\gets$ \textbf{step} (node.state, node.solution)
+            \STATE estimated-reward $\gets$ \textbf{evaluation} from model of final-state
+            \WHILE{state $\neq$ root}
+                \STATE parent-action $\gets$ action which led to node from it's parent node
+                \STATE node $\gets$ node.parent
+                \STATE estimated-reward $\gets$ reward[node, parent-action] + estimated-reward $\times$ discount-factor
+                \STATE \textbf{update} node.q-value[action] $\gets$ (estimated-reward $\times$ 1 + node.q-value[action] $\times$ node.n-value[action]) / (node.n-value[action] + 1)
+                \STATE \textbf{update} node.n-value[action] $\gets$ node.n-value[action] + 1
+            \ENDWHILE
+        \ENDLOOP
+        \STATE \textbf{memorize} the q-values and n-values at the root node for training the model later
 
-        \sbox0{$\vcenter{\hbox{$\begin{array}{|c|c|c|} \hline 0 & \ldots & 0 \\ \hline\end{array}$}}$}
-        answer $\leftarrow \underbrace{\vrule width0pt depth \dimexpr\dp0 + .3ex\relax\copy0}_{\textrm{|device.edges|}}$
-
-        \STATE Initialize $root \leftarrow$ Node($s_i$, answer)
-
-        \FOR{$i$ \bf{in} range $n\_mcts$}
-        \STATE set $state \leftarrow$ root
-        \REPEAT
-        \STATE select($state$, $model$) $\rightarrow action$
-        \IF{$state.child[action] \neq null$}
-        \STATE $action\_type \leftarrow selection$
-        \STATE $state \leftarrow state.child[action]$
-        \ELSE
-        \STATE $action\_type \leftarrow expansion$
-        \STATE expand ($state$, $action$)
-        \ENDIF
-        \UNTIL{$action\_type = expansion$}
-        \STATE rollout($state$) $\rightarrow reward$
-        \STATE backup($state$, $reward$) $\rightarrow m$
-        \ENDFOR
-    \end{algorithmic}
-\end{algorithm}
-
-\begin{algorithm}[H]
-    \caption{Selection Algorithm}
-    \begin{algorithmic}
-        \STATE {\bfseries Input:} MCTS tree node $state$, model $m$
-        \STATE $prior \leftarrow m(state) + dirichlet$
-        \STATE Compute $UCT_i \leftarrow q_i + c \times \sqrt{\frac{n_i}{1 + \sum n_i}} \times prior$ $\forall i$
-        \STATE Choose node $i$ with max $UCT_i$, randomly breaking tie
-    \end{algorithmic}
-\end{algorithm}
-
-\begin{algorithm}[H]
-    \caption{Expansion Algorithm}
-    \begin{algorithmic}
-        \STATE {\bfseries Input:} MCTS tree node $state$, action $a$
-        \IF{a = commit}
-        \STATE $new\_action$ $\leftarrow$ vector with all 0s.
-        \STATE $step\_reward \leftarrow 0$
-        \ELSE
-        \STATE $new\_action$ $\leftarrow$ copy of $state.action$ with $a^{th}$ element set to 1.
-        \STATE $step\_reward \leftarrow 0$
-        \ENDIF
-        \STATE $state.child[a] \rightarrow$ new node ($action$, $step\_reward$)
-    \end{algorithmic}
-\end{algorithm}
-
-\begin{algorithm}[H]
-    \caption{Rollout Algorithm}
-    \begin{algorithmic}
-        \STATE {\bfseries Input:} MCTS tree node $state$, model $m$
-        \STATE $next\_state \leftarrow$ environment step ($state$)
-        \RETURN $m(next\_state)$
-    \end{algorithmic}
-\end{algorithm}
-
-\begin{algorithm}[H]
-    \caption{Backup Process}
-    \begin{algorithmic}
-        \STATE {\bfseries Input:} MCTS tree node $state$, model $m$
-        \STATE $prior \leftarrow m(state) + dirichlet$
-        \STATE Compute $UCT_i \leftarrow q_i + c \times \sqrt{\frac{n_i}{1 + \sum n_i}} \times prior$ $\forall i$
-        \STATE Choose node $i$ with max $UCT_i$, randomly breaking tie
     \end{algorithmic}
 \end{algorithm}
 

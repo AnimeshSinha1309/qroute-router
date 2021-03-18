@@ -1,3 +1,4 @@
+    rd84_142: 100%|██████████| 154/154 [06:46<00:00,  2.64s/it, circuit_depth=151, time=156, total_reward=84333]
     rd84_142: 100%|██████████| 154/154 [03:24<00:00,  1.33s/it, circuit_depth=154, time=143, total_reward=84404]
     rd84_142: 100%|██████████| 154/154 [05:53<00:00,  2.30s/it, circuit_depth=157, time=161, total_reward=84075]
     rd84_142: 100%|██████████| 154/154 [23:43<00:00,  9.24s/it, circuit_depth=218, time=222, total_reward=83819]
@@ -10,6 +11,7 @@
     Qiskit Routing Distance:  {'basic': 2300, 'lookahead': 999999999, 'stochastic': 2145, 'sabre': 2238}
     PyTket Routing Distance:  2036
 
+    radd_250: 100%|██████████| 1405/1405 [1:02:26<00:00,  2.67s/it, circuit_depth=1817, time=1829, total_reward=678394]
     radd_250: 100%|█████████▉| 1404/1405 [44:25<00:01,  1.90s/it, circuit_depth=1864, time=1751, total_reward=673767]
     radd_250: 100%|██████████| 1405/1405 [1:23:31<00:00,  3.57s/it, circuit_depth=1845, time=1859, total_reward=675856]
     radd_250: 100%|██████████| 1405/1405 [1:57:27<00:00,  5.02s/it, circuit_depth=1961, time=1999, total_reward=667004] 
@@ -67,3 +69,4 @@
 Run 1 is the testing run of the model which had a minor error in calculating locks.
 Run 2 is the real training run of the full model.
 Run 3 is the run on Ada without GPU, so really slow, and had the non-termination bug making it slow.
+Sometimes a few additional runs are placed at the very top
