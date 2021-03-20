@@ -1,6 +1,3 @@
-# Data files
-*.h5
-
 # Editor files
 **/.idea
 **/.vscode
