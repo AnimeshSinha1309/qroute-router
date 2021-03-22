@@ -35,7 +35,6 @@ def train_step(agent: CombinerAgent,
 
     for time in range(2, training_steps + 1):
         action = agent.act(state)
-        print("".join(["1" if x else "0" for x in action]))
         assert not np.any(np.bitwise_and(state.locked_edges, action)), "Bad Action"
 
         next_state, reward, done, debugging_output = step(action, state)

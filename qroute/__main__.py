@@ -67,7 +67,7 @@ if __name__ == '__main__':
                                              os.listdir("./test/circuit_qasm")))):
             cirq = circuit_from_qasm(
                 os.path.join("./test/circuit_qasm", file))
-            if len(list(cirq.all_operations())) > 500 or len(list(cirq.all_operations())) < 100:
+            if len(list(cirq.all_operations())) > 100:
                 continue
             circuit = CircuitRepDQN(cirq, len(device))
             train_step(agent, device, circuit, episode_name=file, use_wandb=args.wandb, train_model=args.train)
