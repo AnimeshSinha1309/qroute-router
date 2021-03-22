@@ -35,6 +35,7 @@ def train_step(agent: CombinerAgent,
 
     for time in range(2, training_steps + 1):
         action = agent.act(state)
+        print("".join(["1" if x else "0" for x in action]))
         assert not np.any(np.bitwise_and(state.locked_edges, action)), "Bad Action"
 
         next_state, reward, done, debugging_output = step(action, state)
@@ -43,11 +44,11 @@ def train_step(agent: CombinerAgent,
         progress_bar.update(len(debugging_output.cnots))
         state = next_state
 
-        if train_model and (time + 1) % 10 == 0:
+        if train_model and (time + 1) % 1000 == 0:
             loss_v, loss_p = agent.replay()
             if use_wandb:
                 wandb.log({'Value Loss': loss_v, 'Policy Loss': loss_p})
-            torch.save(agent.model.state_dict(), "model-weights.h5")
+            torch.save(agent.model.state_dict(), f"{device.name}-weights.h5")
 
         progress_bar.set_postfix(total_reward=total_reward, time=time)
         if done:
@@ -71,6 +72,6 @@ def train_step(agent: CombinerAgent,
         loss_v, loss_p = agent.replay()
         if use_wandb:
             wandb.log({'Value Loss': loss_v, 'Policy Loss': loss_p})
-        torch.save(agent.model.state_dict(), "model-weights.h5")
+        torch.save(agent.model.state_dict(), f"{device.name}-weights.h5")
 
     return solution_start, solution_moments, False

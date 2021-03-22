@@ -5,6 +5,7 @@
 **/media
 
 # Latex Files
+*.out
 *.aux
 *.bbl
 *.blg

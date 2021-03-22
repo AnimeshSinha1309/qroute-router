@@ -28,7 +28,7 @@ class CircuitStateDQN:
         self.device = device
         assert len(circuit) == len(device), "All qubits on target device or not used, or too many are used"
         # The starting state should be setup right
-        self._node_to_qubit = np.random.permutation(len(self.circuit)) \
+        self._node_to_qubit = self.device.allocate(self.circuit) \
             if node_to_qubit is None else node_to_qubit
         self._qubit_targets = np.array([targets[0] if len(targets) > 0 else -1 for targets in self.circuit.circuit]) \
             if qubit_targets is None else qubit_targets

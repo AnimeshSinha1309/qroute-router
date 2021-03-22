@@ -5,12 +5,12 @@ import argparse
 import wandb
 import torch
 
-from .environment.device import IBMqx20TokyoDevice, GridComputerDevice
-from .models.graph_dual import GraphDualModel
-from .algorithms.deepmcts import MCTSAgent
-from .memory.list import MemorySimple
+from .environment.device import IBMqx20TokyoDevice, GridComputerDevice, GoogleSycamore, Rigetti19QAcorn
 from .environment.circuits import circuit_from_qasm, CircuitRepDQN, \
     circuit_generated_randomly, circuit_generated_full_layer
+from .algorithms.deepmcts import MCTSAgent
+from .models.graph_dual import GraphDualModel
+from .memory.list import MemorySimple
 from .engine import train_step
 from .visualizers.greedy_schedulers import cirq_routing, qiskit_routing, tket_routing
 
@@ -32,41 +32,42 @@ if __name__ == '__main__':
                         help='Whether the training loop should be run or just evaluation.')
     parser.add_argument('--wandb', action='store_const', default=False, const=True,
                         help='Whether to use WandB to log the results of experiments.')
-    parser.add_argument('--search', default=100, type=int,
+    parser.add_argument('--search', default=200, type=int,
                         help='Number of iterations to search for before making a move.')
     args = parser.parse_args()
 
-    device = IBMqx20TokyoDevice() if args.hardware == "qx20" else \
-        GridComputerDevice(int(args.hardware.split("/")[-1]))
+    # Get the right environment up
+    device = None
+    if args.hardware == "qx20":
+        device = IBMqx20TokyoDevice()
+    elif "grid" in args.hardware:
+        device = GridComputerDevice(int(args.hardware.split("/")[-1]))
+    elif args.hardware == "sycamore":
+        device = GoogleSycamore()
+    elif args.hardware == "acorn":
+        device = Rigetti19QAcorn()
+    else:
+        raise ValueError(f"{args.hardware} is not a valid device.")
+
+    # Get the agent up and ready
     model = GraphDualModel(device, True)
     memory = MemorySimple(0)
     agent = MCTSAgent(model, device, memory, search_depth=args.search)
 
+    # Other preferences
     if args.wandb:
         os.system("wandb login d43f6dc5f4f9981ac8b6bffd1ab5db7d9ac45480")
         wandb.init(project='qroute-rl', name='mcts-small-qx20-1', save_code=False)
+    if os.path.exists(f"{device.name}-weights.h5"):
+        model.load_state_dict(torch.load(f"{device.name}-weights.h5"))
 
-    if os.path.exists("model-weights.h5"):
-        model.load_state_dict(torch.load("model-weights.h5"))
-
+    # Run different benchmarks
     if args.dataset == "small":
         for e, file in enumerate(list(filter(lambda x: '_onlyCX' in x, 
                                              os.listdir("./test/circuit_qasm")))):
             cirq = circuit_from_qasm(
                 os.path.join("./test/circuit_qasm", file))
-            if len(list(cirq.all_operations())) > 100:
-                continue
-            circuit = CircuitRepDQN(cirq, len(device))
-            train_step(agent, device, circuit, episode_name=file, use_wandb=args.wandb, train_model=args.train)
-            print("Cirq Routing Distance: ", cirq_routing(circuit, device))
-            print("Qiskit Routing Distance: ", qiskit_routing(circuit, device))
-            print("PyTket Routing Distance: ", tket_routing(circuit, device))
-    elif args.dataset == "medium":
-        for e, file in enumerate(list(filter(lambda x: '_onlyCX' in x, 
-                                             os.listdir("./test/circuit_qasm")))):
-            cirq = circuit_from_qasm(
-                os.path.join("./test/circuit_qasm", file))
-            if 100 <= len(list(cirq.all_operations())) < 1000:
+            if len(list(cirq.all_operations())) > 500 or len(list(cirq.all_operations())) < 100:
                 continue
             circuit = CircuitRepDQN(cirq, len(device))
             train_step(agent, device, circuit, episode_name=file, use_wandb=args.wandb, train_model=args.train)
@@ -79,6 +80,7 @@ if __name__ == '__main__':
         for e, file in enumerate(large_files):
             cirq = circuit_from_qasm(
                 os.path.join("./test/circuit_qasm", file + "_onlyCX.qasm"))
+            print(len(list(cirq.all_qubits())))
             circuit = CircuitRepDQN(cirq, len(device))
             train_step(agent, device, circuit, episode_name=file, use_wandb=args.wandb, train_model=args.train)
             print("Qiskit Routing Distance: ", qiskit_routing(circuit, device))

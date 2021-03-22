@@ -42,7 +42,7 @@ class MCTSAgent(CombinerAgent):
             self.rollout_reward = self.rollout() if self.parent_action is not None else 0.0
             self.action_mask = np.concatenate([state.device.swappable_edges(
                 self.solution, self.state.locked_edges, self.state.target_nodes == -1),
-                np.array([solution is not None or not np.all(self.state.locked_edges)])])
+                np.array([solution is not None or np.any(self.state.locked_edges)])])
 
             self.n_value = torch.zeros(self.num_actions + 1)
             self.q_value = torch.zeros(self.num_actions + 1)
@@ -149,10 +149,7 @@ class MCTSAgent(CombinerAgent):
 
             while True:
                 depth += 1
-
                 action_index: int = mcts_state.select()
-                if action_index != len(mcts_state.solution):
-                    assert not mcts_state.state.locked_edges[action_index], "Selecting a Bad Action"
 
                 if mcts_state.child_states[action_index] is not None:
                     # MCTS Algorithm: SELECT STAGE
@@ -162,12 +159,12 @@ class MCTSAgent(CombinerAgent):
                     break
                 else:
                     # MCTS Algorithm: EXPAND STAGE
-                    if action_index == len(mcts_state.solution):
+                    if action_index == len(mcts_state.solution):  # This is a commit action
                         next_state, _reward, _done, _debug = step(mcts_state.solution, mcts_state.state)
                         mcts_state.child_states[action_index] = MCTSAgent.MCTSState(
                             next_state, self.model,
                             r_previous=0, parent_state=mcts_state, parent_action=action_index)
-                    else:
+                    else:  # This is a swap action
                         next_solution = np.copy(mcts_state.solution)
                         next_solution[action_index] = True
                         reward = evaluate(next_solution, mcts_state.state) - \

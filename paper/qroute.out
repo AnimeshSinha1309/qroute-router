@@ -1,0 +1,26 @@
+\BOOKMARK [0][-]{section*.2}{Qubit routing using Graph neural network aided Monte Carlo tree search}{}% 2
+\BOOKMARK [1][-]{section*.1}{Abstract}{section*.2}% 1
+\BOOKMARK [1][-]{section*.3}{Introduction}{section*.2}% 3
+\BOOKMARK [1][-]{section*.6}{Qubit Routing}{section*.2}% 4
+\BOOKMARK [2][-]{section*.7}{Describing the Problem}{section*.6}% 5
+\BOOKMARK [2][-]{section*.8}{Related Work}{section*.6}% 6
+\BOOKMARK [2][-]{section*.10}{Our Contributions}{section*.6}% 7
+\BOOKMARK [1][-]{section*.11}{Method}{section*.2}% 8
+\BOOKMARK [2][-]{section*.12}{State representation}{section*.11}% 9
+\BOOKMARK [3][-]{section*.13}{Circuit Representation}{section*.12}% 10
+\BOOKMARK [3][-]{section*.14}{Device Topology}{section*.12}% 11
+\BOOKMARK [3][-]{section*.15}{Node to Qubit Mapping}{section*.12}% 12
+\BOOKMARK [3][-]{section*.16}{Qubit Progress}{section*.12}% 13
+\BOOKMARK [3][-]{section*.17}{Mutual Exclusion Locks}{section*.12}% 14
+\BOOKMARK [2][-]{section*.19}{Monte Carlo Tree Search}{section*.11}% 15
+\BOOKMARK [3][-]{section*.20}{In the Combinatorial Action Space}{section*.19}% 16
+\BOOKMARK [3][-]{section*.21}{The State of the Search}{section*.19}% 17
+\BOOKMARK [3][-]{section*.22}{How the Search Proceeds}{section*.19}% 18
+\BOOKMARK [3][-]{section*.27}{The final action choice}{section*.19}% 19
+\BOOKMARK [2][-]{section*.30}{Neural Network Architecture}{section*.11}% 20
+\BOOKMARK [1][-]{section*.31}{Results}{section*.2}% 21
+\BOOKMARK [2][-]{section*.32}{Random Test Circuits}{section*.31}% 22
+\BOOKMARK [2][-]{section*.34}{Small Realistic Circuits}{section*.31}% 23
+\BOOKMARK [2][-]{section*.36}{Large Realistic Circuit}{section*.31}% 24
+\BOOKMARK [1][-]{section*.39}{Discussion and Future Scope}{section*.2}% 25
+\BOOKMARK [1][-]{section*.40}{References}{section*.2}% 26
