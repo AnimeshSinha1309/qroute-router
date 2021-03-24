@@ -61,6 +61,7 @@ def train_step(agent: CombinerAgent,
                 loss_v, loss_p = agent.replay()
                 if use_wandb:
                     wandb.log({'Value Loss': loss_v, 'Policy Loss': loss_p})
+                torch.save(agent.model.state_dict(), f"{device.name}-weights.h5")
             if use_wandb:
                 wandb.log({'Circuit Depth': depth,
                            'Circuit Name': episode_name,
