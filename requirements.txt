@@ -6,7 +6,7 @@ matplotlib~=3.1.1
 qiskit~=0.23.1
 dgl~=0.5.3
 tqdm~=4.36.1
-wandb~=0.10.12
+wandb~=0.10.23
 pygame~=2.0.1
 pytket~=0.8.0
 
