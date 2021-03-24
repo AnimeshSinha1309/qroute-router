@@ -11,12 +11,13 @@ class DeviceTopology(cirq.Device):
     Defines what pairs of qubits are local and can be operated upon
     """
 
-    def __init__(self, nodes, edges):
+    def __init__(self, nodes, edges, name=None):
         """
         Creates a device with the input graph topology
         :param nodes: iterable, list of qubits, eg. [1, 2, 3, 4]
         :param edges: iterable, list of edges, eg. [(1, 2), (2, 3), (2, 4), (3, 4)]
         """
+        self.name = name
         self.edges: typing.List[tuple] = edges
         self.nodes = nodes
         self.graph = nx.empty_graph(nodes)
@@ -52,6 +53,14 @@ class DeviceTopology(cirq.Device):
             return self.distances[q1][q2] <= 1
         else:
             raise ValueError('{!r} is multi-qubit (>2) gate'.format(qubits))
+
+    def allocate(self, circuit):
+        """
+        Performs qubit allocation using some heuristics for the target hardware.
+        :param circuit: CircuitStateDQN object, represents the circuit to be allocated for
+        :return: np.array, the resulting allocation
+        """
+        return np.arange(len(circuit))
 
     def _get_distance_matrix(self, bidirectional=True):
         """
@@ -158,7 +167,8 @@ class IBMqx5Device(DeviceTopology):
             nodes=16,
             edges=[(1, 2), (1, 0), (2, 3), (3, 4), (3, 14), (5, 4), (6, 5), (6, 11),
                    (6, 7), (7, 10), (8, 7), (9, 8), (9, 10), (11, 10), (12, 5), (12, 11),
-                   (12, 13), (13, 14), (13, 4), (15, 14), (15, 2), (15, 0)]
+                   (12, 13), (13, 14), (13, 4), (15, 14), (15, 2), (15, 0)],
+            name="ibmqx5",
         )
 
 
@@ -176,8 +186,19 @@ class IBMqx20TokyoDevice(DeviceTopology):
             edges=[(0, 1), (1, 4), (4, 5), (5, 7), (19, 2), (2, 3), (3, 6), (6, 8),
                    (18, 15), (15, 14), (14, 11), (11, 9), (17, 16), (16, 13), (13, 12), (12, 10),
                    (19, 15), (18, 2), (1, 3), (2, 4), (3, 11), (14, 6),
-                   (5, 8), (6, 7), (11, 10), (9, 12), (15, 13), (16, 14)]
+                   (5, 8), (6, 7), (11, 10), (9, 12), (15, 13), (16, 14),
+                   (0, 19), (19, 18), (18, 17), (1, 2), (2, 15), (15, 16), (4, 3), (3, 14),
+                   (14, 13), (5, 6), (6, 11), (11, 12), (7, 8), (8, 9), (9, 10)],
+            name="ibmqx20",
         )
+
+    def allocate(self, circuit):
+        if sum([1 if len(targets) > 0 else 0 for targets in circuit.circuit]) < 4:
+            return [4, 7, 15, 12] + [i for i in range(self.nodes) if i not in [4, 7, 15, 12]]
+        elif sum([1 if len(targets) > 0 else 0 for targets in circuit.circuit]) < 20:
+            return np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 0])
+        else:
+            return super().allocate(circuit)
 
 
 class GridComputerDevice(DeviceTopology):
@@ -196,17 +217,73 @@ class GridComputerDevice(DeviceTopology):
         self.cols = cols if cols != -1 else rows
 
         topology = []
-        for i in range(0, rows):
-            for j in range(0, cols):
-                node_index = i * cols + j
-                if node_index < cols * (rows - 1):  # down
-                    topology.append((node_index, node_index + cols))
-                if node_index % cols < cols - 1:  # right
+        for i in range(0, self.rows):
+            for j in range(0, self.cols):
+                node_index = i * self.cols + j
+                if node_index < self.cols * (self.rows - 1):  # down
+                    topology.append((node_index, node_index + self.cols))
+                if node_index % self.cols < self.cols - 1:  # right
                     topology.append((node_index, node_index + 1))
 
         super(GridComputerDevice, self).__init__(
-            nodes=rows * cols,
-            edges=topology
+            nodes=self.rows * self.cols,
+            edges=topology,
+            name=f"grid/{self.rows}",
+        )
+
+
+class GoogleSycamore(DeviceTopology):
+    """
+    Specific device topology for the IBM QX5 device
+    """
+
+    def __init__(self):
+        """
+        Add links for the Google Sycamore architecture.
+        """
+        def coords_to_index(x, y):
+            return x * self.cols + y
+
+        self.rows = 9
+        self.cols = 6
+
+        topology = []
+        for i in range(0, self.rows):
+            if i % 2 != 0:
+                for j in range(0, self.cols):
+                    topology.append((coords_to_index(i, j), coords_to_index(i - 1, j)))
+                    topology.append((coords_to_index(i, j), coords_to_index(i + 1, j)))
+                    if j < self.cols - 1:
+                        topology.append((coords_to_index(i, j), coords_to_index(i - 1, j + 1)))
+                        topology.append((coords_to_index(i, j), coords_to_index(i + 1, j + 1)))
+
+        super(GoogleSycamore, self).__init__(
+            nodes=self.rows * self.cols,
+            edges=topology,
+            name="sycamore"
+        )
+
+
+class Rigetti19QAcorn(DeviceTopology):
+    """
+    Specific device topology for the IBM QX5 device
+    """
+
+    def __init__(self):
+        """
+        Add links for the Google Sycamore architecture.
+        """
+        self.rows = 4
+        self.cols = 5
+
+        topology = [(0, 5), (0, 6), (1, 6), (1, 7), (2, 7), (2, 8), (3, 8), (3, 9), (4, 9),
+                    (5, 10), (6, 11), (7, 12), (8, 13), (9, 14), (10, 15), (10, 16), (11, 16),
+                    (11, 17), (12, 17), (12, 18), (13, 18), (13, 19), (14, 19)]
+
+        super(Rigetti19QAcorn, self).__init__(
+            nodes=self.rows * self.cols,
+            edges=topology,
+            name="acorn"
         )
 
 

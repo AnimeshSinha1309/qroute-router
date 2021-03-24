@@ -1,0 +1,45 @@
+15
+rd84_142: 100%|███████████| 154/154 [06:47<00:00,  2.65s/it, circuit_depth=120, time=121, total_reward=85368]
+Qiskit Routing Distance:  {'basic': 154, 'lookahead': 999999999, 'stochastic': 142, 'sabre': 138}
+PyTket Routing Distance:  133
+ 13
+adr4_197: 100%|███████████| 1498/1498 [1:50:17<00:00,  4.42s/it, circuit_depth=1580, time=1586, total_reward=726742]
+Qiskit Routing Distance:  {'basic': 1770, 'lookahead': 999999999, 'stochastic': 1840, 'sabre': 1968}
+PyTket Routing Distance:  1988
+13
+radd_250: 100%|███████████| 1405/1405 [1:40:42<00:00,  4.30s/it, circuit_depth=1504, time=????, total_rewards=?????]
+Qiskit Routing Distance:  {'basic': 1799, 'lookahead': 999999999, 'stochastic': 1812, 'sabre': 1815}
+PyTket Routing Distance:  1888
+11
+z4_268: 100%|█████████████| 1343/1343 [1:47:49<00:00,  4.82s/it, circuit_depth=1400, time=1403, total_reward=6594??]
+Qiskit Routing Distance:  {'basic': 1670, 'lookahead': 999999999, 'stochastic': 1623, 'sabre': 1718}
+PyTket Routing Distance:  1914
+7
+sym6_145: 100%|███████████| 1701/1701 [3:11:09<00:00,  6.74s/it, circuit_depth=1806, time=1808, total_reward=832776]
+Qiskit Routing Distance:  {'basic': 2167, 'lookahead': 999999999, 'stochastic': 2168, 'sabre': 2261}
+PyTket Routing Distance:  2299
+15
+misex1_241: 100%|█████████| 2100/2100 [2:26:20<00:00,  4.18s/it, circuit_depth=2231, time=2233, total_reward=1021396]
+Qiskit Routing Distance:  {'basic': 2580, 'lookahead': 999999999, 'stochastic': 2770, 'sabre': 2681}
+PyTket Routing Distance:  2944
+10
+rd73_252: 100%|███████████| 2319/2319 [3:00:53<00:00,  4.68s/it, circuit_depth=2468, time=2475, total_reward=1130364]
+Qiskit Routing Distance:  {'basic': 2793, 'lookahead': 999999999, 'stochastic': 2943, 'sabre': 3071}
+PyTket Routing Distance:  3132
+12
+cycle10_2_110: 100%|██████| 2648/2648 [2:36:35<00:00,  3.55s/it, circuit_depth=2941, time=2956, total_reward=1277193]
+Qiskit Routing Distance:  {'basic': 3380, 'lookahead': 999999999, 'stochastic': 3418, 'sabre': 3485}
+PyTket Routing Distance:  3705
+15
+square_root_7: 100%|██████| 3089/3089 [2:58:25<00:00,  3.47s/it, circuit_depth=3327, time=3339, total_reward=1487458]
+Qiskit Routing Distance:  {'basic': 4560, 'lookahead': 999999999, 'stochastic': 3759, 'sabre': 3822}
+PyTket Routing Distance:  3695
+10
+sqn_258: 100%|████████████| 4459/4459 [3:33:40<00:00,  2.88s/it, circuit_depth=4779, time=4799, total_reward=2163264]
+Qiskit Routing Distance:  {'basic': 5535, 'lookahead': 999999999, 'stochastic': 5526, 'sabre': 5696}
+PyTket Routing Distance:  6252
+12
+rd84_253: 100%|███████████| 5960/5960 [4:46:55<00:00,  2.89s/it, circuit_depth=6264, time=6299, total_reward=2887842]
+Qiskit Routing Distance:  {'basic': 7507, 'lookahead': 999999999, 'stochastic': 7411, 'sabre': 7537}
+PyTket Routing Distance:  8843
+

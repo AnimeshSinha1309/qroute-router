@@ -42,7 +42,7 @@ class MCTSAgent(CombinerAgent):
             self.rollout_reward = self.rollout() if self.parent_action is not None else 0.0
             self.action_mask = np.concatenate([state.device.swappable_edges(
                 self.solution, self.state.locked_edges, self.state.target_nodes == -1),
-                np.array([solution is not None or not np.all(self.state.locked_edges)])])
+                np.array([solution is not None or np.any(self.state.locked_edges)])])
 
             self.n_value = torch.zeros(self.num_actions + 1)
             self.q_value = torch.zeros(self.num_actions + 1)
@@ -53,7 +53,7 @@ class MCTSAgent(CombinerAgent):
                 _value, self.priors = self.model(self.state)
                 self.priors = self.priors.detach().numpy()
                 self.priors += np.bitwise_not(self.action_mask) * -1e8
-                self.priors = torch.flatten(torch.tensor(self.priors))  # TODO: is softmax needed?
+                self.priors = torch.flatten(torch.tensor(self.priors))
             noise = np.random.dirichlet([self.HYPERPARAM_NOISE_ALPHA for _ in self.priors]) * self.action_mask
             self.priors = self.HYPERPARAM_PRIOR_FRACTION * self.priors + (1 - self.HYPERPARAM_PRIOR_FRACTION) * noise
 
@@ -79,6 +79,16 @@ class MCTSAgent(CombinerAgent):
             uct = self.q_value + (self.priors * c * np.sqrt(n_visits + 0.001) / (self.n_value + 0.001))
             best_val = torch.max(uct)
             best_move_indices: torch.Tensor = torch.where(torch.eq(best_val, uct))[0]
+            winner: int = np.random.choice(best_move_indices.numpy())
+            return winner
+
+        def choose(self) -> int:
+            """
+            Select one of the child actions based on the best q-value which is allowed
+            """
+            q_real = self.q_value + np.bitwise_not(self.action_mask) * -1e8
+            best_val = torch.max(q_real)
+            best_move_indices: torch.Tensor = torch.where(torch.eq(best_val, q_real))[0]
             winner: int = np.random.choice(best_move_indices.numpy())
             return winner
 
@@ -139,23 +149,22 @@ class MCTSAgent(CombinerAgent):
 
             while True:
                 depth += 1
-
                 action_index: int = mcts_state.select()
-                if action_index != len(mcts_state.solution):
-                    assert not mcts_state.state.locked_edges[action_index], "Selecting a Bad Action"
 
                 if mcts_state.child_states[action_index] is not None:
                     # MCTS Algorithm: SELECT STAGE
                     mcts_state = mcts_state.child_states[action_index]
                     continue
+                elif mcts_state.state.is_done():
+                    break
                 else:
                     # MCTS Algorithm: EXPAND STAGE
-                    if action_index == len(mcts_state.solution):
+                    if action_index == len(mcts_state.solution):  # This is a commit action
                         next_state, _reward, _done, _debug = step(mcts_state.solution, mcts_state.state)
                         mcts_state.child_states[action_index] = MCTSAgent.MCTSState(
                             next_state, self.model,
                             r_previous=0, parent_state=mcts_state, parent_action=action_index)
-                    else:
+                    else:  # This is a swap action
                         next_solution = np.copy(mcts_state.solution)
                         next_solution[action_index] = True
                         reward = evaluate(next_solution, mcts_state.state) - \
@@ -195,7 +204,7 @@ class MCTSAgent(CombinerAgent):
             self.memory.store(state,
                               torch.sum((self.root.n_value / torch.sum(self.root.n_value)) * self.root.q_value),
                               self._stable_normalizer(self.root.n_value))
-            pos = self.root.select()
+            pos = self.root.choose()
             if pos == len(self.root.solution) or self.root.child_states[pos] is None:
                 assert not np.any(np.bitwise_and(state.locked_edges, self.root.solution)), "Bad Action"
                 step_solution = self.root.solution

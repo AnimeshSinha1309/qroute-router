@@ -1,5 +1,5 @@
 cirq~=0.9.1
-numpy~=1.17.2
+numpy~=1.19.3
 networkx~=2.3
 pytest~=6.2.0
 matplotlib~=3.1.1
@@ -8,8 +8,9 @@ dgl~=0.5.3
 tqdm~=4.36.1
 wandb~=0.10.12
 pygame~=2.0.1
+pytket~=0.8.0
 
-torch==1.7.0+cpu
+torch==1.7.0
 torch-scatter
 torch-sparse
 torch-cluster

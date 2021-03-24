@@ -43,11 +43,11 @@ def train_step(agent: CombinerAgent,
         progress_bar.update(len(debugging_output.cnots))
         state = next_state
 
-        if train_model and (time + 1) % 10 == 0:
+        if train_model and (time + 1) % 1000 == 0:
             loss_v, loss_p = agent.replay()
             if use_wandb:
                 wandb.log({'Value Loss': loss_v, 'Policy Loss': loss_p})
-            torch.save(agent.model.state_dict(), "model-weights.h5")
+            torch.save(agent.model.state_dict(), f"{device.name}-weights.h5")
 
         progress_bar.set_postfix(total_reward=total_reward, time=time)
         if done:
@@ -61,6 +61,7 @@ def train_step(agent: CombinerAgent,
                 loss_v, loss_p = agent.replay()
                 if use_wandb:
                     wandb.log({'Value Loss': loss_v, 'Policy Loss': loss_p})
+                torch.save(agent.model.state_dict(), f"{device.name}-weights.h5")
             if use_wandb:
                 wandb.log({'Circuit Depth': depth,
                            'Circuit Name': episode_name,
@@ -71,6 +72,6 @@ def train_step(agent: CombinerAgent,
         loss_v, loss_p = agent.replay()
         if use_wandb:
             wandb.log({'Value Loss': loss_v, 'Policy Loss': loss_p})
-        torch.save(agent.model.state_dict(), "model-weights.h5")
+        torch.save(agent.model.state_dict(), f"{device.name}-weights.h5")
 
     return solution_start, solution_moments, False

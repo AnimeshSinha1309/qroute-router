@@ -7,6 +7,9 @@
       <excludeFolder url="file://$MODULE_DIR$/replication" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />
       <excludeFolder url="file://$MODULE_DIR$/test/test_results" />
+      <excludeFolder url="file://$MODULE_DIR$/test/compiled_circuits" />
+      <excludeFolder url="file://$MODULE_DIR$/test/circuit_qasm" />
+      <excludeFolder url="file://$MODULE_DIR$/test/result_tabulations" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.7 (base)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

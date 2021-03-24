@@ -1,6 +1,7 @@
 # Ignore the QASM files from showing up in language statistics
 *.qasm linguist-vendored
 test/circuit_qasm linguist-vendored
-
 # Auto detect text files and perform LF normalization
 * text=auto
+ibmqx20-weights.h5 filter=lfs diff=lfs merge=lfs -text
+sycamore-weights.h5 filter=lfs diff=lfs merge=lfs -text

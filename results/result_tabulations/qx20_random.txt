@@ -1,0 +1,370 @@
+Starting Routing on 30
+
+Layers in input circuit:  11
+random_0: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 30/30 [00:53<00:00,  1.77s/it, circuit_depth=20, time=20, total_reward=24776]
+Cirq Routing Distance:  29
+Qiskit Routing Distance:  {'basic': 31, 'lookahead': 31, 'stochastic': 21, 'sabre': 24}
+PyTket Routing Distance:  19
+Layers in input circuit:  11
+random_1: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 30/30 [00:59<00:00,  1.98s/it, circuit_depth=19, time=19, total_reward=24791]
+Cirq Routing Distance:  36
+Qiskit Routing Distance:  {'basic': 39, 'lookahead': 21, 'stochastic': 23, 'sabre': 27}
+PyTket Routing Distance:  28
+Layers in input circuit:  10
+random_2: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 30/30 [01:10<00:00,  2.34s/it, circuit_depth=22, time=22, total_reward=24740]
+Cirq Routing Distance:  32
+Qiskit Routing Distance:  {'basic': 28, 'lookahead': 29, 'stochastic': 23, 'sabre': 23}
+PyTket Routing Distance:  23
+Layers in input circuit:  8
+random_3: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 30/30 [00:57<00:00,  1.93s/it, circuit_depth=18, time=19, total_reward=24817]
+Cirq Routing Distance:  24
+Qiskit Routing Distance:  {'basic': 32, 'lookahead': 23, 'stochastic': 20, 'sabre': 33}
+PyTket Routing Distance:  26
+Layers in input circuit:  7
+random_4: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 30/30 [01:07<00:00,  2.24s/it, circuit_depth=17, time=17, total_reward=24765]
+Cirq Routing Distance:  19
+Qiskit Routing Distance:  {'basic': 35, 'lookahead': 19, 'stochastic': 17, 'sabre': 23}
+PyTket Routing Distance:  30
+Layers in input circuit:  11
+random_5: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 30/30 [01:03<00:00,  2.11s/it, circuit_depth=18, time=18, total_reward=24849]
+Cirq Routing Distance:  39
+Qiskit Routing Distance:  {'basic': 34, 'lookahead': 30, 'stochastic': 22, 'sabre': 31}
+PyTket Routing Distance:  26
+Layers in input circuit:  10
+random_6: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 30/30 [00:43<00:00,  1.45s/it, circuit_depth=19, time=19, total_reward=24838]
+Cirq Routing Distance:  22
+Qiskit Routing Distance:  {'basic': 34, 'lookahead': 24, 'stochastic': 21, 'sabre': 20}
+PyTket Routing Distance:  26
+Layers in input circuit:  9
+random_7: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 30/30 [00:49<00:00,  1.65s/it, circuit_depth=17, time=18, total_reward=24824]
+Cirq Routing Distance:  24
+Qiskit Routing Distance:  {'basic': 31, 'lookahead': 28, 'stochastic': 21, 'sabre': 31}
+PyTket Routing Distance:  33
+Layers in input circuit:  10
+random_8: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 30/30 [00:58<00:00,  1.96s/it, circuit_depth=17, time=20, total_reward=24788]
+Cirq Routing Distance:  24
+Qiskit Routing Distance:  {'basic': 36, 'lookahead': 30, 'stochastic': 22, 'sabre': 31}
+PyTket Routing Distance:  21
+Layers in input circuit:  10
+random_9: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 30/30 [01:04<00:00,  2.15s/it, circuit_depth=21, time=22, total_reward=24711]
+Cirq Routing Distance:  23
+Qiskit Routing Distance:  {'basic': 39, 'lookahead': 32, 'stochastic': 22, 'sabre': 27}
+PyTket Routing Distance:  23
+
+Starting Routing on 50
+
+Layers in input circuit:  18
+random_0: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 50/50 [01:54<00:00,  2.29s/it, circuit_depth=31, time=35, total_reward=34626]
+Cirq Routing Distance:  57
+Qiskit Routing Distance:  {'basic': 66, 'lookahead': 48, 'stochastic': 41, 'sabre': 50}
+PyTket Routing Distance:  46
+Layers in input circuit:  17
+random_1: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 50/50 [01:58<00:00,  2.37s/it, circuit_depth=29, time=30, total_reward=34669]
+Cirq Routing Distance:  54
+Qiskit Routing Distance:  {'basic': 63, 'lookahead': 49, 'stochastic': 37, 'sabre': 48}
+PyTket Routing Distance:  46
+Layers in input circuit:  12
+random_2: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 50/50 [02:25<00:00,  2.92s/it, circuit_depth=34, time=34, total_reward=34652]
+Cirq Routing Distance:  47
+Qiskit Routing Distance:  {'basic': 62, 'lookahead': 49, 'stochastic': 31, 'sabre': 50}
+PyTket Routing Distance:  53
+Layers in input circuit:  17
+random_3: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 50/50 [02:27<00:00,  2.94s/it, circuit_depth=28, time=30, total_reward=34690]
+Cirq Routing Distance:  62
+Qiskit Routing Distance:  {'basic': 67, 'lookahead': 46, 'stochastic': 38, 'sabre': 38}
+PyTket Routing Distance:  58
+Layers in input circuit:  17
+random_4: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 50/50 [01:59<00:00,  2.39s/it, circuit_depth=33, time=34, total_reward=34667]
+Cirq Routing Distance:  42
+Qiskit Routing Distance:  {'basic': 61, 'lookahead': 999999999, 'stochastic': 39, 'sabre': 50}
+PyTket Routing Distance:  51
+Layers in input circuit:  15
+random_5: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 50/50 [02:53<00:00,  3.47s/it, circuit_depth=40, time=40, total_reward=34473]
+Cirq Routing Distance:  49
+Qiskit Routing Distance:  {'basic': 61, 'lookahead': 64, 'stochastic': 38, 'sabre': 48}
+PyTket Routing Distance:  41
+Layers in input circuit:  18
+random_6: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 50/50 [02:13<00:00,  2.66s/it, circuit_depth=35, time=36, total_reward=34526]
+Cirq Routing Distance:  60
+Qiskit Routing Distance:  {'basic': 66, 'lookahead': 51, 'stochastic': 38, 'sabre': 52}
+PyTket Routing Distance:  50
+Layers in input circuit:  18
+random_7: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 50/50 [01:55<00:00,  2.31s/it, circuit_depth=33, time=35, total_reward=34622]
+Cirq Routing Distance:  54
+Qiskit Routing Distance:  {'basic': 53, 'lookahead': 45, 'stochastic': 35, 'sabre': 42}
+PyTket Routing Distance:  52
+Layers in input circuit:  13
+random_8: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 50/50 [02:38<00:00,  3.17s/it, circuit_depth=32, time=35, total_reward=34667]
+Cirq Routing Distance:  58
+Qiskit Routing Distance:  {'basic': 63, 'lookahead': 51, 'stochastic': 31, 'sabre': 39}
+PyTket Routing Distance:  35
+Layers in input circuit:  16
+random_9: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 50/50 [02:11<00:00,  2.63s/it, circuit_depth=30, time=30, total_reward=34669]
+Cirq Routing Distance:  52
+Qiskit Routing Distance:  {'basic': 59, 'lookahead': 999999999, 'stochastic': 37, 'sabre': 44}
+PyTket Routing Distance:  42
+
+Starting Routing on 70
+
+Layers in input circuit:  19
+random_0: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 70/70 [03:21<00:00,  2.87s/it, circuit_depth=39, time=40, total_reward=44575]
+Cirq Routing Distance:  85
+Qiskit Routing Distance:  {'basic': 93, 'lookahead': 68, 'stochastic': 45, 'sabre': 59}
+PyTket Routing Distance:  76
+Layers in input circuit:  21
+random_1: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 70/70 [03:13<00:00,  2.76s/it, circuit_depth=47, time=49, total_reward=44412]
+Cirq Routing Distance:  96
+Qiskit Routing Distance:  {'basic': 71, 'lookahead': 999999999, 'stochastic': 41, 'sabre': 56}
+PyTket Routing Distance:  60
+Layers in input circuit:  18
+random_2: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 70/70 [03:53<00:00,  3.34s/it, circuit_depth=46, time=55, total_reward=44360]
+Cirq Routing Distance:  64
+Qiskit Routing Distance:  {'basic': 81, 'lookahead': 999999999, 'stochastic': 43, 'sabre': 57}
+PyTket Routing Distance:  67
+Layers in input circuit:  21
+random_3: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 70/70 [03:57<00:00,  3.39s/it, circuit_depth=59, time=63, total_reward=44225]
+Cirq Routing Distance:  83
+Qiskit Routing Distance:  {'basic': 84, 'lookahead': 999999999, 'stochastic': 53, 'sabre': 58}
+PyTket Routing Distance:  79
+Layers in input circuit:  18
+random_4: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 70/70 [02:47<00:00,  2.39s/it, circuit_depth=47, time=48, total_reward=44539]
+Cirq Routing Distance:  67
+Qiskit Routing Distance:  {'basic': 60, 'lookahead': 999999999, 'stochastic': 44, 'sabre': 55}
+PyTket Routing Distance:  80
+Layers in input circuit:  21
+random_5: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 70/70 [03:14<00:00,  2.77s/it, circuit_depth=45, time=45, total_reward=44357]
+Cirq Routing Distance:  77
+Qiskit Routing Distance:  {'basic': 83, 'lookahead': 60, 'stochastic': 46, 'sabre': 69}
+PyTket Routing Distance:  59
+Layers in input circuit:  19
+random_6: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 70/70 [04:12<00:00,  3.60s/it, circuit_depth=41, time=42, total_reward=44486]
+Cirq Routing Distance:  63
+Qiskit Routing Distance:  {'basic': 76, 'lookahead': 999999999, 'stochastic': 44, 'sabre': 52}
+PyTket Routing Distance:  74
+Layers in input circuit:  17
+random_7: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 70/70 [04:21<00:00,  3.74s/it, circuit_depth=40, time=41, total_reward=44479]
+Cirq Routing Distance:  68
+Qiskit Routing Distance:  {'basic': 67, 'lookahead': 999999999, 'stochastic': 42, 'sabre': 62}
+PyTket Routing Distance:  63
+Layers in input circuit:  23
+random_8: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 70/70 [05:00<00:00,  4.30s/it, circuit_depth=37, time=39, total_reward=44588]
+Cirq Routing Distance:  70
+Qiskit Routing Distance:  {'basic': 84, 'lookahead': 66, 'stochastic': 52, 'sabre': 63}
+PyTket Routing Distance:  72
+Layers in input circuit:  23
+random_9: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 70/70 [04:15<00:00,  3.65s/it, circuit_depth=40, time=43, total_reward=44550]
+Cirq Routing Distance:  64
+Qiskit Routing Distance:  {'basic': 91, 'lookahead': 999999999, 'stochastic': 49, 'sabre': 73}
+PyTket Routing Distance:  60
+
+Starting Routing on 90
+
+Layers in input circuit:  29
+random_0: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 90/90 [04:41<00:00,  3.13s/it, circuit_depth=53, time=53, total_reward=54456]
+Cirq Routing Distance:  106
+Qiskit Routing Distance:  {'basic': 93, 'lookahead': 999999999, 'stochastic': 64, 'sabre': 80}
+PyTket Routing Distance:  114
+Layers in input circuit:  26
+random_1: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 90/90 [05:30<00:00,  3.67s/it, circuit_depth=64, time=65, total_reward=54276]
+Cirq Routing Distance:  103
+Qiskit Routing Distance:  {'basic': 117, 'lookahead': 80, 'stochastic': 64, 'sabre': 73}
+PyTket Routing Distance:  77
+Layers in input circuit:  28
+random_2: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 90/90 [04:30<00:00,  3.01s/it, circuit_depth=56, time=57, total_reward=54235]
+Cirq Routing Distance:  93
+Qiskit Routing Distance:  {'basic': 111, 'lookahead': 999999999, 'stochastic': 64, 'sabre': 85}
+PyTket Routing Distance:  89
+Layers in input circuit:  22
+random_3: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 90/90 [05:15<00:00,  3.50s/it, circuit_depth=57, time=60, total_reward=54250]
+Cirq Routing Distance:  94
+Qiskit Routing Distance:  {'basic': 114, 'lookahead': 96, 'stochastic': 54, 'sabre': 75}
+PyTket Routing Distance:  87
+Layers in input circuit:  32
+random_4: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 90/90 [05:17<00:00,  3.52s/it, circuit_depth=58, time=59, total_reward=54254]
+Cirq Routing Distance:  99
+Qiskit Routing Distance:  {'basic': 108, 'lookahead': 999999999, 'stochastic': 66, 'sabre': 87}
+PyTket Routing Distance:  84
+Layers in input circuit:  23
+random_5: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 90/90 [04:14<00:00,  2.82s/it, circuit_depth=54, time=56, total_reward=54361]
+Cirq Routing Distance:  104
+Qiskit Routing Distance:  {'basic': 127, 'lookahead': 76, 'stochastic': 60, 'sabre': 97}
+PyTket Routing Distance:  90
+Layers in input circuit:  28
+random_6: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 90/90 [05:56<00:00,  3.96s/it, circuit_depth=52, time=53, total_reward=54372]
+Cirq Routing Distance:  96
+Qiskit Routing Distance:  {'basic': 103, 'lookahead': 999999999, 'stochastic': 60, 'sabre': 80}
+PyTket Routing Distance:  92
+Layers in input circuit:  25
+random_7: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 90/90 [04:51<00:00,  3.24s/it, circuit_depth=50, time=52, total_reward=54402]
+Cirq Routing Distance:  97
+Qiskit Routing Distance:  {'basic': 113, 'lookahead': 999999999, 'stochastic': 60, 'sabre': 76}
+PyTket Routing Distance:  75
+Layers in input circuit:  23
+random_8: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 90/90 [04:37<00:00,  3.08s/it, circuit_depth=51, time=51, total_reward=54458]
+Cirq Routing Distance:  103
+Qiskit Routing Distance:  {'basic': 107, 'lookahead': 999999999, 'stochastic': 54, 'sabre': 74}
+PyTket Routing Distance:  82
+Layers in input circuit:  25
+random_9: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████████| 90/90 [04:28<00:00,  2.99s/it, circuit_depth=56, time=57, total_reward=54367]
+Cirq Routing Distance:  96
+Qiskit Routing Distance:  {'basic': 111, 'lookahead': 999999999, 'stochastic': 61, 'sabre': 79}
+PyTket Routing Distance:  91
+
+Starting Routing on 110
+
+Layers in input circuit:  34
+random_0: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 110/110 [05:09<00:00,  2.82s/it, circuit_depth=63, time=66, total_reward=64145]
+Cirq Routing Distance:  133
+Qiskit Routing Distance:  {'basic': 113, 'lookahead': 999999999, 'stochastic': 72, 'sabre': 97}
+PyTket Routing Distance:  137
+Layers in input circuit:  27
+random_1: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 110/110 [05:59<00:00,  3.27s/it, circuit_depth=65, time=66, total_reward=64238]
+Cirq Routing Distance:  128
+Qiskit Routing Distance:  {'basic': 143, 'lookahead': 999999999, 'stochastic': 70, 'sabre': 95}
+PyTket Routing Distance:  118
+Layers in input circuit:  31
+random_2: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 110/110 [05:47<00:00,  3.16s/it, circuit_depth=64, time=65, total_reward=64298]
+Cirq Routing Distance:  117
+Qiskit Routing Distance:  {'basic': 128, 'lookahead': 999999999, 'stochastic': 69, 'sabre': 95}
+PyTket Routing Distance:  126
+Layers in input circuit:  30
+random_3: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 110/110 [05:30<00:00,  3.00s/it, circuit_depth=73, time=73, total_reward=64087]
+Cirq Routing Distance:  116
+Qiskit Routing Distance:  {'basic': 139, 'lookahead': 999999999, 'stochastic': 66, 'sabre': 104}
+PyTket Routing Distance:  106
+Layers in input circuit:  32
+random_4: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 110/110 [06:07<00:00,  3.34s/it, circuit_depth=62, time=65, total_reward=64200]
+Cirq Routing Distance:  108
+Qiskit Routing Distance:  {'basic': 129, 'lookahead': 999999999, 'stochastic': 75, 'sabre': 100}
+PyTket Routing Distance:  124
+Layers in input circuit:  36
+random_5: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 110/110 [07:21<00:00,  4.01s/it, circuit_depth=68, time=69, total_reward=64139]
+Cirq Routing Distance:  112
+Qiskit Routing Distance:  {'basic': 135, 'lookahead': 999999999, 'stochastic': 78, 'sabre': 93}
+PyTket Routing Distance:  107
+Layers in input circuit:  33
+random_6: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 110/110 [06:21<00:00,  3.47s/it, circuit_depth=94, time=94, total_reward=63835]
+Cirq Routing Distance:  135
+Qiskit Routing Distance:  {'basic': 158, 'lookahead': 999999999, 'stochastic': 74, 'sabre': 99}
+PyTket Routing Distance:  103
+Layers in input circuit:  33
+random_7: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 110/110 [06:05<00:00,  3.32s/it, circuit_depth=67, time=70, total_reward=64149]
+Cirq Routing Distance:  124
+Qiskit Routing Distance:  {'basic': 110, 'lookahead': 999999999, 'stochastic': 75, 'sabre': 96}
+PyTket Routing Distance:  117
+Layers in input circuit:  31
+random_8: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 110/110 [06:22<00:00,  3.48s/it, circuit_depth=64, time=65, total_reward=64279]
+Cirq Routing Distance:  114
+Qiskit Routing Distance:  {'basic': 129, 'lookahead': 999999999, 'stochastic': 71, 'sabre': 101}
+PyTket Routing Distance:  113
+Layers in input circuit:  30
+random_9: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 110/110 [05:31<00:00,  3.01s/it, circuit_depth=65, time=66, total_reward=64252]
+Cirq Routing Distance:  116
+Qiskit Routing Distance:  {'basic': 145, 'lookahead': 999999999, 'stochastic': 69, 'sabre': 97}
+PyTket Routing Distance:  115
+
+Starting Routing on 130
+
+Layers in input circuit:  33
+random_0: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 130/130 [05:36<00:00,  2.59s/it, circuit_depth=74, time=75, total_reward=74186]
+Cirq Routing Distance:  151
+Qiskit Routing Distance:  {'basic': 149, 'lookahead': 999999999, 'stochastic': 74, 'sabre': 113}
+PyTket Routing Distance:  154
+Layers in input circuit:  33
+random_1: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 130/130 [07:47<00:00,  3.60s/it, circuit_depth=91, time=91, total_reward=73843]
+Cirq Routing Distance:  135
+Qiskit Routing Distance:  {'basic': 166, 'lookahead': 999999999, 'stochastic': 79, 'sabre': 122}
+PyTket Routing Distance:  126
+Layers in input circuit:  38
+random_2: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 130/130 [08:04<00:00,  3.73s/it, circuit_depth=77, time=78, total_reward=74184]
+Cirq Routing Distance:  130
+Qiskit Routing Distance:  {'basic': 162, 'lookahead': 999999999, 'stochastic': 91, 'sabre': 123}
+PyTket Routing Distance:  133
+Layers in input circuit:  32
+random_3: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 130/130 [07:11<00:00,  3.32s/it, circuit_depth=77, time=78, total_reward=74168]
+Cirq Routing Distance:  112
+Qiskit Routing Distance:  {'basic': 153, 'lookahead': 999999999, 'stochastic': 75, 'sabre': 116}
+PyTket Routing Distance:  139
+Layers in input circuit:  38
+random_4: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 130/130 [07:26<00:00,  3.43s/it, circuit_depth=71, time=72, total_reward=74076]
+Cirq Routing Distance:  145
+Qiskit Routing Distance:  {'basic': 151, 'lookahead': 999999999, 'stochastic': 94, 'sabre': 113}
+PyTket Routing Distance:  137
+Layers in input circuit:  34
+random_5: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 130/130 [07:22<00:00,  3.40s/it, circuit_depth=66, time=66, total_reward=74210]
+Cirq Routing Distance:  127
+Qiskit Routing Distance:  {'basic': 153, 'lookahead': 999999999, 'stochastic': 79, 'sabre': 98}
+PyTket Routing Distance:  122
+Layers in input circuit:  35
+random_6: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 130/130 [06:30<00:00,  3.00s/it, circuit_depth=75, time=78, total_reward=74148]
+Cirq Routing Distance:  131
+Qiskit Routing Distance:  {'basic': 151, 'lookahead': 999999999, 'stochastic': 89, 'sabre': 101}
+PyTket Routing Distance:  144
+Layers in input circuit:  31
+random_7: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 130/130 [06:24<00:00,  2.96s/it, circuit_depth=70, time=71, total_reward=74191]
+Cirq Routing Distance:  114
+Qiskit Routing Distance:  {'basic': 157, 'lookahead': 999999999, 'stochastic': 74, 'sabre': 107}
+PyTket Routing Distance:  135
+Layers in input circuit:  33
+random_8: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 130/130 [06:05<00:00,  2.81s/it, circuit_depth=76, time=77, total_reward=74074]
+Cirq Routing Distance:  130
+Qiskit Routing Distance:  {'basic': 141, 'lookahead': 999999999, 'stochastic': 79, 'sabre': 102}
+PyTket Routing Distance:  128
+Layers in input circuit:  41
+random_9: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████| 130/130 [07:41<00:00,  3.55s/it, circuit_depth=95, time=101, total_reward=73746]
+Cirq Routing Distance:  148
+Qiskit Routing Distance:  {'basic': 161, 'lookahead': 999999999, 'stochastic': 91, 'sabre': 102}
+PyTket Routing Distance:  114
+
+Starting Routing on 150
+
+Layers in input circuit:  35
+random_0: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 150/150 [07:50<00:00,  3.14s/it, circuit_depth=87, time=89, total_reward=83893]
+Cirq Routing Distance:  175
+Qiskit Routing Distance:  {'basic': 151, 'lookahead': 999999999, 'stochastic': 86, 'sabre': 109}
+PyTket Routing Distance:  142
+Layers in input circuit:  44
+random_1: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 150/150 [08:02<00:00,  3.21s/it, circuit_depth=92, time=95, total_reward=83768]
+Cirq Routing Distance:  194
+Qiskit Routing Distance:  {'basic': 195, 'lookahead': 999999999, 'stochastic': 104, 'sabre': 154}
+PyTket Routing Distance:  158
+Layers in input circuit:  38
+random_2: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 150/150 [11:17<00:00,  4.52s/it, circuit_depth=84, time=88, total_reward=84069]
+Cirq Routing Distance:  162
+Qiskit Routing Distance:  {'basic': 177, 'lookahead': 999999999, 'stochastic': 93, 'sabre': 136}
+PyTket Routing Distance:  149
+Layers in input circuit:  35
+random_3: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 150/150 [08:19<00:00,  3.33s/it, circuit_depth=79, time=81, total_reward=84113]
+Cirq Routing Distance:  128
+Qiskit Routing Distance:  {'basic': 178, 'lookahead': 999999999, 'stochastic': 84, 'sabre': 123}
+PyTket Routing Distance:  149
+Layers in input circuit:  48
+random_4: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 150/150 [06:39<00:00,  2.66s/it, circuit_depth=96, time=98, total_reward=83774]
+Cirq Routing Distance:  177
+Qiskit Routing Distance:  {'basic': 195, 'lookahead': 999999999, 'stochastic': 101, 'sabre': 138}
+PyTket Routing Distance:  158
+Layers in input circuit:  43
+random_5: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 150/150 [08:15<00:00,  3.30s/it, circuit_depth=92, time=92, total_reward=83701]
+Cirq Routing Distance:  179
+Qiskit Routing Distance:  {'basic': 167, 'lookahead': 999999999, 'stochastic': 97, 'sabre': 126}
+PyTket Routing Distance:  142
+Layers in input circuit:  41
+random_6: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 150/150 [08:05<00:00,  3.24s/it, circuit_depth=90, time=91, total_reward=83941]
+Cirq Routing Distance:  171
+Qiskit Routing Distance:  {'basic': 185, 'lookahead': 999999999, 'stochastic': 98, 'sabre': 120}
+PyTket Routing Distance:  165
+Layers in input circuit:  39
+random_7: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 150/150 [08:36<00:00,  3.44s/it, circuit_depth=85, time=85, total_reward=84061]
+Cirq Routing Distance:  155
+Qiskit Routing Distance:  {'basic': 158, 'lookahead': 999999999, 'stochastic': 91, 'sabre': 125}
+PyTket Routing Distance:  158
+Layers in input circuit:  39
+random_8: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 150/150 [09:51<00:00,  3.94s/it, circuit_depth=88, time=89, total_reward=83991]
+Cirq Routing Distance:  148
+Qiskit Routing Distance:  {'basic': 182, 'lookahead': 999999999, 'stochastic': 94, 'sabre': 135}
+PyTket Routing Distance:  158
+Layers in input circuit:  38
+random_9: 100%|███████████████████████████████████████████████████████████████████████████████████████████████████████████| 150/150 [08:23<00:00,  3.36s/it, circuit_depth=89, time=93, total_reward=83858]
+Cirq Routing Distance:  178
+Qiskit Routing Distance:  {'basic': 162, 'lookahead': 999999999, 'stochastic': 96, 'sabre': 123}
+PyTket Routing Distance:  159
