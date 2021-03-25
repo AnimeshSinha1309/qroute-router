@@ -192,11 +192,11 @@ class IBMqx20TokyoDevice(DeviceTopology):
             name="ibmqx20",
         )
 
-    def allocate(self, circuit):
-        if sum([1 if len(targets) > 0 else 0 for targets in circuit.circuit]) < 4:
+    def allocate(self, circuit, small_circuit_optimizations=True):
+        if small_circuit_optimizations and sum([1 if len(targets) > 0 else 0 for targets in circuit.circuit]) < 4:
             return [4, 7, 15, 12] + [i for i in range(self.nodes) if i not in [4, 7, 15, 12]]
-        elif sum([1 if len(targets) > 0 else 0 for targets in circuit.circuit]) < 20:
-            return np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 0])
+        elif small_circuit_optimizations and sum([1 if len(targets) > 0 else 0 for targets in circuit.circuit]) < 8:
+            return np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 0])
         else:
             return super().allocate(circuit)
 
