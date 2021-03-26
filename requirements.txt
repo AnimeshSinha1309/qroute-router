@@ -16,3 +16,7 @@ torch-sparse
 torch-cluster
 torch-spline-conv
 torch-geometric
+
+setuptools
+wheel
+
