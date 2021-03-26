@@ -10,7 +10,7 @@ wandb~=0.10.23
 pygame~=2.0.1
 pytket~=0.8.0
 
-torch==1.8.0
+torch==1.7.0
 torch-scatter
 torch-sparse
 torch-cluster
