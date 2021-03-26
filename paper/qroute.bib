@@ -3,6 +3,19 @@
  # "\providecommand{\singleletter}[1]{#1}%" 
 }
 
+@article{hardware_sycamore, title={Quantum supremacy using a programmable superconducting processor}, volume={574}, DOI={10.1038/s41586-019-1666-5}, number={7779}, journal={Nature}, author={Arute, Frank and Arya, Kunal and Babbush, Ryan and et al.}, year={2019}, pages={505–510}}
+ 
+@misc{IBMQ,
+  title = {{IBM Quantum}},
+  howpublished = {\url{https://quantum-computing.ibm.com/}},
+  year={2021}
+}
+
+@misc{codebase,
+  note={Code  for  the  complete  simulation  and  visualization  is available  on \url{https://github.com/AnimeshSinha1309/quantum-rl}, 2021},
+}
+
+
 @article{zulehner2018mapping,
   title={An Efficient Methodology for Mapping Quantum Circuits to the {IBM}  {QX} Architectures},
   author={Zulehner, Alwin and Paler, Alexandru and Wille, Robert},
@@ -10,22 +23,43 @@
   year={2018}
 }
 
-@misc{qroute_dqn1,
+@article{qroute_dqn1,
       title={Using Reinforcement Learning to find Efficient Qubit Routing Policies for Deployment in Near-term Quantum Computers}, 
       author={Steven Herbert and Akash Sengupta},
       year={2019},
+      journal={arXiv:1812.11619 [quant-ph]},
       eprint={1812.11619},
       archivePrefix={arXiv},
       primaryClass={quant-ph}
 }
 
-@misc{qroute_dqn2,
+@article{qroute_dqn2,
   title={Using Reinforcement Learning to Perform Qubit Routing in Quantum Compilers}, 
   author={Matteo G. Pozzi and Steven J. Herbert and Akash Sengupta and Robert D. Mullins},
   year={2020},
+  journal={arXiv:2007.15957 [quant-ph]},
   eprint={2007.15957},
   archivePrefix={arXiv},
   primaryClass={quant-ph}
+}
+
+
+@article{RigettiAspen,
+Author = {Peter J. Karalekas and Nikolas A. Tezak and Eric C. Peterson and Colm A. Ryan and Marcus P. da Silva and Robert S. Smith},
+Title = {A quantum-classical cloud platform optimized for variational hybrid algorithms},
+Year = {2020},
+Eprint = {arXiv:2001.04449},
+Howpublished = {Quantum Sci. Technol. 5 024003 (2020)},
+Doi = {10.1088/2058-9565/ab7559},
+}
+
+@article{Xanadu,
+Author = {J. Eli Bourassa and Rafael N. Alexander and Michael Vasmer and Ashlesha Patil and Ilan Tzitrin and Takaya Matsuura and Daiqin Su and Ben Q. Baragiola and Saikat Guha and Guillaume Dauphinais and Krishna K. Sabapathy and Nicolas C. Menicucci and Ish Dhand},
+Title = {Blueprint for a Scalable Photonic Fault-Tolerant Quantum Computer},
+Year = {2020},
+Eprint = {arXiv:2010.02905},
+Howpublished = {Quantum 5, 392 (2021)},
+Doi = {10.22331/q-2021-02-04-392},
 }
 
 @inproceedings{qroute_mcts,
@@ -37,13 +71,19 @@
     address = {New York, NY, USA},
     url = {https://doi.org/10.1145/3400302.3415621},
     doi = {10.1145/3400302.3415621},
-    abstract = {In Noisy Intermediate-Scale Quantum (NISQ) era, quantum processing units (QPUs) suffer from, among others, highly limited connectivity between physical qubits. To make a quantum circuit executable, a circuit transformation process is necessary to transform it into a functionally equivalent one so that the connectivity constraints imposed by the QPU are satisfied. Due to the high branching factor and vast search space, almost all existing algorithms search very shallowly and thus, very often, can reach (at most) locally optimal solutions. We propose a Monte Carlo Tree Search framework to tackle this problem, which enables the search process to go deeper. In particular, we design, by taking both short- and long-term rewards into consideration, a scoring mechanism, and propose to use a fast random strategy for simulation. The thus designed search algorithm is polynomial in all relevant parameters and empirical results on extensive realistic circuits show that it can reduce, in average, the size of the output circuits by at least 30% when compared with the state-of-the-art algorithms on IBM Q20.},
     booktitle = {Proceedings of the 39th International Conference on Computer-Aided Design},
     articleno = {138},
     numpages = {7},
     keywords = {monte carlo tree search, QPU, quantum computing, qubit mapping, quantum circuit transformation},
     location = {Virtual Event, USA},
     series = {ICCAD '20}
+}
+
+@misc{1110.2998,
+Author = {Juan Carlos Garcia-Escartin and Pedro Chamorro-Posada},
+Title = {Equivalent Quantum Circuits},
+Year = {2011},
+Eprint = {arXiv:1110.2998},
 }
 
 @inproceedings{qroute_tket,
@@ -56,13 +96,11 @@
   ISSN =	{1868-8969},
   year =	{2019},
   volume =	{135},
-  editor =	{Wim van Dam and Laura Mancinska},
   publisher =	{Schloss Dagstuhl--Leibniz-Zentrum fuer Informatik},
   address =	{Dagstuhl, Germany},
   URL =		{http://drops.dagstuhl.de/opus/volltexte/2019/10397},
   URN =		{urn:nbn:de:0030-drops-103972},
   doi =		{10.4230/LIPIcs.TQC.2019.5},
-  annote =	{Keywords: Quantum Computing, Qubit routing, Compilation}
 }
 
 @article{photo_architecture_graph,
@@ -79,20 +117,7 @@
     and Guez, Arthur
     and Sifre, Laurent
     and van den Driessche, George
-    and Schrittwieser, Julian
-    and Antonoglou, Ioannis
-    and Panneershelvam, Veda
-    and Lanctot, Marc
-    and Dieleman, Sander
-    and Grewe, Dominik
-    and Nham, John
-    and Kalchbrenner, Nal
-    and Sutskever, Ilya
-    and Lillicrap, Timothy
-    and Leach, Madeleine
-    and Kavukcuoglu, Koray
-    and Graepel, Thore
-    and Hassabis, Demis},
+    and et al.},
     title={Mastering the game of Go with deep neural networks and tree search},
     journal={Nature},
     year={2016},
@@ -101,7 +126,6 @@
     volume={529},
     number={7587},
     pages={484-489},
-    abstract={The game of Go has long been viewed as the most challenging of classic games for artificial intelligence owing to its enormous search space and the difficulty of evaluating board positions and moves. Here we introduce a new approach to computer Go that uses `value networks' to evaluate board positions and `policy networks' to select moves. These deep neural networks are trained by a novel combination of supervised learning from human expert games, and reinforcement learning from games of self-play. Without any lookahead search, the neural networks play Go at the level of state-of-the-art Monte Carlo tree search programs that simulate thousands of random games of self-play. We also introduce a new search algorithm that combines Monte Carlo simulation with value and policy networks. Using this search algorithm, our program AlphaGo achieved a 99.8{\%} winning rate against other Go programs, and defeated the human European Go champion by 5 games to 0. This is the first time that a computer program has defeated a human professional player in the full-sized game of Go, a feat previously thought to be at least a decade away.},
     issn={1476-4687},
     doi={10.1038/nature16961},
     url={https://doi.org/10.1038/nature16961}
@@ -116,14 +140,14 @@
       primaryClass={stat.ML}
 }
 
-@inproceedings{mcts_bandits_0,
+@inproceedings{mcts_bandit_1,
   title={Bandit Based Monte-Carlo Planning},
   author={L. Kocsis and Csaba Szepesvari},
   booktitle={ECML},
   year={2006}
 }
 
-@article{mcts_bandits_1,
+@article{mcts_bandit_2,
   title={From Bandits to Monte-Carlo Tree Search: The Optimistic Principle Applied to Optimization and Planning},
   author={R. Munos},
   journal={Found. Trends Mach. Learn.},
@@ -131,6 +155,16 @@
   volume={7},
   pages={1-129}
 }
+
+@ARTICLE{mcts_survey,
+  author={C. B. {Browne} and E. {Powley} and D. {Whitehouse} and S. M. {Lucas} and P. I. {Cowling} and P. {Rohlfshagen} and S. {Tavener} and D. {Perez} and S. {Samothrakis} and S. {Colton}},
+  journal={IEEE Transactions on Computational Intelligence and AI in Games}, 
+  title={A Survey of Monte Carlo Tree Search Methods}, 
+  year={2012},
+  volume={4},
+  number={1},
+  pages={1-43},
+  doi={10.1109/TCIAIG.2012.2186810}}
 
 @inproceedings{mcts_uct,
   title={On the Parallelization of UCT},
@@ -148,13 +182,11 @@
   ISSN =	{1868-8969},
   year =	{2019},
   volume =	{135},
-  editor =	{Wim van Dam and Laura Mancinska},
   publisher =	{Schloss Dagstuhl--Leibniz-Zentrum fuer Informatik},
   address =	{Dagstuhl, Germany},
   URL =		{http://drops.dagstuhl.de/opus/volltexte/2019/10395},
   URN =		{urn:nbn:de:0030-drops-103958},
   doi =		{10.4230/LIPIcs.TQC.2019.3},
-  annote =	{Keywords: quantum circuit, quantum architectures, circuit mapping}
 }
 
 @Inbook{mutex_dijkstra,
@@ -190,6 +222,19 @@
       primaryClass={cs.NE}
 }
 
+@misc{nisq_preskill,
+  title = {Quantum computing in the {NISQ} era and beyond},
+  doi = {10.22331/q-2018-08-06-79},
+  url = {https://doi.org/10.22331/q-2018-08-06-79},
+  author = {Preskill, John},
+  journal = {{Quantum}},
+  issn = {2521-327X},
+  publisher = {{Verein zur F{\"{o}}rderung des Open Access Publizierens in den Quantenwissenschaften}},
+  volume = {2},
+  pages = {79},
+  month = aug,
+  year = {2018}
+}
 
 @article{comp_pytket,
 	doi = {10.1088/2058-9565/ab8e92},
@@ -201,9 +246,8 @@
 	number = {1},
 	pages = {014003},
 	author = {Seyon Sivarajah and Silas Dilkes and Alexander Cowtan and Will Simmons and Alec Edgington and Ross Duncan},
-	title = {t$\vert$ket{\rangle}: a retargetable compiler for {NISQ} devices},
+	title = {t$|\text{ket}\rangle$: a retargetable compiler for {NISQ} devices},
 	journal = {Quantum Science and Technology},
-	abstract = {We present t|ket⟩, a quantum software development platform produced by Cambridge Quantum Computing Ltd. The heart of t|ket⟩ is a language-agnostic optimising compiler designed to generate code for a variety of NISQ devices, which has several features designed to minimise the influence of device error. The compiler has been extensively benchmarked and outperforms most competitors in terms of circuit optimisation and qubit routing.}
 }
 
 @misc{comp_cirq,
@@ -211,17 +255,101 @@
   title        = {Cirq},
   month        = mar,
   year         = 2021,
-  note         = {{See full list of authors on Github: https://github 
-                   .com/quantumlib/Cirq/graphs/contributors}},
   publisher    = {Zenodo},
   version      = {v0.10.0},
   doi          = {10.5281/zenodo.4586899},
   url          = {https://doi.org/10.5281/zenodo.4586899}
 }
 
-@software{comp_qiskit,
-       author = {H{\'e}ctor Abraham and AduOffei and Rochisha Agarwal and Ismail Yunus Akhalwaya and Gadi Aleksandrowicz and Thomas Alexander and Matthew Amy and Eli Arbel and Arijit02 and Abraham Asfaw and Artur Avkhadiev and Carlos Azaustre and AzizNgoueya and Abhik Banerjee and Aman Bansal and Panagiotis Barkoutsos and Ashish Barnawal and George Barron and George S. Barron and Luciano Bello and Yael Ben-Haim and Daniel Bevenius and Arjun Bhobe and Lev S. Bishop and Carsten Blank and Sorin Bolos and Samuel Bosch and Brandon and Sergey Bravyi and Bryce-Fuller and David Bucher and Artemiy Burov and Fran Cabrera and Padraic Calpin and Lauren Capelluto and Jorge Carballo and Gin{\'e}s Carrascal and Adrian Chen and Chun-Fu Chen and Edward Chen and Jielun (Chris) Chen and Richard Chen and Jerry M. Chow and Spencer Churchill and Christian Claus and Christian Clauss and Romilly Cocking and Filipe Correa and Abigail J. Cross and Andrew W. Cross and Simon Cross and Juan Cruz-Benito and Chris Culver and Antonio D. C{\'o}rcoles-Gonzales and Sean Dague and Tareq El Dandachi and Marcus Daniels and Matthieu Dartiailh and DavideFrr and Abd{\'o}n Rodr{\'\i}guez Davila and Anton Dekusar and Delton Ding and Jun Doi and Eric Drechsler and Drew and Eugene Dumitrescu and Karel Dumon and Ivan Duran and Kareem EL-Safty and Eric Eastman and Grant Eberle and Pieter Eendebak and Daniel Egger and Mark Everitt and Paco Mart{\'\i}n Fern{\'a}ndez and Axel Hern{\'a}ndez Ferrera and Romain Fouilland and FranckChevallier and Albert Frisch and Andreas Fuhrer and Bryce Fuller and MELVIN GEORGE and Julien Gacon and Borja Godoy Gago and Claudio Gambella and Jay M. Gambetta and Adhisha Gammanpila and Luis Garcia and Tanya Garg and Shelly Garion and Austin Gilliam and Aditya Giridharan and Juan Gomez-Mosquera and Gonzalo and Salvador de la Puente Gonz{\'a}lez and Jesse Gorzinski and Ian Gould and Donny Greenberg and Dmitry Grinko and Wen Guan and John A. Gunnels and Mikael Haglund and Isabel Haide and Ikko Hamamura and Omar Costa Hamido and Frank Harkins and Vojtech Havlicek and Joe Hellmers and {\L}ukasz Herok and Stefan Hillmich and Hiroshi Horii and Connor Howington and Shaohan Hu and Wei Hu and Junye Huang and Rolf Huisman and Haruki Imai and Takashi Imamichi and Kazuaki Ishizaki and Raban Iten and Toshinari Itoko and JamesSeaward and Ali Javadi and Ali Javadi-Abhari and Wahaj Javed and Jessica and Madhav Jivrajani and Kiran Johns and Scott Johnstun and Jonathan-Shoemaker and Vismai K and Tal Kachmann and Akshay Kale and Naoki Kanazawa and Kang-Bae and Anton Karazeev and Paul Kassebaum and Josh Kelso and Spencer King and Knabberjoe and Yuri Kobayashi and Arseny Kovyrshin and Rajiv Krishnakumar and Vivek Krishnan and Kevin Krsulich and Prasad Kumkar and Gawel Kus and Ryan LaRose and Enrique Lacal and Rapha{\"e}l Lambert and John Lapeyre and Joe Latone and Scott Lawrence and Christina Lee and Gushu Li and Dennis Liu and Peng Liu and Yunho Maeng and Kahan Majmudar and Aleksei Malyshev and Joshua Manela and Jakub Marecek and Manoel Marques and Dmitri Maslov and Dolph Mathews and Atsushi Matsuo and Douglas T. McClure and Cameron McGarry and David McKay and Dan McPherson and Srujan Meesala and Thomas Metcalfe and Martin Mevissen and Andrew Meyer and Antonio Mezzacapo and Rohit Midha and Zlatko Minev and Abby Mitchell and Nikolaj Moll and Jhon Montanez and Gabriel Monteiro and Michael Duane Mooring and Renier Morales and Niall Moran and Mario Motta and MrF and Prakash Murali and Jan M{\"u}ggenburg and David Nadlinger and Ken Nakanishi and Giacomo Nannicini and Paul Nation and Edwin Navarro and Yehuda Naveh and Scott Wyman Neagle and Patrick Neuweiler and Johan Nicander and Pradeep Niroula and Hassi Norlen and NuoWenLei and Lee James O'Riordan and Oluwatobi Ogunbayo and Pauline Ollitrault and Raul Otaolea and Steven Oud and Dan Padilha and Hanhee Paik and Soham Pal and Yuchen Pang and Vincent R. Pascuzzi and Simone Perriello and Anna Phan and Francesco Piro and Marco Pistoia and Christophe Piveteau and Pierre Pocreau and Alejandro Pozas-Kerstjens and Milos Prokop and Viktor Prutyanov and Daniel Puzzuoli and Jes{\'u}s P{\'e}rez and Quintiii and Rafey Iqbal Rahman and Arun Raja and Nipun Ramagiri and Anirudh Rao and Rudy Raymond and Rafael Mart{\'\i}n-Cuevas Redondo and Max Reuter and Julia Rice and Matt Riedemann and Marcello La Rocca and Diego M. Rodr{\'\i}guez and RohithKarur and Max Rossmannek and Mingi Ryu and Tharrmashastha SAPV and SamFerracin and Martin Sandberg and Hirmay Sandesara and Ritvik Sapra and Hayk Sargsyan and Aniruddha Sarkar and Ninad Sathaye and Bruno Schmitt and Chris Schnabel and Zachary Schoenfeld and Travis L. Scholten and Eddie Schoute and Joachim Schwarm and Ismael Faro Sertage and Kanav Setia and Nathan Shammah and Yunong Shi and Adenilton Silva and Andrea Simonetto and Nick Singstock and Yukio Siraichi and Iskandar Sitdikov and Seyon Sivarajah and Magnus Berg Sletfjerding and John A. Smolin and Mathias Soeken and Igor Olegovich Sokolov and Igor Sokolov and SooluThomas and Starfish and Dominik Steenken and Matt Stypulkoski and Shaojun Sun and Kevin J. Sung and Hitomi Takahashi and Tanvesh Takawale and Ivano Tavernelli and Charles Taylor and Pete Taylour and Soolu Thomas and Mathieu Tillet and Maddy Tod and Miroslav Tomasik and Enrique de la Torre and Kenso Trabing and Matthew Treinish and TrishaPe and Davindra Tulsi and Wes Turner and Yotam Vaknin and Carmen Recio Valcarce and Francois Varchon and Almudena Carrera Vazquez and Victor Villar and Desiree Vogt-Lee and Christophe Vuillot and James Weaver and Johannes Weidenfeller and Rafal Wieczorek and Jonathan A. Wildstrom and Erick Winston and Jack J. Woehr and Stefan Woerner and Ryan Woo and Christopher J. Wood and Ryan Wood and Stephen Wood and Steve Wood and James Wootton and Daniyar Yeralin and David Yonge-Mallo and Richard Young and Jessie Yu and Christopher Zachow and Laura Zdanski and Helena Zhang and Christa Zoufal and Zoufalc and a-kapila and a-matsuo and bcamorrison and brandhsn and nick bronn and brosand and chlorophyll-zz and csseifms and dekel.meirom and dekelmeirom and dekool and dime10 and drholmie and dtrenev and ehchen and elfrocampeador and faisaldebouni and fanizzamarco and gabrieleagl and gadial and galeinston and georgios-ts and gruu and hhorii and hykavitha and jagunther and jliu45 and jscott2 and kanejess and klinvill and krutik2966 and kurarrr and lerongil and ma5x and merav-aharoni and michelle4654 and ordmoj and sagar pahwa and rmoyard and saswati-qiskit and scottkelso and sethmerkel and shaashwat and sternparky and strickroman and sumitpuri and tigerjack and toural and tsura-crisaldo and vvilpas and welien and willhbang and yang.luh and yotamvakninibm and Mantas {\v{C}}epulkovskis},
-       title = {Qiskit: An Open-source Framework for Quantum Computing},
-       year = {2019},
-       doi = {10.5281/zenodo.2562110}
+@misc{comp_qiskit,
+  author = {H{\'e}ctor Abraham and et al.},
+  title        = {{Qiskit: An Open-source Framework for Quantum 
+                   Computing}},
+  month        = jan,
+  year         = 2019,
+  publisher    = {Zenodo},
+  version      = {0.7.2},
+  doi          = {10.5281/zenodo.2562111},
+  url          = {https://doi.org/10.5281/zenodo.2562111}
+}
+
+@misc{data_realistic,
+  author = {Zulehner, Alwin and Paler, Alexandru and Wille, Robert},
+  title = {{IBM Qiskit} Developer Challenge},
+  howpublished = {\url{https://www.ibm.com/blogs/research/2018/08/winners-qiskit-developer-challenge/}},
+  note = {Accessed: 2021-03-23}
+}
+
+
+@misc{comb_survey,
+      title={Reinforcement Learning for Combinatorial Optimization: A Survey}, 
+      author={Nina Mazyavkina and Sergey Sviridov and Sergei Ivanov and Evgeny Burnaev},
+      year={2020},
+      eprint={2003.03600},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG}
+}
+
+@article{comb_1,  
+    author={Z. {Xing} and S. {Tu}},  journal={IEEE Access},   title={A Graph Neural Network Assisted Monte Carlo Tree Search Approach to Traveling Salesman Problem},   year={2020},  volume={8},  number={},  pages={108418-108428},  doi={10.1109/ACCESS.2020.3000236}
+}
+
+@article{comb_2,
+  author    = {Ruiyang Xu and
+               Karl J. Lieberherr},
+  title     = {Learning Self-Game-Play Agents for Combinatorial Optimization Problems},
+  journal   = {arXiv:1903.03674 [cs.LG]},
+  year      = {2019},
+  url       = {http://arxiv.org/abs/1903.03674},
+  archivePrefix = {arXiv},
+  eprint    = {1903.03674},
+  timestamp = {Sun, 31 Mar 2019 19:01:24 +0200},
+  biburl    = {https://dblp.org/rec/journals/corr/abs-1903-03674.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{comb_3,
+  author    = {Kenshin Abe and
+               Zijian Xu and
+               Issei Sato and
+               Masashi Sugiyama},
+  title     = {Solving NP-Hard Problems on Graphs by Reinforcement Learning without
+               Domain Knowledge},
+  journal   = {arXiv:1905.11623 [cs.LG]},
+  year      = {2019},
+  url       = {http://arxiv.org/abs/1905.11623},
+  archivePrefix = {arXiv},
+  eprint    = {1905.11623},
+  timestamp = {Wed, 13 Jan 2021 18:13:42 +0100},
+  biburl    = {https://dblp.org/rec/journals/corr/abs-1905-11623.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{comb_4,
+  author    = {Alexandre Laterre and
+               Yunguan Fu and
+               Mohamed Khalil Jabri and
+               Alain{-}Sam Cohen and
+               David Kas and
+               Karl Hajjar and
+               Torbjorn S. Dahl and
+               Amine Kerkeni and
+               Karim Beguir},
+  title     = {Ranked Reward: Enabling Self-Play Reinforcement Learning for Combinatorial
+               Optimization},
+  journal   = {arXiv:1807.01672 [cs.LG]},
+  year      = {2018},
+  url       = {http://arxiv.org/abs/1807.01672},
+  archivePrefix = {arXiv},
+  eprint    = {1807.01672},
+  timestamp = {Mon, 13 Aug 2018 16:46:08 +0200},
+  biburl    = {https://dblp.org/rec/journals/corr/abs-1807-01672.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@misc{bridge_gate,
+Author = {Toshinari Itoko and Rudy Raymond and Takashi Imamichi and Atsushi Matsuo},
+Title = {Optimization of Quantum Circuit Mapping using Gate Transformation and Commutation},
+Year = {2019},
+Eprint = {arXiv:1907.02686},
 }
