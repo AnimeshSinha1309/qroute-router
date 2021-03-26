@@ -1,0 +1,330 @@
+4gt11_83_onlyCX.qasm: 100%|██████████| 14/14 [00:15<00:00,  1.13s/it, circuit_depth=15, time=15, total_reward=16776]
+Layers in input circuit:  14
+Cirq Routing Distance:  25
+Qiskit Routing Distance:  {'basic': 20, 'lookahead': 20, 'stochastic': 21, 'sabre': 21}
+PyTket Routing Distance:  17
+decod24-v0_38_onlyCX.qasm: 100%|██████████| 23/23 [01:02<00:00,  2.71s/it, circuit_depth=31, time=31, total_reward=21020]
+Layers in input circuit:  23
+Cirq Routing Distance:  41
+Qiskit Routing Distance:  {'basic': 35, 'lookahead': 35, 'stochastic': 38, 'sabre': 36}
+PyTket Routing Distance:  32
+alu-v3_34_onlyCX.qasm: 100%|██████████| 24/24 [03:29<00:00,  8.71s/it, circuit_depth=51, time=59, total_reward=20775]
+Layers in input circuit:  23
+Cirq Routing Distance:  37
+Qiskit Routing Distance:  {'basic': 36, 'lookahead': 38, 'stochastic': 38, 'sabre': 41}
+PyTket Routing Distance:  28
+decod24-v3_45_onlyCX.qasm: 100%|██████████| 64/64 [11:47<00:00, 11.05s/it, circuit_depth=157, time=162, total_reward=37906]
+Layers in input circuit:  57
+Cirq Routing Distance:  103
+Qiskit Routing Distance:  {'basic': 112, 'lookahead': 999999999, 'stochastic': 105, 'sabre': 99}
+PyTket Routing Distance:  69
+4gt4-v0_80_onlyCX.qasm: 100%|██████████| 79/79 [16:24<00:00, 12.46s/it, circuit_depth=198, time=206, total_reward=43876]
+Layers in input circuit:  71
+Cirq Routing Distance:  148
+Qiskit Routing Distance:  {'basic': 136, 'lookahead': 999999999, 'stochastic': 121, 'sabre': 125}
+PyTket Routing Distance:  110
+alu-v0_27_onlyCX.qasm: 100%|██████████| 17/17 [00:59<00:00,  3.48s/it, circuit_depth=20, time=20, total_reward=18040]
+Layers in input circuit:  15
+Cirq Routing Distance:  23
+Qiskit Routing Distance:  {'basic': 28, 'lookahead': 24, 'stochastic': 25, 'sabre': 25}
+PyTket Routing Distance:  16
+miller_11_onlyCX.qasm: 100%|██████████| 23/23 [01:20<00:00,  3.48s/it, circuit_depth=35, time=36, total_reward=20900]
+Layers in input circuit:  23
+Cirq Routing Distance:  38
+Qiskit Routing Distance:  {'basic': 36, 'lookahead': 35, 'stochastic': 38, 'sabre': 36}
+PyTket Routing Distance:  35
+4gt11_82_onlyCX.qasm: 100%|██████████| 18/18 [03:00<00:00, 10.01s/it, circuit_depth=47, time=47, total_reward=17859]
+Layers in input circuit:  18
+Cirq Routing Distance:  39
+Qiskit Routing Distance:  {'basic': 28, 'lookahead': 26, 'stochastic': 27, 'sabre': 30}
+PyTket Routing Distance:  24
+mod10_176_onlyCX.qasm: 100%|██████████| 78/78 [07:10<00:00,  5.51s/it, circuit_depth=113, time=114, total_reward=46461]
+Layers in input circuit:  70
+Cirq Routing Distance:  126
+Qiskit Routing Distance:  {'basic': 128, 'lookahead': 999999999, 'stochastic': 132, 'sabre': 129}
+PyTket Routing Distance:  106
+ex1_226_onlyCX.qasm: 100%|██████████| 5/5 [00:23<00:00,  4.72s/it, circuit_depth=7, time=9, total_reward=12363]
+Layers in input circuit:  5
+Cirq Routing Distance:  9
+Qiskit Routing Distance:  {'basic': 11, 'lookahead': 9, 'stochastic': 9, 'sabre': 10}
+PyTket Routing Distance:  6
+4gt5_75_onlyCX.qasm: 100%|██████████| 38/38 [02:34<00:00,  4.06s/it, circuit_depth=47, time=49, total_reward=28046]
+Layers in input circuit:  33
+Cirq Routing Distance:  65
+Qiskit Routing Distance:  {'basic': 55, 'lookahead': 58, 'stochastic': 61, 'sabre': 62}
+PyTket Routing Distance:  38
+ising_model_10_onlyCX.qasm: 100%|██████████| 90/90 [02:49<00:00,  1.89s/it, circuit_depth=45, time=45, total_reward=53988]
+Layers in input circuit:  20
+Cirq Routing Distance:  78
+Qiskit Routing Distance:  {'basic': 30, 'lookahead': 26, 'stochastic': 31, 'sabre': 37}
+PyTket Routing Distance:  3
+4gt11_84_onlyCX.qasm: 100%|██████████| 9/9 [00:28<00:00,  3.20s/it, circuit_depth=13, time=13, total_reward=14261]
+Layers in input circuit:  8
+Cirq Routing Distance:  14
+Qiskit Routing Distance:  {'basic': 11, 'lookahead': 12, 'stochastic': 11, 'sabre': 13}
+PyTket Routing Distance:  12
+4mod5-v0_18_onlyCX.qasm: 100%|██████████| 31/31 [01:47<00:00,  3.46s/it, circuit_depth=37, time=39, total_reward=24744]
+Layers in input circuit:  31
+Cirq Routing Distance:  55
+Qiskit Routing Distance:  {'basic': 49, 'lookahead': 999999999, 'stochastic': 51, 'sabre': 55}
+PyTket Routing Distance:  53
+alu-v4_37_onlyCX.qasm: 100%|██████████| 18/18 [00:39<00:00,  2.17s/it, circuit_depth=20, time=20, total_reward=18701]
+Layers in input circuit:  16
+Cirq Routing Distance:  24
+Qiskit Routing Distance:  {'basic': 30, 'lookahead': 24, 'stochastic': 27, 'sabre': 32}
+PyTket Routing Distance:  17
+qft_10_onlyCX.qasm: 100%|██████████| 90/90 [12:57<00:00,  8.64s/it, circuit_depth=148, time=151, total_reward=50142]
+Layers in input circuit:  34
+Cirq Routing Distance:  101
+Qiskit Routing Distance:  {'basic': 100, 'lookahead': 110, 'stochastic': 52, 'sabre': 75}
+PyTket Routing Distance:  20
+4mod5-v1_24_onlyCX.qasm: 100%|██████████| 16/16 [00:40<00:00,  2.55s/it, circuit_depth=19, time=21, total_reward=17648]
+Layers in input circuit:  15
+Cirq Routing Distance:  26
+Qiskit Routing Distance:  {'basic': 25, 'lookahead': 25, 'stochastic': 28, 'sabre': 26}
+PyTket Routing Distance:  19
+alu-v0_27_example_onlyCX.qasm: 100%|██████████| 17/17 [01:57<00:00,  6.93s/it, circuit_depth=35, time=37, total_reward=17722]
+Layers in input circuit:  15
+Cirq Routing Distance:  24
+Qiskit Routing Distance:  {'basic': 28, 'lookahead': 24, 'stochastic': 27, 'sabre': 26}
+PyTket Routing Distance:  16
+ex-1_166_onlyCX.qasm: 100%|██████████| 9/9 [01:00<00:00,  6.74s/it, circuit_depth=21, time=23, total_reward=14078]
+Layers in input circuit:  9
+Cirq Routing Distance:  13
+Qiskit Routing Distance:  {'basic': 14, 'lookahead': 13, 'stochastic': 14, 'sabre': 14}
+PyTket Routing Distance:  13
+4mod7-v1_96_onlyCX.qasm: 100%|██████████| 72/72 [16:50<00:00, 14.04s/it, circuit_depth=243, time=255, total_reward=37266]
+Layers in input circuit:  65
+Cirq Routing Distance:  123
+Qiskit Routing Distance:  {'basic': 111, 'lookahead': 999999999, 'stochastic': 117, 'sabre': 116}
+PyTket Routing Distance:  70
+4mod5-v1_22_onlyCX.qasm: 100%|██████████| 11/11 [01:57<00:00, 10.65s/it, circuit_depth=28, time=40, total_reward=14704]
+Layers in input circuit:  10
+Cirq Routing Distance:  18
+Qiskit Routing Distance:  {'basic': 18, 'lookahead': 18, 'stochastic': 16, 'sabre': 17}
+PyTket Routing Distance:  13
+4gt12-v1_89_onlyCX.qasm: 100%|██████████| 100/100 [14:38<00:00,  8.78s/it, circuit_depth=189, time=202, total_reward=53641]
+Layers in input circuit:  88
+Cirq Routing Distance:  173
+Qiskit Routing Distance:  {'basic': 181, 'lookahead': 999999999, 'stochastic': 161, 'sabre': 172}
+PyTket Routing Distance:  105
+alu-v1_29_onlyCX.qasm: 100%|██████████| 17/17 [03:16<00:00, 11.58s/it, circuit_depth=53, time=61, total_reward=17288]
+Layers in input circuit:  15
+Cirq Routing Distance:  23
+Qiskit Routing Distance:  {'basic': 24, 'lookahead': 23, 'stochastic': 25, 'sabre': 27}
+PyTket Routing Distance:  19
+mod5d2_64_onlyCX.qasm: 100%|██████████| 25/25 [07:57<00:00, 19.08s/it, circuit_depth=94, time=110, total_reward=19743]
+Layers in input circuit:  25
+Cirq Routing Distance:  46
+Qiskit Routing Distance:  {'basic': 41, 'lookahead': 999999999, 'stochastic': 41, 'sabre': 44}
+PyTket Routing Distance:  36
+4mod7-v0_94_onlyCX.qasm: 100%|██████████| 72/72 [20:35<00:00, 17.16s/it, circuit_depth=276, time=302, total_reward=38488]
+Layers in input circuit:  66
+Cirq Routing Distance:  110
+Qiskit Routing Distance:  {'basic': 114, 'lookahead': 999999999, 'stochastic': 120, 'sabre': 114}
+PyTket Routing Distance:  109
+4gt13_91_onlyCX.qasm: 100%|██████████| 49/49 [06:38<00:00,  8.14s/it, circuit_depth=83, time=87, total_reward=32469]
+Layers in input circuit:  46
+Cirq Routing Distance:  81
+Qiskit Routing Distance:  {'basic': 74, 'lookahead': 999999999, 'stochastic': 75, 'sabre': 74}
+PyTket Routing Distance:  66
+4mod5-v0_20_onlyCX.qasm: 100%|██████████| 10/10 [02:33<00:00, 15.38s/it, circuit_depth=22, time=39, total_reward=14176]
+Layers in input circuit:  9
+Cirq Routing Distance:  16
+Qiskit Routing Distance:  {'basic': 18, 'lookahead': 13, 'stochastic': 13, 'sabre': 13}
+PyTket Routing Distance:  11
+alu-v2_33_onlyCX.qasm: 100%|██████████| 17/17 [05:41<00:00, 20.10s/it, circuit_depth=68, time=77, total_reward=16756]
+Layers in input circuit:  15
+Cirq Routing Distance:  28
+Qiskit Routing Distance:  {'basic': 23, 'lookahead': 25, 'stochastic': 23, 'sabre': 27}
+PyTket Routing Distance:  19
+4_49_16_onlyCX.qasm: 100%|██████████| 99/99 [20:55<00:00, 12.68s/it, circuit_depth=276, time=295, total_reward=52229]
+Layers in input circuit:  91
+Cirq Routing Distance:  163
+Qiskit Routing Distance:  {'basic': 162, 'lookahead': 999999999, 'stochastic': 153, 'sabre': 152}
+PyTket Routing Distance:  115
+decod24-v2_43_onlyCX.qasm: 100%|██████████| 22/22 [07:33<00:00, 20.64s/it, circuit_depth=94, time=109, total_reward=18441]
+Layers in input circuit:  22
+Cirq Routing Distance:  35
+Qiskit Routing Distance:  {'basic': 32, 'lookahead': 34, 'stochastic': 34, 'sabre': 37}
+PyTket Routing Distance:  36
+4gt10-v1_81_onlyCX.qasm: 100%|██████████| 66/66 [17:51<00:00, 16.23s/it, circuit_depth=236, time=258, total_reward=34654]
+Layers in input circuit:  60
+Cirq Routing Distance:  107
+Qiskit Routing Distance:  {'basic': 101, 'lookahead': 999999999, 'stochastic': 109, 'sabre': 107}
+PyTket Routing Distance:  97
+alu-bdd_288_onlyCX.qasm: 100%|██████████| 38/38 [18:38<00:00, 29.43s/it, circuit_depth=219, time=250, total_reward=20923]
+Layers in input circuit:  35
+Cirq Routing Distance:  69
+Qiskit Routing Distance:  {'basic': 74, 'lookahead': 62, 'stochastic': 64, 'sabre': 61}
+PyTket Routing Distance:  54
+4mod5-v1_23_onlyCX.qasm: 100%|██████████| 32/32 [27:41<00:00, 51.93s/it, circuit_depth=337, time=404, total_reward=13741]
+Layers in input circuit:  30
+Cirq Routing Distance:  50
+Qiskit Routing Distance:  {'basic': 50, 'lookahead': 999999999, 'stochastic': 52, 'sabre': 51}
+PyTket Routing Distance:  48
+one-two-three-v2_100_onlyCX.qasm: 100%|██████████| 32/32 [14:38<00:00, 27.45s/it, circuit_depth=165, time=203, total_reward=19936]
+Layers in input circuit:  29
+Cirq Routing Distance:  52
+Qiskit Routing Distance:  {'basic': 55, 'lookahead': 45, 'stochastic': 47, 'sabre': 51}
+PyTket Routing Distance:  38
+rd53_138_onlyCX.qasm: 100%|██████████| 60/60 [30:49<00:00, 30.83s/it, circuit_depth=345, time=414, total_reward=27296]
+Layers in input circuit:  42
+Cirq Routing Distance:  84
+Qiskit Routing Distance:  {'basic': 87, 'lookahead': 999999999, 'stochastic': 72, 'sabre': 82}
+PyTket Routing Distance:  61
+alu-v2_32_onlyCX.qasm: 100%|██████████| 72/72 [22:29<00:00, 18.74s/it, circuit_depth=279, time=321, total_reward=35717]
+Layers in input circuit:  64
+Cirq Routing Distance:  117
+Qiskit Routing Distance:  {'basic': 116, 'lookahead': 999999999, 'stochastic': 118, 'sabre': 114}
+PyTket Routing Distance:  94
+rd32_270_onlyCX.qasm: 100%|██████████| 36/36 [12:56<00:00, 21.57s/it, circuit_depth=149, time=177, total_reward=22299]
+Layers in input circuit:  35
+Cirq Routing Distance:  67
+Qiskit Routing Distance:  {'basic': 58, 'lookahead': 999999999, 'stochastic': 60, 'sabre': 62}
+PyTket Routing Distance:  51
+aj-e11_165_onlyCX.qasm: 100%|██████████| 69/69 [33:24<00:00, 29.05s/it, circuit_depth=438, time=477, total_reward=30550]
+Layers in input circuit:  63
+Cirq Routing Distance:  113
+Qiskit Routing Distance:  {'basic': 117, 'lookahead': 999999999, 'stochastic': 99, 'sabre': 106}
+PyTket Routing Distance:  93
+4gt12-v0_88_onlyCX.qasm: 100%|██████████| 86/86 [16:16<00:00, 11.35s/it, circuit_depth=224, time=258, total_reward=45570]
+Layers in input circuit:  77
+Cirq Routing Distance:  150
+Qiskit Routing Distance:  {'basic': 146, 'lookahead': 999999999, 'stochastic': 143, 'sabre': 144}
+PyTket Routing Distance:  115
+sys6-v0_111_onlyCX.qasm: 100%|██████████| 98/98 [29:30<00:00, 18.07s/it, circuit_depth=294, time=335, total_reward=45052]
+Layers in input circuit:  55
+Cirq Routing Distance:  124
+Qiskit Routing Distance:  {'basic': 108, 'lookahead': 999999999, 'stochastic': 92, 'sabre': 101}
+PyTket Routing Distance:  91
+decod24-v1_41_onlyCX.qasm: 100%|██████████| 38/38 [08:15<00:00, 13.04s/it, circuit_depth=123, time=153, total_reward=25077]
+Layers in input circuit:  35
+Cirq Routing Distance:  69
+Qiskit Routing Distance:  {'basic': 64, 'lookahead': 58, 'stochastic': 66, 'sabre': 64}
+PyTket Routing Distance:  51
+3_17_13_onlyCX.qasm: 100%|██████████| 17/17 [21:49<00:00, 77.02s/it, circuit_depth=212, time=430, total_reward=6214]
+Layers in input circuit:  17
+Cirq Routing Distance:  26
+Qiskit Routing Distance:  {'basic': 26, 'lookahead': 25, 'stochastic': 27, 'sabre': 28}
+PyTket Routing Distance:  22
+4mod5-v0_19_onlyCX.qasm: 100%|██████████| 16/16 [08:24<00:00, 31.50s/it, circuit_depth=103, time=157, total_reward=13590]
+Layers in input circuit:  16
+Cirq Routing Distance:  29
+Qiskit Routing Distance:  {'basic': 25, 'lookahead': 25, 'stochastic': 27, 'sabre': 27}
+PyTket Routing Distance:  25
+mini_alu_305_onlyCX.qasm: 100%|██████████| 77/77 [39:52<00:00, 31.08s/it, circuit_depth=470, time=556, total_reward=29020]
+Layers in input circuit:  53
+Cirq Routing Distance:  128
+Qiskit Routing Distance:  {'basic': 109, 'lookahead': 999999999, 'stochastic': 98, 'sabre': 99}
+PyTket Routing Distance:  98
+one-two-three-v0_98_onlyCX.qasm: 100%|██████████| 65/65 [26:34<00:00, 24.53s/it, circuit_depth=344, time=415, total_reward=29812]
+Layers in input circuit:  59
+Cirq Routing Distance:  100
+Qiskit Routing Distance:  {'basic': 109, 'lookahead': 999999999, 'stochastic': 103, 'sabre': 110}
+PyTket Routing Distance:  88
+4gt13_90_onlyCX.qasm: 100%|██████████| 53/53 [13:42<00:00, 15.52s/it, circuit_depth=185, time=226, total_reward=29039]
+Layers in input circuit:  50
+Cirq Routing Distance:  95
+Qiskit Routing Distance:  {'basic': 82, 'lookahead': 86, 'stochastic': 78, 'sabre': 86}
+PyTket Routing Distance:  78
+4mod5-bdd_287_onlyCX.qasm: 100%|██████████| 31/31 [16:37<00:00, 32.19s/it, circuit_depth=232, time=300, total_reward=16296]
+Layers in input circuit:  31
+Cirq Routing Distance:  58
+Qiskit Routing Distance:  {'basic': 48, 'lookahead': 50, 'stochastic': 56, 'sabre': 61}
+PyTket Routing Distance:  42
+ham3_102_onlyCX.qasm: 100%|██████████| 11/11 [02:31<00:00, 13.74s/it, circuit_depth=36, time=57, total_reward=13985]
+Layers in input circuit:  11
+Cirq Routing Distance:  14
+Qiskit Routing Distance:  {'basic': 15, 'lookahead': 16, 'stochastic': 16, 'sabre': 15}
+PyTket Routing Distance:  11
+alu-v1_28_onlyCX.qasm: 100%|██████████| 18/18 [05:44<00:00, 19.15s/it, circuit_depth=89, time=111, total_reward=16166]
+Layers in input circuit:  16
+Cirq Routing Distance:  25
+Qiskit Routing Distance:  {'basic': 25, 'lookahead': 26, 'stochastic': 24, 'sabre': 26}
+PyTket Routing Distance:  20
+rd32-v0_66_onlyCX.qasm: 100%|██████████| 16/16 [05:46<00:00, 21.68s/it, circuit_depth=67, time=88, total_reward=16144]
+Layers in input circuit:  16
+Cirq Routing Distance:  27
+Qiskit Routing Distance:  {'basic': 23, 'lookahead': 24, 'stochastic': 24, 'sabre': 26}
+PyTket Routing Distance:  18
+cnt3-5_179_onlyCX.qasm: 100%|██████████| 85/85 [58:51<00:00, 41.54s/it, circuit_depth=377, time=391, total_reward=30979]
+Layers in input circuit:  43
+Cirq Routing Distance:  115
+Qiskit Routing Distance:  {'basic': 85, 'lookahead': 999999999, 'stochastic': 82, 'sabre': 80}
+PyTket Routing Distance:  86
+4gt13_92_onlyCX.qasm: 100%|██████████| 30/30 [05:00<00:00, 10.03s/it, circuit_depth=41, time=61, total_reward=23408]
+Layers in input circuit:  26
+Cirq Routing Distance:  43
+Qiskit Routing Distance:  {'basic': 53, 'lookahead': 44, 'stochastic': 51, 'sabre': 48}
+PyTket Routing Distance:  37
+alu-v4_36_onlyCX.qasm: 100%|██████████| 51/51 [12:33<00:00, 14.77s/it, circuit_depth=149, time=163, total_reward=30985]
+Layers in input circuit:  47
+Cirq Routing Distance:  87
+Qiskit Routing Distance:  {'basic': 77, 'lookahead': 999999999, 'stochastic': 75, 'sabre': 84}
+PyTket Routing Distance:  72
+rd32-v1_68_onlyCX.qasm: 100%|██████████| 16/16 [04:40<00:00, 17.51s/it, circuit_depth=60, time=75, total_reward=16364]
+Layers in input circuit:  16
+Cirq Routing Distance:  23
+Qiskit Routing Distance:  {'basic': 23, 'lookahead': 24, 'stochastic': 27, 'sabre': 25}
+PyTket Routing Distance:  18
+4gt13-v1_93_onlyCX.qasm: 100%|██████████| 30/30 [06:17<00:00, 12.58s/it, circuit_depth=53, time=79, total_reward=22734]
+Layers in input circuit:  27
+Cirq Routing Distance:  54
+Qiskit Routing Distance:  {'basic': 48, 'lookahead': 44, 'stochastic': 51, 'sabre': 46}
+PyTket Routing Distance:  42
+4gt5_76_onlyCX.qasm: 100%|██████████| 46/46 [10:42<00:00, 13.97s/it, circuit_depth=129, time=145, total_reward=28659]
+Layers in input circuit:  42
+Cirq Routing Distance:  74
+Qiskit Routing Distance:  {'basic': 74, 'lookahead': 999999999, 'stochastic': 68, 'sabre': 70}
+PyTket Routing Distance:  60
+mod5d1_63_onlyCX.qasm: 100%|██████████| 13/13 [02:04<00:00,  9.56s/it, circuit_depth=27, time=36, total_reward=15630]
+Layers in input circuit:  11
+Cirq Routing Distance:  21
+Qiskit Routing Distance:  {'basic': 20, 'lookahead': 20, 'stochastic': 21, 'sabre': 22}
+PyTket Routing Distance:  15
+graycode6_47_onlyCX.qasm: 100%|██████████| 5/5 [00:00<00:00,  6.54it/s, circuit_depth=5, time=5, total_reward=12450]
+Layers in input circuit:  5
+Cirq Routing Distance:  10
+Qiskit Routing Distance:  {'basic': 5, 'lookahead': 5, 'stochastic': 5, 'sabre': 5}
+PyTket Routing Distance:  6
+xor5_254_onlyCX.qasm: 100%|██████████| 5/5 [07:34<00:00, 90.92s/it, circuit_depth=41, time=82, total_reward=10220]
+Layers in input circuit:  5
+Cirq Routing Distance:  7
+Qiskit Routing Distance:  {'basic': 11, 'lookahead': 9, 'stochastic': 9, 'sabre': 12}
+PyTket Routing Distance:  6
+decod24-bdd_294_onlyCX.qasm: 100%|██████████| 32/32 [06:43<00:00, 12.61s/it, circuit_depth=70, time=98, total_reward=23537]
+Layers in input circuit:  31
+Cirq Routing Distance:  49
+Qiskit Routing Distance:  {'basic': 46, 'lookahead': 999999999, 'stochastic': 49, 'sabre': 53}
+PyTket Routing Distance:  46
+alu-v0_26_onlyCX.qasm: 100%|██████████| 38/38 [12:26<00:00, 19.64s/it, circuit_depth=125, time=142, total_reward=25311]
+Layers in input circuit:  35
+Cirq Routing Distance:  69
+Qiskit Routing Distance:  {'basic': 64, 'lookahead': 59, 'stochastic': 59, 'sabre': 60}
+PyTket Routing Distance:  57
+mod5mils_65_onlyCX.qasm: 100%|██████████| 16/16 [09:56<00:00, 37.30s/it, circuit_depth=97, time=133, total_reward=14507]
+Layers in input circuit:  16
+Cirq Routing Distance:  34
+Qiskit Routing Distance:  {'basic': 27, 'lookahead': 27, 'stochastic': 30, 'sabre': 31}
+PyTket Routing Distance:  22
+alu-v3_35_onlyCX.qasm: 100%|██████████| 18/18 [05:31<00:00, 18.40s/it, circuit_depth=44, time=63, total_reward=17529]
+Layers in input circuit:  16
+Cirq Routing Distance:  27
+Qiskit Routing Distance:  {'basic': 30, 'lookahead': 24, 'stochastic': 27, 'sabre': 27}
+PyTket Routing Distance:  17
+one-two-three-v1_99_onlyCX.qasm: 100%|██████████| 59/59 [09:35<00:00,  9.75s/it, circuit_depth=107, time=122, total_reward=37088]
+Layers in input circuit:  56
+Cirq Routing Distance:  101
+Qiskit Routing Distance:  {'basic': 90, 'lookahead': 999999999, 'stochastic': 96, 'sabre': 98}
+PyTket Routing Distance:  88
+one-two-three-v3_101_onlyCX.qasm: 100%|██████████| 32/32 [09:51<00:00, 18.49s/it, circuit_depth=76, time=115, total_reward=22778]
+Layers in input circuit:  29
+Cirq Routing Distance:  51
+Qiskit Routing Distance:  {'basic': 51, 'lookahead': 999999999, 'stochastic': 50, 'sabre': 54}
+PyTket Routing Distance:  49
+4gt5_77_onlyCX.qasm: 100%|██████████| 58/58 [21:10<00:00, 21.90s/it, circuit_depth=153, time=213, total_reward=33559]
+Layers in input circuit:  51
+Cirq Routing Distance:  99
+Qiskit Routing Distance:  {'basic': 91, 'lookahead': 81, 'stochastic': 92, 'sabre': 97}
+PyTket Routing Distance:  81

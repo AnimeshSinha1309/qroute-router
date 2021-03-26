@@ -20,6 +20,7 @@
 %
 \documentclass[%
  reprint,
+ longbibliography,
 %superscriptaddress,
 %groupedaddress,
 %unsortedaddress,
@@ -43,7 +44,7 @@
 \usepackage[linesnumbered,ruled,vlined]{algorithm2e}
 \let\oldnl\nl% Store \nl in \oldnl
 \newcommand{\nonl}{\renewcommand{\nl}{\let\nl\oldnl}}% Remove line number for one line
-
+\usepackage{braket}
 %\usepackage{algorithm}
 %\usepackage{algorithmic}
 \usepackage{float}
@@ -59,6 +60,7 @@
 }
 \captionsetup{justification   = raggedright,
               singlelinecheck = true}
+              
 %\usepackage{hyperref}% add hypertext capabilities
 %\usepackage[mathlines]{lineno}% Enable numbering of text and display math
 %\linenumbers\relax % Commence numbering lines
@@ -85,9 +87,9 @@
 \author{Harjinder Singh}
 \email{laltu@iiit.ac.in}
 
-\author{Jai Bardhan}
-\author{Kalp Shah}
-\author{Bhuvanesh Sridharan}
+%\author{Jai Bardhan}
+%\author{Kalp Shah}
+%\author{Bhuvanesh Sridharan}
 \affiliation{%
     Center for Computational Natural Science, International Institute of Information Technology, Hyderabad.
 }%
@@ -96,7 +98,7 @@
 %  but any date may be explicitly specified
 
 \begin{abstract}
-In near-term quantum hardware, the connectivity is limited to nearest neighboring qubits. This means that they support two-qubit operations only on the qubits that can interact with each other. To respect this constraint, compilers perform the task of qubit routing, i.e., to transforms quantum circuits either by including additional SWAP gates or by reversing existing CNOT gates to satisfy the connectivity constraints of the target topology. This article aims to provide an efficient solution for the qubit routing problem called QRoute, which minimizes the depth of these transformed circuits. We use the Monte Carlo tree search to perform qubit routing, which is aided by a Graph neural network that is used to evaluate the value function and action probabilities throughout the qubit routing procedure. Our procedure outperforms currently available qubit routing implementations on realistic circuit benchmarks while competing decently on random circuit benchmarks and is architecture agnostic.
+In the near-term quantum hardware, qubit connectivity is limited to the nearest neighboring qubits. This means that they can support two-qubit operations only on the qubits that can interact with each other. Therefore, to execute an arbitrary quantum circuit on the hardware, compilers have to first perform the task of qubit routing, i.e., to transform the quantum circuit either by inserting additional SWAP gates or by reversing existing CNOT gates to satisfy the connectivity constraints of the target topology. This article aims to provide an efficient solution called QRoute for the aforementioned qubit routing problem. Our procedure aims to minimize the depth of the transformed quantum circuits by utilizing the Monte Carlo tree search to perform qubit routing, which is aided by a Graph neural network that evaluates the value function and action probabilities for each state. We show that our procedure is architecture agnostic and outperforms other available qubit routing implementations on various circuit benchmarks.
 \end{abstract}
 
 \keywords{Qubit Routing, Quantum Compilation, Quantum Circuit Transformation, Reinforcement Learning, Monte Carlo Tree Search, Graph Neural Network}
@@ -106,13 +108,13 @@ In near-term quantum hardware, the connectivity is limited to nearest neighborin
 
 \section{\label{sec:intro}Introduction}
 
-The present-day quantum computers, more generally known as Noisy Intermediate-Scale quantum (NISQ) devices \cite{preskill} come in a variety of hardware architectures \cite{IBMQ, GoogleSyncamore, RigettiAspen}, but there exists a few pervading problems across them. These problems constitute the poor quality of qubits, limited connectivity between qubits, and the absence of error-correction for noise-induced errors in the execution of gate operations. Hence, this places a considerable limitation on the number of quantum instructions that can be executed on them to perform some useful quantum computation. These instructions together can be realized as a sequential series of one or two-qubit gates acting on the qubits which can be visualized more easily as a quantum circuit as shown in Fig. \ref{fig:orig_circ}. 
+The present-day quantum computers, more generally known as Noisy Intermediate-Scale quantum (NISQ) devices \citep{nisq_preskill} come in a variety of hardware architectures \cite{IBMQ, hardware_sycamore, RigettiAspen, Xanadu}, but there exists a few pervading problems across all of them. These problems constitute the poor quality of qubits, limited connectivity between qubits, and the absence of error-correction for noise-induced errors encountered during the execution of gate operations. These place a considerable restriction on the number of quantum instructions that can be executed on them to perform some useful quantum computation \cite{nisq_preskill}. These instructions together can be realized as a sequential series of one or two-qubit gates acting on the qubits which can be visualized more easily as a quantum circuit as shown in Fig. \ref{fig:orig_circ} \citep{others_childs}.
 
-To execute an arbitrarily given quantum circuit on the target quantum hardware, a compiler routine must transform it to satisfy the connectivity constraints of the topology of the hardware. These transformations usually include the addition of SWAP gates and the reversal of existing CNOT gates. Such transformation ensures that any non-local quantum operations are performed only between the qubits that nearest-neighbors and can interact with each other. This process of circuit transformation by a compiler routine for the target hardware is known as \textit{qubit routing}. The output instructions in the transformed quantum circuit would be following the connectivity constraints and would essentially result in the same overall unitary evolution as the original circuit \citep{qroute_dqn2}. 
+To execute an arbitrarily given quantum circuit on the target quantum hardware, a compiler routine must transform it to satisfy the connectivity constraints of the topology of the hardware \citep{qroute_tket}. These transformations usually include the addition of SWAP gates and the reversal of existing CNOT gates. Such transformation ensures that any non-local quantum operations are performed only between the qubits that nearest-neighbors and can interact with each other. This process of circuit transformation by a compiler routine for the target hardware is known as qubit routing \citep{qroute_tket}. The output instructions in the transformed quantum circuit should follow the connectivity constraints and essentially result in the same overall unitary evolution as the original circuit \citep{qroute_dqn2}.
 
-In the context of NISQ hardware, this procedure is of extreme importance as the transformed circuit will, in general, have higher depth due to the addition of extra SWAP gates. This overhead in the circuit depth becomes prominent due to the high decoherence rates of the qubits and it becomes essential to find the most optimal and efficient strategy to minimize it. In this article, we present a procedure that we refer to as \textit{QRoute}. In this procedure, we propose to use the Monte Carlo tree search (MCTS) for the task of depth minimization, as an easier to train and better performing machine learning setting, which is aided by a Graph neural network (GNN) that is used to evaluate the value function and action probabilities throughout the compilation.
+In the context of NISQ hardware, this procedure is of extreme importance as the transformed circuit will, in general, have higher depth due to the insertion of extra SWAP gates. This overhead in the circuit depth becomes more prominent due to the high decoherence rates of the qubits and it becomes essential to find the most optimal and efficient strategy to minimize it \citep{qroute_tket, qroute_dqn1, qroute_dqn2}. In this article, we present a procedure that we refer to as \textit{QRoute}. In this procedure, we propose to use the Monte Carlo tree search (MCTS), which is a look-ahead search algorithm for finding optimal decisions in the decision space guided by some heuristic evaluation function \citep{mcts_bandit_1, mcts_bandit_2, mcts_uct}. We use it for explicitly searching the decision space for depth minimization and as a stable and performant machine learning setting. It is aided by a Graph neural network (GNN) \citep{nn_edge_conv}, which is a neural network architecture that is being used to learn and evaluate the heuristic function that will help guide the MCTS.
 
-\textit{Structure}: In Section \ref{sec:qubit-routing}, we introduce the problem of qubit routing, the previous works that are done in the field, and show our work differs from them. Next, we represent the methodology of the QRoute algorithm in Section \ref{sec:method}. Then, in Section \ref{sec:results}, we benchmark the performance of our algorithm against other state-of-the-art quantum compilers. Finally, we discuss our results and  possible improvements in Section \ref{sec:discussion-conclusion}.
+\textit{Structure}: In Section \ref{sec:qubit-routing}, we introduce the problem of qubit routing, the previous works that are done in the field, and show how our work differs from them. Next, we represent the methodology of the QRoute algorithm in Section \ref{sec:method}. Then, in Section \ref{sec:results}, we benchmark the performance of our algorithm against other state-of-the-art quantum compilers. Finally, we discuss our results and  possible improvements in Section \ref{sec:discussion-conclusion}.
 
 \begin{figure*}[t]
     \centering
@@ -135,11 +137,11 @@ In the context of NISQ hardware, this procedure is of extreme importance as the 
 \begin{figure}[tp]
     \centering
     \begin{subfigure}[b]{0.42\linewidth}
-        \includegraphics[width=\linewidth]{images/device-grid.jpg}
+        \includegraphics[width=\linewidth]{images/Grid-device.pdf}
         \caption{3$\times$3 grid architecture\label{fig:3-3-arch}}
     \end{subfigure}
-    \begin{subfigure}[b]{0.56\linewidth}
-        \includegraphics[width=\linewidth]{images/device-ibmqx.jpg}
+    \begin{subfigure}[b]{0.535\linewidth}
+        \includegraphics[width=\linewidth]{images/QX20-device.pdf}
         \caption{IBMQX-20 architecture}
     \end{subfigure}
     \caption{Examples of qubit connectivity graphs for some common quantum architectures}
@@ -150,25 +152,25 @@ In the context of NISQ hardware, this procedure is of extreme importance as the 
 In this section, we begin by defining the problem of qubit routing formally and discussing the work done previously in the field.
 
 \subsection{\label{sec:intro-defn}Describing the Problem}
-The topology of quantum hardware can be visualized as a qubit connectivity graph (Fig. \ref{fig:topology-example}). Each node in this graph would correspond to a physical qubit which in turn might correspond to a logical qubit depending on whether they are being used in the execution of quantum instruction set or not. The quantum instruction set is also referred to as quantum circuit (Fig. \ref{fig:orig_circ}) is a sequential series of single-qubit and two-qubit gate operations that act on the logical qubits. Amongst these two type of gate operations, two-qubit qubit gates such as CNOT can only be performed between two logical qubits iff the there exist an edge between the nodes, i.e., the physical qubits, that corresponds to them respectively. This edge could be either be unidirectional or bidirectional, i.e., CNOT can be performed either in one direction or both directions. In this work, we consider only the bidirectional case, while noting that the direction of a CNOT gate can be reversed by sandwiching it between pair Hadamard gates acting on both control and target qubit \cite{}. 
+The topology of quantum hardware can be visualized as a qubit connectivity graph (Fig. \ref{fig:topology-example}). Each node in this graph would correspond to a physical qubit which in turn might correspond to a logical qubit depending on whether it is being used in the execution of quantum instruction set or not. The quantum instruction set, which is also referred to as quantum circuit (Fig. \ref{fig:orig_circ}), is a sequential series of single-qubit and two-qubit gate operations that act on the logical qubits. Amongst these two type of gate operations, two-qubit qubit gates such as CNOT can only be performed between two logical qubits iff the there exist an edge between the nodes, i.e., the physical qubits, that corresponds to them respectively \citep{qroute_dqn1}. This edge could be either be unidirectional or bidirectional, i.e., CNOT can be performed either in one direction or both directions. In this work, we consider only the bidirectional case, while noting that the direction of a CNOT gate can be reversed by sandwiching it between pair Hadamard gates acting on both control and target qubits \cite{1110.2998}. 
 
 Now, given a target hardware topology and a quantum circuit, the task of qubit routing refers to transforming this quantum circuit by adding series of SWAP gates such that all its gate operations then satisfy the connectivity constraints of the target topology (Fig. \ref{fig:transformed_circ}). Formally, for a routing algorithm $R$, we can represent this process as follows:
-\begin{equation*}
+\begin{equation}
 \textrm{R}(circuit,\ topology) \rightarrow circuit'
-\end{equation*}
-Depth of \textit{circuit'} (transformed quantum circuit) will, in general, be more than that of the original circuit due to the insertion of additional SWAP gates. This comes from the definition of the term \textit{depth} in the context of quantum circuits. This can be understood by decomposing a quantum circuit into series of individual slices, each of which contains a group of gate operations that have no overlapping qubits, i.e., all the instructions present in a slice can be executed in parallel (Fig. \ref{fig:sliced_circ}). The depth of the circuit refers to the minimum number of such slices the circuit can be decomposed into, i.e., the minimum amount of parallel executions needed to execute the circuit. The goal is to minimize the overhead depth of the transformed circuit in w.r.t the original circuit.
+\end{equation}
+Depth of \textit{circuit'} (transformed quantum circuit) will, in general, be more than that of the original circuit due to the insertion of additional SWAP gates. This comes from the definition of the term \textit{depth} in the context of quantum circuits. This can be understood by decomposing a quantum circuit into series of individual slices, each of which contains a group of gate operations that have no overlapping qubits, i.e., all the instructions present in a slice can be executed in parallel (Fig. \ref{fig:sliced_circ}). The depth of the quantum circuit then refers to the minimum number of such slices the circuit can be decomposed into, i.e., the minimum amount of parallel executions needed to execute the circuit. The goal is to minimize the overhead depth of the transformed circuit w.r.t the original circuit.
 
-We can breakdown this goal into solving two subsequent problems of (i) qubit allocation, which refers to the mapping of program qubits to logic qubits, and (ii) qubit movement, which refers to routing qubits between different locations such that interaction can be made possible \citep{}. In this work, we only focus on the latter problem of qubit movement and refer to it as qubit routing. However, we do note that qubit allocation is an important problem and can play important role in minimizing the effort needed to perform the latter.
+We can breakdown this goal into solving two subsequent problems of (i) qubit allocation, which refers to the mapping of program qubits to logic qubits, and (ii) qubit movement, which refers to routing qubits between different locations such that interaction can be made possible \citep{}. In this work, we only focus on the latter problem of qubit movement and refer to it as qubit routing. However, we do note that qubit allocation is also an important problem and can play important role in minimizing the effort needed to perform the latter.
 
 \subsection{\label{sec:intro-related}Related Work}
 
-The first major attraction for solving the qubit routing problem was the competition organized by IBM in 2018 to find the best routing algorithm. This competition was won by \citet{zulehner2018mapping}, for developing a Computer Aided Design-based (CAD) routing strategy. In subsequent years, this problem has been outlined and presented in many different ways. Some of them being graph-based architecture-agnostic solution by \citet{qroute_tket} and reinforcement learning in a combinatorial action space solution by \citet{qroute_dqn1}. In the latter, they also proposed the use of simulated annealing to search through the combinatorial action space, aided by a Feed-Forward neural network to judge the long-term expected compilation time. This was further extended to use Double Deep Q-learning and prioritized experience replay by \citet{qroute_dqn2}. 
+The first major attraction for solving the qubit routing problem was the competition organized by IBM in 2018 to find the best routing algorithm. This competition was won by \citet{zulehner2018mapping}, for developing a Computer Aided Design-based (CAD) routing strategy. Since then, this problem has been outlined and presented in many different ways. Some of them being graph-based architecture-agnostic solution by \citet{qroute_tket} and reinforcement learning in a combinatorial action space solution by \citet{qroute_dqn1}. In the latter, they also proposed the use of simulated annealing to search through the combinatorial action space, aided by a Feed-Forward neural network to judge the long-term expected compilation time. This was further extended to use Double Deep Q-learning and prioritized experience replay by \citet{qroute_dqn2}. 
 
-Recently, Monte Carlo tree search, a popular reinforcement learning algorithm \citep{mcts_bandits_0, mcts_bandits_1, mcts_uct} previously proven successful in a variety of domains like playing puzzle games such as Chess and Go \citep{mcts_alphago} was used by \citet{qroute_mcts} to develop a qubit routing solution. However, they used MCTS in the context of minimizing the total volume of quantum circuits (i.e., the number of gates ignoring the parallelization). In our work, we focus on a formulation of MCTS given by \citet{mcts_assymetric}, that is adapted for better exploration of Asymmetric Trees. 
+Recently, Monte Carlo tree search, a popular reinforcement learning algorithm \citep{mcts_survey} previously proven successful in a variety of domains like playing puzzle games such as Chess and Go \citep{mcts_alphago} was used by \citet{qroute_mcts} to develop a qubit routing solution. However, they used MCTS in the context of minimizing the total volume of quantum circuits (i.e., the number of gates ignoring the parallelization). In our work, we focus on a formulation of MCTS given by \citet{mcts_assymetric}, that is adapted for better exploration of Asymmetric Trees. 
 
 \begin{figure*}[t]
-    \includegraphics[width=\linewidth]{images/mcts_progress.png}
-    \caption{\label{fig:routing-progress}Routing progress for 3$\times$3 grid architecture while for the quantum circuit in Fig. \ref{fig:orig_circ}. Initial state shows the gate scheduled on each qubit which gets executed as control and target qubit adjacent to each other via SWAPs. The final state (at time=$5$) shows t he final evolved qubit mapping. Here, each state (at time step=$t$) corresponds to the $t^{th}$ time slice in Fig. \ref{fig:transformed_circ}}
+    \includegraphics[width=\linewidth]{images/Evolution.pdf}
+    \caption{\label{fig:routing-progress}Routing progress for 3$\times$3 grid architecture while for the quantum circuit in Fig. \ref{fig:orig_circ}. Initial state shows the gate scheduled on each qubit which gets executed as control and target qubit adjacent to each other via SWAPs (shown in green and purple). The final state (at time=$5$) shows t he final evolved qubit mapping. Here, each state (at time step=$t$) corresponds to the $t^{th}$ time slice in Fig. \ref{fig:transformed_circ}}
 \end{figure*}
 
 \subsection{\label{sec:intro-contribution}Our Contributions}
@@ -184,23 +186,23 @@ The QRoute algorithm has four major segments:
     \item A Monte Carlo tree search agent, which will take the current state, and search over the set of actions available trying to find the optimal action based on immediate rewards and the long term evaluation offered by the value function approximator.
 \end{enumerate}
 
-In this section, we describe all these elements of our solution. \footnote{Code for the complete simulation and visualization is available on \protect\url{https://github.com/AnimeshSinha1309/quantum-rl}}
+In this section, we describe all these elements of our solution. \citep{codebase}
 
 \subsection{\label{sec:method-state}State representation}
 
 The QRoute algorithm takes an input circuit and makes progress through it iteratively, scheduling a list of parallelizable SWAP gates and CNOT gates subjected to the topology of the input hardware architecture. We refer to each such iteration as a timestep. At any given timestep $t$, the entire state of the compilation is captured by the state object $s_t$ at that timestep 
-\begin{equation*}
+\begin{equation}
     \textrm{s\textsubscript{t} = (circuit, device, s\textsubscript{t}.map, s\textsubscript{t}.progress, s\textsubscript{t}.locks)}
-\end{equation*}
+\end{equation}
 
 This is necessary and sufficient to capture the entire state of the system, in addition to this we also cache some alternate but useful representations of the state as listed in section \ref{sec:method-model}. We will describe the constituents of the state tuple in this subsection.
 
 \subsubsection{\label{sec:method-state-circuit}Circuit Representation}
 
 A circuit is a set of qubit $\mathbb{Q}$ together with an partially ordered set of operations on those qubits. 
-\begin{equation*}
+\begin{equation}
     O = \{(q_x, q_y) \mid q_x, q_y \in Q\}
-\end{equation*}
+\end{equation}
 The order in which two operations appear in the circuit is relevant to the overall unitary function implemented by it iff they share one or both of the qubits participating in them.
 
 We convert the circuit to a lists of lists representation (as used by \citet{qroute_dqn2}), where for each logical qubit, $q_i$, we store the list of all other qubits that participate in two-qubit operations with $q_i$, in the order in which they appear in the logical circuit. 
@@ -234,7 +236,7 @@ Since we can think of the nodes as ``resources" and the operations that are tryi
 Different gates take different amounts of time to execute, for example if the primitive gates are CNOT on some hardware, then a SWAP gate will decompose to 3 CNOT gates and take 3 time-steps to complete execution. This is why we need to maintain the locks in the state object, since an operation from a previous timestep could still be holding locks on some nodes in the current timestep.
 
 \begin{figure*}[t]
-    \includegraphics[width=\linewidth]{images/mcts-steps.jpg}
+    \includegraphics[width=\linewidth]{images/Search.pdf}
     \caption{\label{fig:mcts-explainer}
         Steps of Monte-Carlo tree search: (i) Select - Choose a mcts-state for exploration at current timestep, (ii) Expand - Calculating reward for newly encountered mcts-state and assign it as a child state, (iii) Rollout - Estimating long term value using a neural network for the state in the exploration tree, and (iv) Backup - Propagating value at leaf nodes upwards to update reward values of its ancestors.}
 \end{figure*}
@@ -244,21 +246,21 @@ Different gates take different amounts of time to execute, for example if the pr
 Each timesteps starts off by greedily scheduling any CNOT gates that are waiting to be scheduled and are local on the hardware given the current qubit-to-node mapping. The CNOT gates, when scheduled, update the locks to ensure that the SWAP operations which will be generated for the same timestep can be executed in parallel with the CNOTs.
 To find the optimal action, a parallelizable set of swaps for the state at any timestep, the QRoute algorithm employs a Monte Carlo tree search to search over the action space.
 
-\subsubsection{\label{sec:method-mcts-state}In the Combinatorial Action Space}
+\subsubsection{\label{sec:method-mcts-actions}In the Combinatorial Action Space}
 
 There are exponentially many sets of SWAPs that together constitute an action. If there are $e$ edges on the target hardware, then we have $2^e$ possible actions, many of which break the mutual exclusivity constraint. We need to search the optimal action from the ones that don't. To search in this massive action space, we will build up our action one by one, starting off with an empty list, computing the set of SWAPs which do not violate the mutual exclusivity constraint, and choosing one of them, and iteratively continuing to build up our actions with more such gates. But since we may not always want to use the entirety of our swapping ability, we also add a ``commit'' action, which breaks out of this iterative process. The commit action is trivially chosen if there are no more SWAPs that are possible in the current timestep.
 
-We represent this ``action'', as a boolean vector of length equal to the number of edges. This building up of actions shown in each individual rendering of the tree in figure \ref{fig:mcts-explainer}.
+We represent this ``action'', as a boolean vector of length equal to the number of edges. This building up of actions shown in each individual rendering of the tree in Fig. \ref{fig:mcts-explainer}.
 
 \subsubsection{\label{sec:method-mcts-state}The State of the Search}
 
-The tree search needs to maintain an augmented form of the state, we shall call this mcts-state. This holds the state and a valid action from the state together with statistics on which state to go
+The tree search needs to maintain an augmented form of the state, we shall call this mcts-state. This holds the current state, and for each valid action from it, it maintains the statistics associated with that action. The following data is maintained in an mcts-state object:
 \begin{itemize}
-    \item A reference to the corresponding State
-    \item A list of child mcts-states.
-    \item N-values corresponding to each child mcts-state, number of iterations in which that child was explored.
-    \item Q-values corresponding to each child mcts-state, mean estimated reward obtained when that child is explored.
-    \item solution, a list of SWAPs that represents the action that corresponds to the mcts-state in search. 
+    \item A reference to the corresponding state obect.
+    \item A list of child nodes, each of which will be an mcts-state too.
+    \item N-values corresponding to each child, which is number of iterations in which that child was explored.
+    \item Q-values corresponding to each child, which is the mean estimated reward obtained when that child is explored.
+    \item The solution array, that represents the action corresponding to the mcts-state (maintained as a list of swaps). 
 \end{itemize}
 
 Given an mcts-state $s$, the value function of that state is the expected total reward in the future.
@@ -270,7 +272,7 @@ The Q-function is the total expected reward in the future after we took an actio
     Q(s, a) = R(s, a, s^\prime) + \gamma V(s^\prime)
 \end{equation}
 
-\vspace\fill
+%\vspace\fill
 
 \subsubsection{\label{sec:method-mcts-steps}How the Search Proceeds}
 
@@ -288,11 +290,6 @@ We recognize that running MCTS on this problem results in a highly assymetric tr
 
 \paragraph{} Finally, we have the evaluation of a node, and we need to update this information in it's parents. We take the value at the leaf nodes, and propagate it up the tree to it's ancestors, updating the q-values, which is the average expected reward from the parent, and the n-values, which is the number of times the particular action was taken.
 
-\subsubsection{The final action choice}
-
-Once the tree search is done, we use the tree to take our final action. We move down the tree again from the root, this time guided by the q-values and not by UCT, and move down till we find a commit action. We return the action, and move our root to the child state result from the commit action.
-
-In addition, the n-values are representative of the probabilities with which each action was chose, and the q-value is the search enhanced estimate of the value function, we store both of these for the root node to train the policy and value function heads of our neural network.
 
 \begin{algorithm}[t]
 	\SetAlgoLined
@@ -310,8 +307,7 @@ In addition, the n-values are representative of the probabilities with which eac
 		\eIf{action is commit}{
 			next-state $\gets$ \textbf{step} (node.state, node.solution) \\
             %\sbox0{$\vcenter{\hbox{$\begin{array}{|c|c|c|c|c|} \hline 0 & 0 & 0 & \ldots & 0 \\ \hline\end{array}$}}$}
-            $\hspace{0.13\textwidth}\vcenter{\hbox{$\begin{array}{|c|c|c|c|c|} \hline 0 & 0 & 0 & \ldots & 0 \\ \hline\end{array}$}}$\nonl \\
-            next-solution $\leftarrow \underbrace{\vrule width0pt depth \dimexpr\dp0 + .3ex\relax\copy0}_{\textrm{\text{|device.edges|}}}$
+            next-solution $\leftarrow$ $\underbrace{\hbox{$\begin{array}{|c|c|c|c|c|} \hline 0 & 0 & 0 & \ldots & 0 \\ \hline\end{array}$}}_{\textrm{\text{\# edges on device}}}$\nonl \\
 			}
        		{next-state $\gets$ node.state \\
 		 next-solution $\gets$ node.solution with a set bit at action index}%NestIF
@@ -334,11 +330,17 @@ In addition, the n-values are representative of the probabilities with which eac
 \label{algmcts}
 \end{algorithm}
 
-\begin{figure*}[tp]
-    \includegraphics[width=\textwidth]{images/network-architecture.jpg}
+\begin{figure*}[ht]
+    \includegraphics[width=\textwidth]{images/Architecture.pdf}
     \caption{\label{fig:network-architecture}
-        Graph Neural Network Architecture with a Value head and a Policy head}
+        Graph Neural Network Architecture with a value head and a policy head}
 \end{figure*}
+
+\subsubsection{The final action choice}
+
+Once the tree search is done, we use the tree to take our final action. We move down the tree again from the root, this time guided by the q-values and not by UCT, and move down till we find a commit action. We return the action, and move our root to the child state result from the commit action.
+
+In addition, the n-values are representative of the probabilities with which each action was chose, and the q-value is the search enhanced estimate of the value function, we store both of these for the root node to train the policy and value function heads of our neural network.
 
 \subsection{\label{sec:method-model}Neural Network Architecture}
 
@@ -362,45 +364,50 @@ The value head is 2 fully connected layers with Swish activations, and a final f
 The policy head is also just a single fully connected layer which has a output vector of size equal to the number of edges on device. We take the output of this layer, square it and then normalize it to convert the outputs of the neural network into a valid probability mass function. The outputs of this layer are interpreted as the probability of swapping the qubits which are on the ends of the corresponding edge.
 
 \section{\label{sec:results}Results}
-Here, we compare our algorithm QRoute against the other state-of-the-art algorirthms on various circuit benchmarks: Qiskit (and it's different variants) \citep{comp_qiskit}, Deep-Q-Networs (DQN) form \citep{qroute_dqn2}, Cirq \citep{comp_cirq} and CQC Pytket \citep{comp_pytket}.
+Here, we compare QRoute against the routing algorithms from other state-of-the-art frameworks on various circuit benchmarks: (i) Qiskit and its three variants \citep{comp_qiskit}: (a) basic, (b) stochastic, and (c) sabre, (ii) Deep-Q-Networks (DQN) from \citep{qroute_dqn2}, (iii) Cirq \citep{comp_cirq}, and (iv) t$\ket{\text{ket}}$ from Cambridge Quantum Computing (CQC) \citep{comp_pytket}. Out of these, we note that t$\ket{\text{ket}}$ uses BRIDGE gates along with SWAP gates and Qiskit uses gate commutation rules while perform qubit routing. These strategies are shown to be advantageous in achieving lower circuit depths \citep{bridge_gate} but were disabled in our simulations to have a fair comparison. Moreover, the results for DQN given below are adapted from the data provided by the authors of \citet{qroute_dqn2}, and couldn't be replicated by us.
+
+\begin{figure}[t]
+    \includegraphics[width=\linewidth]{images/random_benchmark.pdf}
+    \caption{\label{fig:results-random}
+        Comparative performance of routing algorithms on random circuits as a function of the number of two-qubit operations in the circuit. Here, the results for DQN have been adapted from the CDR data (Eq. \ref{eq:CDR}) received from the authors, and has not been replicated by us.}
+\end{figure}
+
 
 \subsection{\label{sec:results-random}Random Test Circuits}
 
-Our first benchmark is random circuits. These circuits are initialized with the same number of qubits as there are nodes on the device, and then two-qubit gates are randomly put between any pair of qubits, the number of such gates is varied from 30 to 150. We show the results of various frameworks in Fig. \ref{fig:results-random}.
+Our first benchmark for comparing our performance is the random circuits. These circuits are generated on the fly and initialized with the same number of qubits as there are nodes on the device. Then two-qubit gates are put between any pair of qubits chosen at random. In our simulations, the number of such gates is varied from 30 to 150 and the results for assessing performance of different frameworks are given in Fig. \ref{fig:results-random}. The experiments were repeated 10 times on each circuit size, and final results were aggregated over this repetition. 
+
+Amongst the frameworks compared, QRoute ranks a very close second only to Deep-Q-Network (DQN) guided simulated annealer, after performing equivalently well to it on low layer density circuits. Nevertheless, QRoute still does consistently better than all the other major frameworks: Qiskit, Cirq and t$\ket{\text{ket}}$, despite the increase in the average layer density and also scales reasonably well. This means, that even though the MCTS is guided reasonably well through the action space by our GNN, in few cases it might still be unable to distinguish between the optimality of two actions differing by few q-values due to limited number of iterations. This could lead to a few layer errors in the overall procedure which can be attributed as the reason to our close (on an average $\leq4$ layers) defeat to DQN on the random circuits with larger layer density.
 
 \begin{figure}[t]
-    \includegraphics[width=\linewidth]{images/results-random.png}
-    \caption{\label{fig:results-random}
-        Comparative performance against other methods across real world hardware}
+    \includegraphics[width=\linewidth]{images/realistic_small_benchmark.pdf}
+    \caption{\label{fig:results-small}
+        Plots of output circuit depths of routing algorithms over small realistic circuits ($\leq 100$ gates), summed over the entire dataset. The inset shows the results on the same data comparing the best performant scheduler excluding and including QRoute on each circuit respectively. Here, the results for DQN have been extrapolated from the CDR data (Eq. \ref{eq:CDR}) received from the authors, and hasn't been replicated by us.}
 \end{figure}
 
-In the frameworks compared, QRoute ranks third, performing worse than Qiskit Stochastic and Deep-Q-Networks. {\small (The results for the DQN were obtained from \citet{qroute_dqn2} and were not replicated.)}
+\begin{figure*}[ht]
+    \includegraphics[width=\linewidth]{images/realistic_large_benchmark.pdf}
+    \caption{\label{fig:results-large}
+        The results over eight circuits sampled from the large realistic dataset benchmark, the outputs of each routing algorithm are shown for every circuit.}
+\end{figure*}
 
-Random circuits are a particularly difficult task for our method, since the neural network cannot generalize what it learnt on different random circuits in the training run to what will be useful for evaluation in the test run. Random circuits are also particularly difficult to train on. Nevertheless, our method is still competitive against all other frameworks and consistently performs better than most.
-
+    
 \subsection{\label{sec:results-small}Small Realistic Circuits}
 
-Next we test on the set of all circuits which have 100 gates or less from the IBM-Q realistic quantum circuit dataset \cite{}. The comparative performance of all frameworks has been shown by plotting the depths of the output circuits summed over all the circuits in the test set. The plot is in figure \ref{fig:results-small}.
+Next we test on the set of all circuits which 100 or less gates from the IBM-Q realistic quantum circuit dataset used by \citet{data_realistic}. The comparative performance of all routing frameworks has been shown by plotting the depths of the output circuits summed over all the circuits in the test set. The plot is in Fig. \ref{fig:results-small}. Since the lack of a good initial qubit allocation becomes a significant problem for all pure routing algorithms on small circuits, we have benchmarked QRoute on this dataset from three trials with different initial allocations.
 
-\begin{figure}[t]
-    \includegraphics[width=\linewidth]{images/results-small.png}
-    \caption{\label{fig:results-small}
-        Scaling of Initial Depth overhead with size of hardware}
-\end{figure}
+Our model has the best performance on this dataset. We also compare the best result from a pool of all routers including QRoute against that of another pool of the same routers but excluding QRoute. We note that the pool including QRoute gives on an average $2.5\%$ lower circuit depth, indicating that there is a significant number of circuits where QRoute is the best routing method available.
 
-Here, once again QRoute outperforms most of the other frameworks, but does slightly worse than CQC Pytket. We attribute some part of our worse performance to the lack of a qubit allocation algorithm, which is a relevant overhead on small circuits.
+Our closest competitor on this dataset also is the Deep-Q-Network guided simulated annealer. To compare our performances, we look at the average circuit depth ratio (CDR), which is defined by:
+\begin{equation}
+    \text{CDR} = \frac{1}{\textrm{\#circuits}} \sum_{\textrm{circuits}} \frac{\textrm{Output Circuit Depth}}{\textrm{Input Circuit Depth}}
+    \label{eq:CDR}
+\end{equation}
+The resultant CDR for our model is $1.178$, where as the reported CDR for the DQN is $1.19$. In fact, our model outperforms DQN on at least $80\%$ of the circuits. This is significant because in contrast to the random circuit benchmark, the realistic benchmarks consists of the circuits that are more closer to the circuits encountered in reality for performing useful computation.
 
 \subsection{\label{sec:results-realistic}Large Realistic Circuit}
 
-For our final benchmark, we took 8 large circuits ranging from 154 gates to 5960 gates in its input from the IBM-Quantum realistic test dataset. We can clearly see that as the circuits get larger, our QRoute algorithm scales better than any other method and consistently produces the best results on almost all the test circuits. The results are detailed in table \ref{tab:large-circuits} and plotted in figure \ref{fig:results-large}.
-
-The large circuits dataset was the largest dataset to train on and affords the QRoute the best opportunity to train on while being a harder task for all our compilers. Here the issue of qubit allocation is not a substantial part of the problem.
-
-\begin{figure*}[t]
-    \includegraphics[width=\linewidth]{images/results-large.png}
-    \caption{\label{fig:results-large}
-        Performance on some large realistic test circuits}
-\end{figure*}
+For our final benchmark, we took eight large circuits ranging from 154 gates to 5960 gates in its input from the IBM-Quantum realistic test dataset \citep{data_realistic}. The results are detailed in the Table \ref{tab:large-circuits} and plotted in Fig. \ref{fig:results-large}. Our model has the best performance of all available routing methods: Qiskit and t$\ket{\text{ket}}$, on every one of these sampled circuits with on an average $13.6\%$ lower circuit depth, and notable increase in winning difference on the larger circuits.
 
 \begin{table*}[t]
     \caption{\label{tab:large-circuits}%
@@ -410,39 +417,45 @@ The large circuits dataset was the largest dataset to train on and affords the Q
         \begin{tabular}{ll|rrrrr}
             \multicolumn{2}{c}{\textrm{Input Circuit}} & \multicolumn{5}{c}{\textrm{Output Circuit Depth}} \\
             
-            \textrm{Name} & \textrm{Number of Gates} & \textrm{Qroute} & \textrm{PyTket Depth} & \textrm{Qiskit-Basic} & \textrm{Qiskit-Stochastic} & \textrm{Qiskit-Sabre} \\
+            \textrm{Name} & \textrm{Number of Gates} & \textrm{QRoute} & \textrm{t$\ket{\text{ket}}$} & \textrm{Qiskit (basic)} & \textrm{Qiskit (stochastic)} & \textrm{Qiskit (sabre)} \\
             
             \colrule
-            rd84\_142 	    &  154 &  154 &  145 &  227 &  156 &  196 \\
-            adr4\_197 	    & 1343 & 1738 & 1743 & 2057 & 1879 & 1940 \\
-            radd\_250 	    & 1405 & 1845 & 1707 & 2210 & 2013 & 2146 \\
-            z4\_268 	    & 1498 & 1942 & 2036 & 2300 & 2145 & 2238 \\
-            sym6\_145 	    & 1701 & 2180 & 2204 & 2537 & 2475 & 2509 \\
-            misex1\_241 	& 2100 & 2712 & 2854 & 3365 & 3051 & 3163 \\
-            rd73\_252 	    & 2319 & 2922 & 3199 & 3602 & 3320 & 3461 \\
-            cycle10\_2\_110 & 2648 & 3372 & 3706 & 4150 & 3862 & 3983 \\
-            square\_root\_7 & 3089 & 3776 & 3997 & 5409 & 4372 & 4404 \\
-            sqn\_258 	    & 4459 & 5712 & 5788 & 6622 & 6269 & 6499 \\
-            rd84\_253 	    & 5960 & 7450 & 8063 & 9178 & 8345 & 8746 \\
+            rd84\_142        &  154 &  120 &  154 &  142 &  138 &  133 \\
+            adr4\_197        & 1498 & 1580 & 1770 & 1840 & 1968 & 1988 \\
+            radd\_250        & 1405 & 1504 & 1799 & 1812 & 1815 & 1888 \\
+            z4\_268          & 1343 & 1400 & 1670 & 1623 & 1718 & 1914 \\
+            sym6\_145        & 1701 & 1806 & 2167 & 2168 & 2261 & 2299 \\
+            misex1\_241      & 2100 & 2231 & 2580 & 2770 & 2681 & 2944 \\
+            rd73\_252        & 2319 & 2468 & 2793 & 2943 & 3071 & 3132 \\
+            cycle10\_2\_110  & 2648 & 2941 & 3380 & 3418 & 3485 & 3705 \\
+            square\_root\_7  & 3089 & 3327 & 4560 & 3759 & 3822 & 3695 \\
+            sqn\_258         & 4459 & 4779 & 5535 & 5526 & 5696 & 6252 \\
+            rd84\_253        & 5960 & 6264 & 7507 & 7411 & 7537 & 8843 \\
         \end{tabular}
     \end{ruledtabular}
 \end{table*}
 
-% Talk about time taken train the solution and to run it
+Here, we note that the results from DQN and Cirq are not available for this benchmarks as they are not designed to scale to such huge circuits. In case of DQN, the CDR data results were not provided for the circuits over $200$ gates, majorly because simulated annealing used in it is an computationally expensive process which would require extensive runtime. Similarly, for Cirq, it takes several days to compile each of the near $5000$ qubit circuits. In contrast to them, in our case, MCTS has to return a recommended optimal action at the end of the search iteration. These recommended actions gradually improve as the statistics about the simulated routing-tree gets updated. 
 
-\section{\label{sec:discussion-conclusion}Discussion and Future Scope}
+\section{\label{sec:discussion-conclusion}Discussion and Conclusion}
+%I'm writing this vaguely. Improve upon stuff wherever possible and let's meet at night. 
 
-This method of Quantum Circuit Transformation provides competitive and many a times superior performance to other methods. However, this is my no means a definitive solution to the task of Quantum Circuit Transformations, and offers great scope of improvement. We believe that the following are avenues in which the algorithm can be significantly improved:
-\begin{itemize}
-    \item Augmenting the Neural Network to take the future gates as an input. We propose to use a Transformer architecture for this, to learn a mapping from arbitrary-length list of gates to a feature vector which can be used in the Graph Neural Network to estimate the value function better.
-    \item Finding more systematic approaches to manage the hyperparameters, e.g. Exploration-Exploitation tradeoff constant, Reward Parameters, etc.
-\end{itemize}
-Our software library allows easy access to implementing these neural networks by changing just a single file. We hope that this will aid future improvements and research in the task of quantum circuit transformations.
+In this article, we have shown that the problem of qubit routing has a very powerful and elegant formulation in Reinforcement Learning (RL) which can surpass the results of any classical heuristic algorithm across all sizes of circuits and types of architectures. Furthermore, the central idea of building up solutions step-by-step when searching in a combinatorial action spaces and enforcing constraints using mutex locks can be adapted for several other combinatorial optimization problems. \citep{comb_survey, comb_1, comb_2, comb_3, comb_4}
 
-\appendix
+Our approach is also flexible enough that it allows us to compile circuits of any size onto any device, from small ones like IBMQX20 with 20 qubits, to much larger hardware like Google Sycamore with 53 qubits (The Circuit Depth Ratio on small circuits on Google Sycamore was 1.64,). Our model can also intrinsically deal with hardware with different primitive instruction set, for example on hardware where SWAP gates are not a primitive and they get decomposed to 3 operations. Our approach also enjoys significant tunability, hyperparameters can be changed easily to alter the tradeoff between time and optimality of decisions, exploration and exploitation, etc.
 
-\nocite{*}
+QRoute is a reasonably fast method, taking well under 10 minutes to route a circuit with under 100 operations, and at most 4 hours for those with upto 5000 operations, when tested on personal computer with an i3 processor (3.7 GHz) and no GPU acceleration. Yet more can be desired in terms of speed, given that Qiskit and t$\ket{\text{ket}}$ are a lot faster than QRoute, but it's hard to achieve that without reducing the number of search iterations and trading off a bit of performance. Better, more predictive neural networks can help squeeze in slightly better speeds here.
 
+One of the challenges of prior methods like DQN, that used Simulated Annealing to build up their actions was that the algorithm couldn't plan for the gates which are not yet waiting to be scheduled, those which will come to the head of the list once the gates which are currently waiting are executed \citep{qroute_dqn2}. QRoute also shares this deficiency, but the effect of this issue is mitigated by the explicit tree search which takes into account the rewards that will be accrued in the longer-term future. There is scope to further improve this by feeding the entire list of future targets directly into our neural network by using transformer encoders to handle the arbitrary length sequence data. This and other aspects of neural network design will be a primary facet of our future explorations.  % Maybe talk about consensus and dynamic routing
+
+Finally, we provide an open-sourced access to our software library \citep{codebase}. It will allow researchers and developers to implement variants of our methods with minimal effort. We hope that this will aid the future research work in the task of quantum circuit transformations.
+
+We conclude that on the whole, our idea of the Monte Carlo Tree Search for building up solutions in combinatorial actions spaces has shown to equalize and exceed the current state of art methods that perform qubit routing. Despite its success, we note that QRoute is a primitive implementation of our ideas, and there is great scope of improvement in future. 
+
+\section*{Acknowledgements}
+A.~S. and U.~A. have contributed equally to the manuscript. A.~S. and U.~A. would like to acknowledge the assistance from their colleague Bhuvanesh Sridharan for implementing MCTS, Additionally, they would also like to thank their colleagues Jai Bardhan, Kalp Shah for their suggestions.
+
+\bibliographystyle{ieeetr}
 \bibliography{qroute}% Produces the bibliography via BibTeX.
 
 \end{document}
