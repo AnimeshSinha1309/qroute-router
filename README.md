@@ -10,8 +10,11 @@ python -m qroute --dataset small --hardware qx20 --search 200 --train
 
 ## Code Structure
 
+The code in the qroute library looks as follows:
 * algorithms - The combining methods, MCTS, Annealers, etc.
-* models - The Neural networks that evaluate a state
-* 
-* memory - Storing data, linearly, or with Prioritized Experience Replay
+* models - The Neural networks that evaluate a state and the actions from that state, edit for new architectures.
+* environment - Basic code managing the circuit and updates to the state, can be edited to add state representations.
+* memory - Storing data for replay, linearly, or with Prioritized Experience Replay.
+* visualizers - Checking if the result is correct, making videos and plots.
 
+The rest of the package contains code for the paper, plotting stuff, illustrator files, etc.
