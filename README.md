@@ -18,3 +18,11 @@ The code in the qroute library looks as follows:
 * visualizers - Checking if the result is correct, making videos and plots.
 
 The rest of the package contains code for the paper, plotting stuff, illustrator files, etc.
+
+## Explaination
+
+Following is demonstrative video:
+![Routing Video](paper/video/example_routing_video.gif)
+
+A presentation with details of the routing process are found here:
+https://docs.google.com/presentation/d/1Q-Y84ltoNbW15tKF_Nuh4MOcfkwyFIr6loAM7aGyJHk/edit?usp=sharing
