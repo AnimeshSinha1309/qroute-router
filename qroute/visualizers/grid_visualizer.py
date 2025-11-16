@@ -37,7 +37,7 @@ class GridComputeScene(Scene):
         super().__init__()
         self.GRID_SIZE = 2
         self.loc, self.moments, self.circuit = model_run(self.GRID_SIZE)
-        self.done = np.zeros(self.GRID_SIZE ** 2, dtype=np.int)
+        self.done = np.zeros(self.GRID_SIZE ** 2, dtype=int)
         self.nodes, self.labels = [], []
         self.reward_label = None
 

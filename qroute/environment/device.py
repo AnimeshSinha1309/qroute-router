@@ -71,7 +71,7 @@ class DeviceTopology(cirq.Device):
 
         Note that unidirectional mode may not be supported fully through the rest of the code
         """
-        mat = np.full(fill_value=9999999, shape=(len(self), len(self)), dtype=np.int)
+        mat = np.full(fill_value=9999999, shape=(len(self), len(self)), dtype=int)
         for bit in range(len(self)):
             mat[bit][bit] = 0
         for source, dest in self.graph.edges:
