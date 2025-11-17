@@ -1,4 +1,4 @@
-# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# This workflow will install Python dependencies, run tests and lint with multiple versions of Python
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
 name: Python application
@@ -9,15 +9,19 @@ on:
       - master
       - "*"
       - "*/*"
+  pull_request:
+    branches:
+      - master
 
 jobs:
   build:
 
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        python-version: [3.7, 3.8]
+        python-version: ["3.11", "3.12", "3.13"]
         include:
         - os: windows-latest
           python-path-command: $env:PYTHONPATH+=";.";
@@ -25,16 +29,18 @@ jobs:
           python-path-command: export PYTHONPATH="$PYTHONPATH:.";
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
+        cache: 'pip'
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         python -m pip install flake8 pytest
-        python -m pip install -r requirements.txt -f https://download.pytorch.org/whl/torch_stable.html --find-links https://pytorch-geometric.com/whl/torch-1.7.0+cpu.html
+        python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+        python -m pip install -r requirements.txt
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
@@ -42,7 +48,6 @@ jobs:
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
-
-      run:
+      run: |
         ${{ matrix.python-path-command }}
-        pytest test
+        pytest test -v
